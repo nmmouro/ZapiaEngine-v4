@@ -155,9 +155,13 @@ export const SCHEMA_LANCAMENTOS = {
         {
             name: "checklist",
             label: "Checklist",
-            type: "checkbox",
+            type: "text",
             required: false,
-            visible: true
+            visible: true,
+            options: [
+                "REGISTRADO",
+                "NÃO REGISTRADO"
+            ]
         },
 
         // ========================================================
@@ -318,13 +322,11 @@ export const SCHEMA_LANCAMENTOS = {
         {
             name: "lava_car",
             label: "Lava-Car",
-            type: "select",
+            type: "number",
             required: false,
             visible: true,
-            options: [
-                "SIM",
-                "NÃO"
-            ]
+            min: 0,
+            step: 0.01
         },
 
         // ========================================================
@@ -347,8 +349,10 @@ export const SCHEMA_LANCAMENTOS = {
 
         {
             name: "notas_abastecimento",
-            label: "Notas de Abastecimento",
-            type: "textarea",
+            label: "Valor da Nota de Abastecimento",
+            type: "number",
+            min: 0,
+            step: 0.01,
             required: false,
             visible: true
         },
