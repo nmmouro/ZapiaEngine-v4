@@ -13,7 +13,7 @@
  */
 import { createModule } from "../engine/module.js";
 import { SCHEMA_LANCAMENTOS } from "../schemas/lancamentos.js";
-import { listar, atualizar } from "../services/crudService.js";
+import { listar } from "../services/crudService.js";
 import { obterLocalizacao } from "../utils/geolocalizacao.js";
 import {
     obterUltimoKmVeiculo,
@@ -821,32 +821,6 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
             "notas_abastecimento",
             Number.isFinite(valorAbastecimento) ? valorAbastecimento.toFixed(2) : ""
         );
-
-        // O valor da nota é um dado derivado do registro de abastecimento.
-        // Persistimos imediatamente somente o número, sem texto formatado,
-        // para que a coluna public.lancamentos.notas_abastecimento possa
-        // continuar sendo usada em soma, filtro e relatórios.
-        if (abastecimento && Number.isFinite(valorAbastecimento)) {
-            try {
-                await atualizar("lancamentos", {
-                    id: idLancamento,
-                    notas_abastecimento: Number(valorAbastecimento.toFixed(2))
-                });
-
-                console.log(
-                    "LANÇAMENTOS → VALOR DA NOTA PERSISTIDO:",
-                    {
-                        id: idLancamento,
-                        notas_abastecimento: Number(valorAbastecimento.toFixed(2))
-                    }
-                );
-            } catch (erroPersistencia) {
-                console.error(
-                    "LANÇAMENTOS → ERRO AO PERSISTIR VALOR DA NOTA:",
-                    erroPersistencia
-                );
-            }
-        }
 
         // Avarias: o status é apenas visual neste ponto.
         // Não copiamos descrição/texto para campos auxiliares do lançamento,
