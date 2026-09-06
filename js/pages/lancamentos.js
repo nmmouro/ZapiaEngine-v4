@@ -692,6 +692,7 @@ function adicionarBotoesAuxiliares() {
                 <div class="lancamento-aux-item">
                     <button type="button" class="btn btn-secondary" data-lancamento-aux="Abastecimento">Abastecimento</button>
                     <div class="lancamento-aux-info" data-indicador="abastecimento">NÃO REGISTRADO</div>
+                    <div class="lancamento-aux-valor" data-indicador="abastecimento-valor">Valor da nota: —</div>
                 </div>
 
                 <div class="lancamento-aux-item">
@@ -736,6 +737,7 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
     const indicadores = {
         checklist: grupo.querySelector('[data-indicador="checklist"]'),
         abastecimento: grupo.querySelector('[data-indicador="abastecimento"]'),
+        abastecimentoValor: grupo.querySelector('[data-indicador="abastecimento-valor"]'),
         avarias: grupo.querySelector('[data-indicador="avarias"]'),
         lavaCar: grupo.querySelector('[data-indicador="lava-car"]'),
         lavaCarValor: grupo.querySelector('[data-indicador="lava-car-valor"]')
@@ -743,6 +745,7 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
 
     definirIndicador(indicadores.checklist, "CARREGANDO...");
     definirIndicador(indicadores.abastecimento, "CARREGANDO...");
+    definirIndicador(indicadores.abastecimentoValor, "Valor da nota: —");
     definirIndicador(indicadores.avarias, "CARREGANDO...");
     definirIndicador(indicadores.lavaCar, "CARREGANDO...");
     definirIndicador(indicadores.lavaCarValor, "Valor: —");
@@ -760,73 +763,71 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
         const avaria = Array.isArray(avarias) ? avarias[0] : null;
         const lavaCar = Array.isArray(lavaCars) ? lavaCars[0] : null;
 
+        const checklistRegistrado = Boolean(checklist);
+        const abastecimentoRegistrado = Boolean(abastecimento);
+        const avariaRegistrada = Boolean(avaria);
+        const valorAbastecimento = abastecimento ? Number(abastecimento.valor_total_nota) : null;
+        const lavaCarRegistrado = Boolean(lavaCar);
+        const valorLavaCar = lavaCar ? Number(lavaCar.valor) : null;
+
+        // --------------------------------------------------------
+        // VISUALIZAÇÃO
+        // --------------------------------------------------------
         definirIndicador(
             indicadores.checklist,
-            checklist ? "REALIZADO" : "PENDENTE"
+            checklistRegistrado ? "REGISTRADO" : "NÃO REGISTRADO"
         );
 
         definirIndicador(
             indicadores.abastecimento,
-            abastecimento
-                ? formatarResumoAbastecimento(abastecimento)
-                : "NÃO REGISTRADO"
+            abastecimentoRegistrado ? "REGISTRADO" : "NÃO REGISTRADO"
+        );
+
+        definirIndicador(
+            indicadores.abastecimentoValor,
+            `Valor da nota: ${Number.isFinite(valorAbastecimento) ? formatarMoeda(valorAbastecimento) : "—"}`
         );
 
         definirIndicador(
             indicadores.avarias,
-            avaria
-                ? "REGISTRADA"
-                : "NÃO REGISTRADO"
+            avariaRegistrada ? "REGISTRADO" : "NÃO REGISTRADO"
         );
 
         definirIndicador(
             indicadores.lavaCar,
-            lavaCar
-                ? `REALIZADO — ${formatarOpcaoLavaCar(lavaCar.opcao)}`
-                : "PENDENTE"
-);
+            lavaCarRegistrado ? "REALIZADO" : "NÃO REALIZADO"
+        );
 
         definirIndicador(
             indicadores.lavaCarValor,
-            `Valor: ${lavaCar ? formatarMoeda(lavaCar.valor) : "—"}`
+            `Valor: ${Number.isFinite(valorLavaCar) ? formatarMoeda(valorLavaCar) : "—"}`
         );
 
-        // Mantém os campos legados do lançamento coerentes, sem exibi-los duas vezes.
-        const campoChecklist = getCampo("checklist");
-        if (campoChecklist && campoChecklist.type === "checkbox") {
-            campoChecklist.checked = Boolean(checklist);
-        }
+        // --------------------------------------------------------
+        // PERSISTÊNCIA NO LANÇAMENTO
+        // Os campos abaixo recebem somente os tipos compatíveis
+        // com suas respectivas colunas no PostgreSQL.
+        // --------------------------------------------------------
+        setValor("checklist", checklistRegistrado ? "REGISTRADO" : "NÃO REGISTRADO");
+        setValor("notas_abastecimento", Number.isFinite(valorAbastecimento) ? valorAbastecimento.toFixed(2) : "");
+        setValor("registro_avarias", avariaRegistrada ? "SIM" : "NÃO");
+        setValor("lava_car", Number.isFinite(valorLavaCar) ? valorLavaCar.toFixed(2) : "");
 
-        setValor("lava_car", lavaCar ? "SIM" : "NÃO");
-        setValor("valor_higienizacao", lavaCar?.valor ?? "");
-
-        if (abastecimento) {
-            setValor("notas_abastecimento", formatarResumoAbastecimento(abastecimento));
-        } else {
-            setValor("notas_abastecimento", "");
-        }
-
-        if (avaria) {
-            setValor("notas_manutencao", avaria.avarias_registradas || avaria.relato_avaria || "Avaria registrada.");
-        } else {
-            setValor("notas_manutencao", "");
-        }
-
-        console.log("LANÇAMENTOS → INDICADORES ATUALIZADOS:", {
+        console.log("LANÇAMENTOS → INDICADORES/PERSISTÊNCIA ATUALIZADOS:", {
             idLancamento,
-            checklist: Boolean(checklist),
-            abastecimento: Boolean(abastecimento),
-            avarias: Boolean(avaria),
-            lavaCar: Boolean(lavaCar),
-            valorHigienizacao: lavaCar?.valor ?? null
+            checklist: checklistRegistrado ? "REGISTRADO" : "NÃO REGISTRADO",
+            valorAbastecimento,
+            avarias: avariaRegistrada,
+            valorLavaCar
         });
 
     } catch (erro) {
         console.error("LANÇAMENTOS → ERRO AO ATUALIZAR INDICADORES:", erro);
-        definirIndicador(indicadores.checklist, "PENDENTE");
+        definirIndicador(indicadores.checklist, "NÃO REGISTRADO");
         definirIndicador(indicadores.abastecimento, "NÃO DISPONÍVEL");
+        definirIndicador(indicadores.abastecimentoValor, "Valor da nota: —");
         definirIndicador(indicadores.avarias, "NÃO DISPONÍVEL");
-        definirIndicador(indicadores.lavaCar, "PENDENTE");
+        definirIndicador(indicadores.lavaCar, "NÃO REALIZADO");
         definirIndicador(indicadores.lavaCarValor, "Valor: —");
     }
 }
@@ -835,42 +836,6 @@ function definirIndicador(elemento, texto) {
     if (elemento) elemento.textContent = texto;
 }
 
-function formatarOpcaoLavaCar(opcao) {
-    const valor = String(opcao || "").trim().toLowerCase();
-
-    const opcoes = {
-        aparencia_creta: "APARÊNCIA — CRETA",
-        aparencia_trail: "APARÊNCIA — TRAIL",
-        completa_creta: "COMPLETA — CRETA",
-        completa_cera_creta: "COMPLETA COM CERA — CRETA",
-        completa_trail: "COMPLETA — TRAIL",
-        completa_cera_trail: "COMPLETA COM CERA — TRAIL"
-    };
-
-    if (opcoes[valor]) return opcoes[valor];
-
-    // Fallback para futuras opções: transforma snake_case em texto legível.
-    if (!valor) return "SERVIÇO NÃO INFORMADO";
-
-    return valor
-        .replace(/_/g, " ")
-        .replace(/\b\w/g, letra => letra.toUpperCase())
-        .toUpperCase();
-}
-
-
-function formatarResumoAbastecimento(registro = {}) {
-    const tipo = String(registro.tipo_combustivel || "").trim();
-    const litros = Number(registro.qtde_l);
-    const total = Number(registro.valor_total_nota);
-
-    const partes = ["REGISTRADO"];
-    if (tipo) partes.push(tipo);
-    if (Number.isFinite(litros)) partes.push(`${litros.toFixed(3)} L`);
-    if (Number.isFinite(total)) partes.push(formatarMoeda(total));
-
-    return partes.join(" — ");
-}
 
 function formatarMoeda(valor) {
     const numero = Number(valor);
