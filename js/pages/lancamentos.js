@@ -822,14 +822,10 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
             Number.isFinite(valorAbastecimento) ? valorAbastecimento.toFixed(2) : ""
         );
 
-        // Campo booleano original de avarias: preserva a compatibilidade com o banco.
-        setValor("registro_avarias", avaria ? "SIM" : "NÃO");
-
-        if (avaria) {
-            setValor("notas_manutencao", avaria.avarias_registradas || avaria.relato_avaria || "Avaria registrada.");
-        } else {
-            setValor("notas_manutencao", "");
-        }
+        // Avarias: o status é apenas visual neste ponto.
+        // Não copiamos descrição/texto para campos auxiliares do lançamento,
+        // pois a estrutura implantada pode ter esses campos com tipos numéricos
+        // e a descrição pertence à tabela public.avarias.
 
         console.log("LANÇAMENTOS → INDICADORES ATUALIZADOS:", {
             idLancamento,
