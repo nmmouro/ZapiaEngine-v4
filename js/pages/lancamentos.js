@@ -701,7 +701,7 @@ function adicionarBotoesAuxiliares() {
 
                 <div class="lancamento-aux-item">
                     <button type="button" class="btn btn-secondary" data-lancamento-aux="Lava-car">Lava-Car</button>
-                    <div class="lancamento-aux-info" data-indicador="lava-car">PENDENTE</div>
+                    <div class="lancamento-aux-info" data-indicador="lava-car">NÃO REALIZADO</div>
                     <div class="lancamento-aux-valor" data-indicador="lava-car-valor">Valor: —</div>
                 </div>
             </div>
