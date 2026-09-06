@@ -473,8 +473,17 @@ function instalarControlesDoCiclo() {
 
     container.addEventListener("form:novo", async () => {
         modo = "abertura";
+
+        // O Engine já faz um reset genérico, mas os campos desta página
+        // podem ter sido preenchidos programaticamente durante a edição
+        // de uma ocorrência concluída. Limpamos explicitamente aqui,
+        // assim que o usuário abre uma NOVA ocorrência, e não somente
+        // depois do clique em "INICIAR OCORRÊNCIA".
+        limparDadosParaNovaOcorrencia();
+
         configurarAbertura();
         adicionarBotoesAuxiliares();
+        resetarIndicadoresAuxiliares();
         setValor("status", "EM ANDAMENTO");
         await capturarGPS("localizacao");
         instalarListenerVeiculo();
@@ -533,6 +542,52 @@ function instalarControlesDoCiclo() {
 
 
     
+}
+
+function limparDadosParaNovaOcorrencia() {
+    const form = modulo?.form?.formulario;
+    if (!form) return;
+
+    // Limpa também valores que tenham sido colocados por JavaScript
+    // (selects, campos ocultos e indicadores), evitando herdar a
+    // ocorrência anterior.
+    form.querySelectorAll("[name]").forEach(campo => {
+        if (campo.type === "checkbox" || campo.type === "radio") {
+            campo.checked = false;
+            return;
+        }
+
+        if (campo.tagName === "SELECT") {
+            campo.selectedIndex = -1;
+            campo.value = "";
+            return;
+        }
+
+        campo.value = "";
+    });
+
+    // Estado específico da ocorrência.
+    setValor("status", "EM ANDAMENTO");
+    setValor("localizacao", "");
+    setValor("localizacao_final", "");
+
+    // Impede que o contexto de uma ocorrência anterior seja reutilizado
+    // pelos formulários complementares.
+    window.lancamentoRelacionado = null;
+
+    console.log("LANÇAMENTOS → NOVA OCORRÊNCIA → DADOS ANTERIORES LIMPOS");
+}
+
+function resetarIndicadoresAuxiliares() {
+    const grupo = modulo?.form?.formulario?.querySelector("[data-lancamento-auxiliares]");
+    if (!grupo) return;
+
+    definirIndicador(grupo.querySelector('[data-indicador="checklist"]'), "NÃO REGISTRADO");
+    definirIndicador(grupo.querySelector('[data-indicador="abastecimento-status"]'), "NÃO REGISTRADO");
+    definirIndicador(grupo.querySelector('[data-indicador="abastecimento-valor"]'), "Valor da nota: —");
+    definirIndicador(grupo.querySelector('[data-indicador="avarias"]'), "NÃO REGISTRADO");
+    definirIndicador(grupo.querySelector('[data-indicador="lava-car"]'), "NÃO REALIZADO");
+    definirIndicador(grupo.querySelector('[data-indicador="lava-car-valor"]'), "Valor: —");
 }
 
 function configurarAbertura() {
