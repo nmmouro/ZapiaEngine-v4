@@ -781,8 +781,10 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
 
         definirIndicador(
             indicadores.lavaCar,
-            lavaCar ? "REALIZADO" : "PENDENTE"
-        );
+            lavaCar
+                ? `REALIZADO — ${formatarOpcaoLavaCar(lavaCar.opcao)}`
+                : "PENDENTE"
+);
 
         definirIndicador(
             indicadores.lavaCarValor,
@@ -832,6 +834,30 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
 function definirIndicador(elemento, texto) {
     if (elemento) elemento.textContent = texto;
 }
+
+function formatarOpcaoLavaCar(opcao) {
+    const valor = String(opcao || "").trim().toLowerCase();
+
+    const opcoes = {
+        aparencia_creta: "APARÊNCIA — CRETA",
+        aparencia_trail: "APARÊNCIA — TRAIL",
+        completa_creta: "COMPLETA — CRETA",
+        completa_cera_creta: "COMPLETA COM CERA — CRETA",
+        completa_trail: "COMPLETA — TRAIL",
+        completa_cera_trail: "COMPLETA COM CERA — TRAIL"
+    };
+
+    if (opcoes[valor]) return opcoes[valor];
+
+    // Fallback para futuras opções: transforma snake_case em texto legível.
+    if (!valor) return "SERVIÇO NÃO INFORMADO";
+
+    return valor
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, letra => letra.toUpperCase())
+        .toUpperCase();
+}
+
 
 function formatarResumoAbastecimento(registro = {}) {
     const tipo = String(registro.tipo_combustivel || "").trim();
