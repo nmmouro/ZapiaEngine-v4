@@ -157,11 +157,9 @@ export const SCHEMA_LANCAMENTOS = {
             label: "Checklist",
             type: "text",
             required: false,
-            visible: true,
-            options: [
-                "REGISTRADO",
-                "NÃO REGISTRADO"
-            ]
+            visible: false,
+            hidden: true,
+            readonly: true
         },
 
         // ========================================================
@@ -324,7 +322,9 @@ export const SCHEMA_LANCAMENTOS = {
             label: "Lava-Car",
             type: "number",
             required: false,
-            visible: true,
+            visible: false,
+            hidden: true,
+            readonly: true,
             min: 0,
             step: 0.01
         },
@@ -351,10 +351,12 @@ export const SCHEMA_LANCAMENTOS = {
             name: "notas_abastecimento",
             label: "Valor da Nota de Abastecimento",
             type: "number",
-            min: 0,
-            step: 0.01,
             required: false,
-            visible: true
+            visible: false,
+            hidden: true,
+            readonly: true,
+            min: 0,
+            step: 0.01
         },
 
         // ========================================================
