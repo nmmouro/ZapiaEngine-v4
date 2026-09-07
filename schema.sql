@@ -53,10 +53,10 @@ create table if not exists public.abastecimentos (
 
 create table if not exists public.lancamentos (
     id text primary key,
-    id_empregado text not null references public.empregados(id),
-    id_veiculo text not null references public.veiculos(id),
     data date not null default current_date,
     hora time not null default localtime,
+    id_empregado text not null references public.empregados(id),
+    id_veiculo text not null references public.veiculos(id),
     empregado_matricula text,
     veiculo text,
     passageiro_setor_motivo text not null,
@@ -70,12 +70,11 @@ create table if not exists public.lancamentos (
     media_consumo_combustivel numeric(12,3),
     checklist text not null default 'NÃO REGISTRADO',
     avaliacao_visual text,
-    registro_avarias boolean not null default false,
     avarias_registradas text,
     lava_car numeric(12,2),
     valor_higienizacao numeric(12,2),
     notas_abastecimento numeric(12,2),
-    notas_manutencao text,
+    notas_manutencao numeric(12,2),
     status text not null default 'AGENDADO',
     horas_extras numeric(12,2),
     revisao text,
@@ -87,7 +86,28 @@ create table if not exists public.lancamentos (
     updated_at timestamptz not null default now()
 );
 
+create table if not exists public.manutencao (
+    id text primary key,
+    id_lancamento text not null references public.lancamentos(id),
+    data date not null default current_date,
+    hora time not null default localtime,
+    empregado_matricula text,
+    veiculo text,
+    odometro numeric(12,1) not null,
+    usuario text,
+    imagem text,
+    observacoes text,
+    descricao_manutencao text not null,
+    valor_total_nota numeric(12,2) not null,
+    localizacao text,
+    criado_em timestamptz not null default now(),
+    atualizado_em timestamptz not null default now()
+);
+
 create index if not exists idx_abastecimentos_veiculo on public.abastecimentos(id_veiculo);
+create index if not exists idx_manutencao_lancamento on public.manutencao(id_lancamento);
+create index if not exists idx_manutencao_data on public.manutencao(data desc);
+create index if not exists idx_manutencao_veiculo on public.manutencao(veiculo);
 create index if not exists idx_abastecimentos_data on public.abastecimentos(data desc);
 create index if not exists idx_lancamentos_veiculo on public.lancamentos(id_veiculo);
 create index if not exists idx_lancamentos_empregado on public.lancamentos(id_empregado);
@@ -103,6 +123,16 @@ begin
 end;
 $$;
 
+create or replace function public.atualizar_atualizado_em_manutencao()
+returns trigger
+language plpgsql
+as $$
+begin
+    new.atualizado_em = now();
+    return new;
+end;
+$$;
+
 drop trigger if exists trg_veiculos_updated_at on public.veiculos;
 create trigger trg_veiculos_updated_at before update on public.veiculos
 for each row execute function public.atualizar_updated_at();
@@ -114,6 +144,10 @@ for each row execute function public.atualizar_updated_at();
 drop trigger if exists trg_abastecimentos_updated_at on public.abastecimentos;
 create trigger trg_abastecimentos_updated_at before update on public.abastecimentos
 for each row execute function public.atualizar_updated_at();
+
+drop trigger if exists trg_manutencao_updated_at on public.manutencao;
+create trigger trg_manutencao_updated_at before update on public.manutencao
+for each row execute function public.atualizar_atualizado_em_manutencao();
 
 drop trigger if exists trg_lancamentos_updated_at on public.lancamentos;
 create trigger trg_lancamentos_updated_at before update on public.lancamentos
