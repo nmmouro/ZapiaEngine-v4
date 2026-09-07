@@ -551,7 +551,19 @@ function limparDadosParaNovaOcorrencia() {
     // Limpa também valores que tenham sido colocados por JavaScript
     // (selects, campos ocultos e indicadores), evitando herdar a
     // ocorrência anterior.
+    // DATA, HORA e HORÁRIO INICIAL são preenchidos automaticamente pelo
+    // Engine antes do evento "form:novo". Não os apagamos aqui.
+    // O KM INICIAL continua sendo obtido automaticamente quando o veículo
+    // é selecionado, exatamente como no fluxo original.
+    const preservarAutomaticos = new Set([
+        "data",
+        "hora",
+        "horario_inicial"
+    ]);
+
     form.querySelectorAll("[name]").forEach(campo => {
+        if (preservarAutomaticos.has(campo.name)) return;
+
         if (campo.type === "checkbox" || campo.type === "radio") {
             campo.checked = false;
             return;
