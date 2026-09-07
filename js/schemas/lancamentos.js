@@ -171,7 +171,11 @@ export const SCHEMA_LANCAMENTOS = {
             label: "Avaliação Visual",
             type: "text",
             required: false,
-            visible: true
+            visible: true,
+            options: [
+                "SIM",
+                "NÃO"
+            ]
         },
 
         // ========================================================
@@ -184,10 +188,7 @@ export const SCHEMA_LANCAMENTOS = {
             type: "select",
             required: false,
             visible: true,
-            options: [
-                "SIM",
-                "NÃO"
-            ]
+            
         },
 
         // ========================================================
