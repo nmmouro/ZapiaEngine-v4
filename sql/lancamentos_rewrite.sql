@@ -126,8 +126,8 @@ SELECT
     classificacao,
     localizacao,
     duracao_atendimento,
-    created_at,
-    updated_at
+    now(),
+    now()
 FROM public.lancamentos;
 
 DROP TABLE public.lancamentos;
