@@ -70,6 +70,7 @@ CREATE TABLE public.lancamentos_novo (
     usuario text,
     classificacao text,
     localizacao text,
+    localizacao_final text,
     duracao_atendimento time,
     created_at timestamptz NOT NULL DEFAULT now(),
     updated_at timestamptz NOT NULL DEFAULT now()
@@ -86,7 +87,7 @@ INSERT INTO public.lancamentos_novo (
     checklist, avaliacao_visual, avarias_registradas,
     lava_car, valor_higienizacao, notas_abastecimento, notas_manutencao,
     status, horas_extras, revisao, usuario, classificacao,
-    localizacao, duracao_atendimento, created_at, updated_at
+    localizacao, localizacao_final, duracao_atendimento, created_at, updated_at
 )
 SELECT
     id,
@@ -170,6 +171,7 @@ SELECT
     usuario,
     classificacao,
     localizacao,
+    localizacao_final,
     CASE
         WHEN duracao_atendimento IS NULL OR btrim(duracao_atendimento::text) = '' THEN NULL
         WHEN btrim(duracao_atendimento::text) ~ '^\d{1,2}:\d{2}(:\d{2}(\.\d+)?)?$' THEN btrim(duracao_atendimento::text)::time
