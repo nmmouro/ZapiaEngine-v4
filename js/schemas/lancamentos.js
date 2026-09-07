@@ -169,15 +169,11 @@ export const SCHEMA_LANCAMENTOS = {
         {
             name: "avaliacao_visual",
             label: "Avaliação Visual",
-            type: "select",
+            type: "text",
             required: false,
-            visible: true,
-            options: [
-                "SIM",
-                "NÃO"
-            ]
+            visible: true
         },
-        
+
         // ========================================================
         // AVARIAS REGISTRADAS
         // ========================================================
@@ -308,13 +304,11 @@ export const SCHEMA_LANCAMENTOS = {
         {
             name: "lava_car",
             label: "Lava-Car",
-            type: "number",
+            type: "text",
             required: false,
             visible: false,
             hidden: true,
             readonly: true,
-            min: 0,
-            step: 0.01
         },
 
         // ========================================================

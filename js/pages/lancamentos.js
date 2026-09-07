@@ -67,9 +67,8 @@ async function iniciarLancamentos() {
                   format: formatarData },
                 { name: "hora", label: "Hora", type: "time",
                   format: formatarHora },
-                { name: "veiculo", label: "Veículo / Modelo" },
                 { name: "empregado_matricula", label: "Empregado / Matrícula" },
-                
+                { name: "veiculo", label: "Veículo / Modelo" },
                 { name: "passageiro_setor_motivo", label: "Passageiro / Setor / Motivo" },
                 { name: "itinerario", label: "Itinerário" },
                 
@@ -622,9 +621,9 @@ function resetarIndicadoresAuxiliares() {
     definirIndicador(grupo.querySelector('[data-indicador="abastecimento-status"]'), "NÃO REGISTRADO");
     definirIndicador(grupo.querySelector('[data-indicador="abastecimento-valor"]'), "Valor da nota: —");
     definirIndicador(grupo.querySelector('[data-indicador="avarias"]'), "NÃO REGISTRADO");
-    definirIndicador(grupo.querySelector('[data-indicador="lava-car"]'), "NÃO REGISTRADO");
+    definirIndicador(grupo.querySelector('[data-indicador="lava-car"]'), "NÃO REALIZADO");
     definirIndicador(grupo.querySelector('[data-indicador="lava-car-valor"]'), "Valor: —");
-    definirIndicador(grupo.querySelector('[data-indicador="manutencao"]'), "NÃO REGISTRADO");
+    definirIndicador(grupo.querySelector('[data-indicador="manutencao"]'), "NÃO REGISTRADA");
     definirIndicador(grupo.querySelector('[data-indicador="manutencao-valor"]'), "Valor da nota: —");
 }
 
@@ -812,7 +811,7 @@ function adicionarBotoesAuxiliares() {
 
                 <div class="lancamento-aux-item">
                     <button type="button" class="btn btn-secondary" data-lancamento-aux="Manutenção">Manutenção</button>
-                    <div class="lancamento-aux-info" data-indicador="manutencao">NÃO REGISTRADo</div>
+                    <div class="lancamento-aux-info" data-indicador="manutencao">NÃO REGISTRADA</div>
                     <div class="lancamento-aux-valor" data-indicador="manutencao-valor">Valor da nota: —</div>
                 </div>
             </div>
@@ -903,7 +902,7 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
 
         definirIndicador(
             indicadores.lavaCar,
-            lavaCar ? "REGISTRADO" : "NÃO REGISTRADO"
+            lavaCar ? "REALIZADO" : "NÃO REALIZADO"
         );
 
         definirIndicador(
@@ -913,7 +912,7 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
 
         definirIndicador(
             indicadores.manutencao,
-            manutencao ? "REGISTRADO" : "NÃO REGISTRADO"
+            manutencao ? "REGISTRADA" : "NÃO REGISTRADA"
         );
 
         const valorManutencao = manutencao ? Number(manutencao.valor_total_nota) : null;
@@ -946,11 +945,31 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
             );
         }
 
+        const opcaoLavaCar = lavaCar ? String(lavaCar.opcao || "").trim() : "";
         const valorLavaCar = lavaCar ? Number(lavaCar.valor) : null;
-        setValor("lava_car", Number.isFinite(valorLavaCar) ? valorLavaCar.toFixed(2) : "");
+        setValor("lava_car", opcaoLavaCar);
 
-        // Mantém o campo histórico de valor da higienização, quando existir.
+        // Mantém o valor numérico separado para relatórios e compatibilidade.
         setValor("valor_higienizacao", Number.isFinite(valorLavaCar) ? valorLavaCar.toFixed(2) : "");
+
+        // A coluna public.lancamentos.lava_car registra a OPÇÃO escolhida
+        // (ex.: completa_creta), enquanto valor_higienizacao mantém o valor numérico.
+        if (opcaoLavaCar) {
+            try {
+                await atualizar("lancamentos", {
+                    id: idLancamento,
+                    lava_car: opcaoLavaCar,
+                    valor_higienizacao: Number.isFinite(valorLavaCar) ? Number(valorLavaCar.toFixed(2)) : null
+                });
+                console.log("LANÇAMENTOS → LAVA-CAR PERSISTIDO:", {
+                    id: idLancamento,
+                    lava_car: opcaoLavaCar,
+                    valor_higienizacao: Number.isFinite(valorLavaCar) ? Number(valorLavaCar.toFixed(2)) : null
+                });
+            } catch (erroPersistenciaLavaCar) {
+                console.error("LANÇAMENTOS → ERRO AO PERSISTIR LAVA-CAR:", erroPersistenciaLavaCar);
+            }
+        }
 
         const valorAbastecimento = abastecimento ? obterValorAbastecimento(abastecimento) : null;
         setValor(
@@ -1024,10 +1043,10 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
     } catch (erro) {
         console.error("LANÇAMENTOS → ERRO AO ATUALIZAR INDICADORES:", erro);
         definirIndicador(indicadores.checklist, "NÃO REGISTRADO");
-        definirIndicador(indicadores.abastecimentoStatus, "NÃO REGISTRADO");
+        definirIndicador(indicadores.abastecimentoStatus, "NÃO DISPONÍVEL");
         definirIndicador(indicadores.abastecimentoValor, "Valor da nota: —");
-        definirIndicador(indicadores.avarias, "NÃO REGISTRADO");
-        definirIndicador(indicadores.lavaCar, "NÃO REGISTRADO");
+        definirIndicador(indicadores.avarias, "NÃO DISPONÍVEL");
+        definirIndicador(indicadores.lavaCar, "NÃO REALIZADO");
         definirIndicador(indicadores.lavaCarValor, "Valor: —");
     definirIndicador(indicadores.manutencao, "CARREGANDO...");
     definirIndicador(indicadores.manutencaoValor, "Valor da nota: —");

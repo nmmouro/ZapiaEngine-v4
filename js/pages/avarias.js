@@ -118,13 +118,9 @@ function instalarRetornoAposSalvar() {
                 if (!registro) {
                     throw new Error("A avaria foi salva, mas o registro vinculado não foi localizado.");
                 }
-                await atualizar("lancamentos", {
+                console.log("AVARIAS → REGISTRO VINCULADO CONFIRMADO:", {
                     id: idLancamento,
-                    registro_avarias: true
-                });
-                console.log("AVARIAS → LANÇAMENTO SINCRONIZADO:", {
-                    id: idLancamento,
-                    registro_avarias: true
+                    avaria: registro.id
                 });
                 voltarAoLancamento();
             } catch (erro) {

@@ -163,14 +163,19 @@ function instalarRetornoAposSalvar() {
                 if (!registro || !Number.isFinite(valor)) {
                     throw new Error("O Lava-Car foi salvo, mas o valor do serviço não foi localizado como número.");
                 }
+                const opcao = String(registro.opcao || "").trim();
+                if (!opcao) {
+                    throw new Error("O Lava-Car foi salvo, mas a opção do serviço não foi localizada.");
+                }
                 await atualizar("lancamentos", {
                     id: idLancamento,
-                    lava_car: Number(valor.toFixed(2)),
+                    lava_car: opcao,
                     valor_higienizacao: Number(valor.toFixed(2))
                 });
                 console.log("LAVA-CAR → LANÇAMENTO SINCRONIZADO:", {
                     id: idLancamento,
-                    lava_car: Number(valor.toFixed(2))
+                    lava_car: opcao,
+                    valor_higienizacao: Number(valor.toFixed(2))
                 });
                 voltarAoLancamento();
             } catch (erro) {
