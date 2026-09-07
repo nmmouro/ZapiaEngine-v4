@@ -575,7 +575,7 @@
 
                 const modulo =
                     await import(
-                        "./pages/lancamentos.js"
+                        "./pages/lancamentos.js?v=20260907"
                     );
 
 
