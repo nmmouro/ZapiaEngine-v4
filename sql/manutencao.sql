@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS public.manutencao (
     id_lancamento text NOT NULL
         REFERENCES public.lancamentos(id)
         ON UPDATE CASCADE
-        ON DELETE RESTRICT,
+        ON DELETE CASCADE,
     data date NOT NULL DEFAULT current_date,
     hora time NOT NULL DEFAULT localtime,
     empregado_matricula text,

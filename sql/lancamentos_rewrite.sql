@@ -55,7 +55,7 @@ CREATE TABLE public.lancamentos_novo (
     km_inicial numeric,
     km_final numeric,
     distancia_percorrida numeric,
-    combustivel numeric(12,3),
+    combustivel text,
     media_consumo_combustivel numeric(12,3),
     checklist text NOT NULL DEFAULT 'NÃO REGISTRADO',
     avaliacao_visual text,
@@ -70,9 +70,11 @@ CREATE TABLE public.lancamentos_novo (
     usuario text,
     classificacao text,
     localizacao text,
+    localizacao_final text,
     duracao_atendimento time,
     created_at timestamptz NOT NULL DEFAULT now(),
-    updated_at timestamptz NOT NULL DEFAULT now()
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    CONSTRAINT lancamentos_avaliacao_visual_check CHECK (avaliacao_visual IS NULL OR avaliacao_visual IN ('COM AVARIAS', 'SEM AVARIAS'))
 );
 
 -- Copia os registros existentes.
@@ -86,7 +88,7 @@ INSERT INTO public.lancamentos_novo (
     checklist, avaliacao_visual, avarias_registradas,
     lava_car, valor_higienizacao, notas_abastecimento, notas_manutencao,
     status, horas_extras, revisao, usuario, classificacao,
-    localizacao, duracao_atendimento, created_at, updated_at
+    localizacao, localizacao_final, duracao_atendimento, created_at, updated_at
 )
 SELECT
     id,
@@ -115,15 +117,7 @@ SELECT
     km_inicial,
     km_final,
     distancia_percorrida,
-    CASE
-        WHEN combustivel IS NULL THEN NULL
-        WHEN btrim(combustivel::text) = '' THEN NULL
-        WHEN btrim(combustivel::text) ~ '^[-+]?[0-9]+([.,][0-9]+)?$'
-            THEN replace(btrim(combustivel::text), ',', '.')::numeric(12,3)
-        WHEN btrim(combustivel::text) ~ '^[-+]?[0-9.]+,[0-9]+$'
-            THEN replace(replace(btrim(combustivel::text), '.', ''), ',', '.')::numeric(12,3)
-        ELSE NULL
-    END,
+    NULLIF(btrim(combustivel::text), ''),
     CASE
         WHEN media_consumo_combustivel IS NULL THEN NULL
         WHEN btrim(media_consumo_combustivel::text) = '' THEN NULL
@@ -170,6 +164,7 @@ SELECT
     usuario,
     classificacao,
     localizacao,
+    localizacao_final,
     CASE
         WHEN duracao_atendimento IS NULL OR btrim(duracao_atendimento::text) = '' THEN NULL
         WHEN btrim(duracao_atendimento::text) ~ '^\d{1,2}:\d{2}(:\d{2}(\.\d+)?)?$' THEN btrim(duracao_atendimento::text)::time
@@ -207,12 +202,12 @@ FOR EACH ROW EXECUTE FUNCTION public.atualizar_updated_at();
 ALTER TABLE public.abastecimento
     ADD CONSTRAINT abastecimento_id_lancamento_fkey
     FOREIGN KEY (id_lancamento) REFERENCES public.lancamentos(id)
-    ON UPDATE CASCADE ON DELETE RESTRICT;
+    ON UPDATE CASCADE ON DELETE CASCADE;
 
 ALTER TABLE public.avarias
     ADD CONSTRAINT avarias_id_lancamento_fkey
     FOREIGN KEY (id_lancamento) REFERENCES public.lancamentos(id)
-    ON UPDATE CASCADE ON DELETE RESTRICT;
+    ON UPDATE CASCADE ON DELETE CASCADE;
 
 ALTER TABLE public.lava_car
     ADD CONSTRAINT lava_car_id_lancamento_fkey
@@ -222,7 +217,7 @@ ALTER TABLE public.lava_car
 ALTER TABLE public.manutencao
     ADD CONSTRAINT manutencao_id_lancamento_fkey
     FOREIGN KEY (id_lancamento) REFERENCES public.lancamentos(id)
-    ON UPDATE CASCADE ON DELETE RESTRICT;
+    ON UPDATE CASCADE ON DELETE CASCADE;
 
 NOTIFY pgrst, 'reload schema';
 
