@@ -35,7 +35,7 @@ const CAMPOS_ABERTURA = [
 const CAMPOS_CONCLUSAO = [
     "horario_final", "km_final", "combustivel",
     "media_consumo_combustivel", "checklist",
-    "avaliacao_visual", "registro_avarias",
+    "avaliacao_visual",
     "avarias_registradas", "lava_car",
     "valor_higienizacao", "notas_abastecimento",
     "notas_manutencao", "horas_extras", "revisao"
