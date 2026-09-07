@@ -171,7 +171,7 @@ export const SCHEMA_LANCAMENTOS = {
             label: "Avaliação Visual",
             type: "select,
             required: false,
-            visible: true.
+            visible: true,
                 options: [
                 "COM AVARIAS",
                 "SEM AVARIAS"               
