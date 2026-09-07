@@ -177,20 +177,7 @@ export const SCHEMA_LANCAMENTOS = {
                 "NÃO"
             ]
         },
-
-        // ========================================================
-        // REGISTRO DE AVARIAS
-        // ========================================================
-
-        {
-            name: "registro_avarias",
-            label: "Registro de Avarias",
-            type: "test",
-            required: false,
-            visible: true,
-            
-        },
-
+        
         // ========================================================
         // AVARIAS REGISTRADAS
         // ========================================================
