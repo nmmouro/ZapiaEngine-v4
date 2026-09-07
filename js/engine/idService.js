@@ -41,7 +41,11 @@ const PREFIXOS = {
 
     lancamentos: "LAN",
 
-    abastecimentos: "ABA"
+    abastecimentos: "ABA",
+
+    manutencao: "MAN",
+
+    manutencoes: "MAN"
 
 };
 

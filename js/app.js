@@ -294,6 +294,17 @@
 
         if (
             caminho.endsWith(
+                "/manutencao.html"
+            )
+        ) {
+
+            return "manutencao";
+
+        }
+
+
+        if (
+            caminho.endsWith(
                 "/lancamentos.html"
             )
         ) {
@@ -523,6 +534,29 @@
                 return executarModulo(
                     modulo,
                     "LAVA-CAR"
+                );
+
+            }
+
+
+            /* =================================================
+               LANÇAMENTOS
+            ================================================= */
+
+            case "manutencao": {
+
+                console.log(
+                    "APP → CARREGANDO MANUTENÇÃO"
+                );
+
+                const modulo =
+                    await import(
+                        "./pages/manutencao.js"
+                    );
+
+                return executarModulo(
+                    modulo,
+                    "MANUTENÇÃO"
                 );
 
             }

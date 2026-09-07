@@ -93,6 +93,9 @@ modulo.abrirAvarias =
 modulo.abrirLavaCar =
     abrirLavaCar;
 
+modulo.abrirManutencao =
+    abrirManutencao;
+
 
 
 
@@ -295,6 +298,19 @@ function abrirAvarias() {
 }
 
 
+function abrirManutencao() {
+    try {
+        const contexto = obterContextoLancamento();
+        const url = `manutencao.html?lancamento=${encodeURIComponent(contexto.id_lancamento)}`;
+        console.log("LANÇAMENTOS → ABRIR MANUTENÇÃO:", contexto);
+        window.location.href = url;
+    } catch (erro) {
+        console.error("LANÇAMENTOS → ERRO AO ABRIR MANUTENÇÃO:", erro);
+        alert(erro.message || "Não foi possível abrir o formulário de Manutenção.");
+    }
+}
+
+
 function abrirLavaCar() {
 
     try {
@@ -426,6 +442,13 @@ function registrarBotoesRelacionados() {
                 case "Lava-car":
 
                     abrirLavaCar();
+
+                    break;
+
+
+                case "Manutenção":
+
+                    abrirManutencao();
 
                     break;
 
@@ -600,6 +623,8 @@ function resetarIndicadoresAuxiliares() {
     definirIndicador(grupo.querySelector('[data-indicador="avarias"]'), "NÃO REGISTRADO");
     definirIndicador(grupo.querySelector('[data-indicador="lava-car"]'), "NÃO REALIZADO");
     definirIndicador(grupo.querySelector('[data-indicador="lava-car-valor"]'), "Valor: —");
+    definirIndicador(grupo.querySelector('[data-indicador="manutencao"]'), "NÃO REGISTRADA");
+    definirIndicador(grupo.querySelector('[data-indicador="manutencao-valor"]'), "Valor da nota: —");
 }
 
 function configurarAbertura() {
@@ -783,6 +808,12 @@ function adicionarBotoesAuxiliares() {
                     <div class="lancamento-aux-info" data-indicador="lava-car">NÃO REALIZADO</div>
                     <div class="lancamento-aux-valor" data-indicador="lava-car-valor">Valor: —</div>
                 </div>
+
+                <div class="lancamento-aux-item">
+                    <button type="button" class="btn btn-secondary" data-lancamento-aux="Manutenção">Manutenção</button>
+                    <div class="lancamento-aux-info" data-indicador="manutencao">NÃO REGISTRADA</div>
+                    <div class="lancamento-aux-valor" data-indicador="manutencao-valor">Valor da nota: —</div>
+                </div>
             </div>
         `;
         const actions = form.querySelector(".engine-form-actions");
@@ -818,7 +849,9 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
         abastecimentoValor: grupo.querySelector('[data-indicador="abastecimento-valor"]'),
         avarias: grupo.querySelector('[data-indicador="avarias"]'),
         lavaCar: grupo.querySelector('[data-indicador="lava-car"]'),
-        lavaCarValor: grupo.querySelector('[data-indicador="lava-car-valor"]')
+        lavaCarValor: grupo.querySelector('[data-indicador="lava-car-valor"]'),
+        manutencao: grupo.querySelector('[data-indicador="manutencao"]'),
+        manutencaoValor: grupo.querySelector('[data-indicador="manutencao-valor"]')
     };
 
     definirIndicador(indicadores.checklist, "CARREGANDO...");
@@ -827,19 +860,23 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
     definirIndicador(indicadores.avarias, "CARREGANDO...");
     definirIndicador(indicadores.lavaCar, "CARREGANDO...");
     definirIndicador(indicadores.lavaCarValor, "Valor: —");
+    definirIndicador(indicadores.manutencao, "CARREGANDO...");
+    definirIndicador(indicadores.manutencaoValor, "Valor da nota: —");
 
     try {
-        const [checklists, abastecimentos, avarias, lavaCars] = await Promise.all([
+        const [checklists, abastecimentos, avarias, lavaCars, manutencoes] = await Promise.all([
             listar("checklist", { id_lancamento: idLancamento }),
             listar("abastecimento", { id_lancamento: idLancamento }),
             listar("avarias", { id_lancamento: idLancamento }),
-            listar("lava_car", { id_lancamento: idLancamento })
+                listar("lava_car", { id_lancamento: idLancamento }),
+            listar("manutencao", { id_lancamento: idLancamento })
         ]);
 
         const checklist = Array.isArray(checklists) ? checklists[0] : null;
         const abastecimento = Array.isArray(abastecimentos) ? abastecimentos[0] : null;
         const avaria = Array.isArray(avarias) ? avarias[0] : null;
         const lavaCar = Array.isArray(lavaCars) ? lavaCars[0] : null;
+        const manutencao = Array.isArray(manutencoes) ? manutencoes[0] : null;
 
         definirIndicador(
             indicadores.checklist,
@@ -871,6 +908,18 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
         definirIndicador(
             indicadores.lavaCarValor,
             `Valor: ${lavaCar ? formatarMoeda(lavaCar.valor) : "—"}`
+        );
+
+        definirIndicador(
+            indicadores.manutencao,
+            manutencao ? "REGISTRADA" : "NÃO REGISTRADA"
+        );
+
+        const valorManutencao = manutencao ? Number(manutencao.valor_total_nota) : null;
+
+        definirIndicador(
+            indicadores.manutencaoValor,
+            `Valor da nota: ${Number.isFinite(valorManutencao) ? formatarMoeda(valorManutencao) : "—"}`
         );
 
         // Persiste somente valores compatíveis com os tipos das colunas.
@@ -915,6 +964,29 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
             }
         }
 
+        // Manutenção: o valor da nota permanece numérico para relatórios.
+        if (manutencao && Number.isFinite(valorManutencao)) {
+            try {
+                await atualizar("lancamentos", {
+                    id: idLancamento,
+                    notas_manutencao: Number(valorManutencao.toFixed(2))
+                });
+
+                console.log(
+                    "LANÇAMENTOS → VALOR DA MANUTENÇÃO PERSISTIDO:",
+                    {
+                        id: idLancamento,
+                        notas_manutencao: Number(valorManutencao.toFixed(2))
+                    }
+                );
+            } catch (erroPersistencia) {
+                console.error(
+                    "LANÇAMENTOS → ERRO AO PERSISTIR VALOR DA MANUTENÇÃO:",
+                    erroPersistencia
+                );
+            }
+        }
+
         // Avarias: o status é apenas visual neste ponto.
         // Não copiamos descrição/texto para campos auxiliares do lançamento,
         // pois a estrutura implantada pode ter esses campos com tipos numéricos
@@ -937,6 +1009,8 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
         definirIndicador(indicadores.avarias, "NÃO DISPONÍVEL");
         definirIndicador(indicadores.lavaCar, "NÃO REALIZADO");
         definirIndicador(indicadores.lavaCarValor, "Valor: —");
+    definirIndicador(indicadores.manutencao, "CARREGANDO...");
+    definirIndicador(indicadores.manutencaoValor, "Valor da nota: —");
     }
 }
 
