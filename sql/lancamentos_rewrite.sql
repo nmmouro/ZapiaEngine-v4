@@ -14,12 +14,29 @@
 
 BEGIN;
 
--- As tabelas relacionadas possuem FK para lancamentos.
--- Elas são removidas temporariamente para permitir a troca física da tabela.
-ALTER TABLE IF EXISTS public.abastecimento DROP CONSTRAINT IF EXISTS abastecimento_id_lancamento_fkey;
-ALTER TABLE IF EXISTS public.avarias DROP CONSTRAINT IF EXISTS avarias_id_lancamento_fkey;
-ALTER TABLE IF EXISTS public.lava_car DROP CONSTRAINT IF EXISTS lava_car_id_lancamento_fkey;
-ALTER TABLE IF EXISTS public.manutencao DROP CONSTRAINT IF EXISTS manutencao_id_lancamento_fkey;
+-- As tabelas relacionadas possuem FKs para public.lancamentos.
+-- Removemos TODAS as FKs que apontam para lancamentos, usando o catálogo
+-- do PostgreSQL, pois os nomes podem variar entre instalações.
+DO $$
+DECLARE
+    r record;
+BEGIN
+    IF to_regclass('public.lancamentos') IS NOT NULL THEN
+        FOR r IN
+            SELECT n.nspname AS schema_name, c.relname AS table_name, con.conname AS constraint_name
+            FROM pg_constraint con
+            JOIN pg_class c ON c.oid = con.conrelid
+            JOIN pg_namespace n ON n.oid = c.relnamespace
+            WHERE con.contype = 'f'
+              AND con.confrelid = 'public.lancamentos'::regclass
+        LOOP
+            EXECUTE format(
+                'ALTER TABLE %I.%I DROP CONSTRAINT IF EXISTS %I',
+                r.schema_name, r.table_name, r.constraint_name
+            );
+        END LOOP;
+    END IF;
+END $$;
 
 DROP TABLE IF EXISTS public.lancamentos_novo;
 
@@ -43,7 +60,7 @@ CREATE TABLE public.lancamentos_novo (
     checklist text NOT NULL DEFAULT 'NÃO REGISTRADO',
     avaliacao_visual text,
     avarias_registradas text,
-    lava_car numeric(12,2),
+    lava_car text,
     valor_higienizacao numeric(12,2),
     notas_abastecimento numeric(12,2),
     notas_manutencao numeric(12,2),
@@ -74,20 +91,48 @@ INSERT INTO public.lancamentos_novo (
 SELECT
     id,
     data,
-    hora,
+    CASE
+        WHEN hora IS NULL OR btrim(hora::text) = '' THEN NULL
+        WHEN btrim(hora::text) ~ '^\d{1,2}:\d{2}(:\d{2}(\.\d+)?)?$' THEN btrim(hora::text)::time
+        ELSE NULL
+    END,
     id_empregado,
     id_veiculo,
     empregado_matricula,
     veiculo,
     passageiro_setor_motivo,
     itinerario,
-    horario_inicial,
-    horario_final,
+    CASE
+        WHEN horario_inicial IS NULL OR btrim(horario_inicial::text) = '' THEN NULL
+        WHEN btrim(horario_inicial::text) ~ '^\d{1,2}:\d{2}(:\d{2}(\.\d+)?)?$' THEN btrim(horario_inicial::text)::time
+        ELSE NULL
+    END,
+    CASE
+        WHEN horario_final IS NULL OR btrim(horario_final::text) = '' THEN NULL
+        WHEN btrim(horario_final::text) ~ '^\d{1,2}:\d{2}(:\d{2}(\.\d+)?)?$' THEN btrim(horario_final::text)::time
+        ELSE NULL
+    END,
     km_inicial,
     km_final,
     distancia_percorrida,
-    combustivel,
-    media_consumo_combustivel,
+    CASE
+        WHEN combustivel IS NULL THEN NULL
+        WHEN btrim(combustivel::text) = '' THEN NULL
+        WHEN btrim(combustivel::text) ~ '^[-+]?[0-9]+([.,][0-9]+)?$'
+            THEN replace(btrim(combustivel::text), ',', '.')::numeric(12,3)
+        WHEN btrim(combustivel::text) ~ '^[-+]?[0-9.]+,[0-9]+$'
+            THEN replace(replace(btrim(combustivel::text), '.', ''), ',', '.')::numeric(12,3)
+        ELSE NULL
+    END,
+    CASE
+        WHEN media_consumo_combustivel IS NULL THEN NULL
+        WHEN btrim(media_consumo_combustivel::text) = '' THEN NULL
+        WHEN btrim(media_consumo_combustivel::text) ~ '^[-+]?[0-9]+([.,][0-9]+)?$'
+            THEN replace(btrim(media_consumo_combustivel::text), ',', '.')::numeric(12,3)
+        WHEN btrim(media_consumo_combustivel::text) ~ '^[-+]?[0-9.]+,[0-9]+$'
+            THEN replace(replace(btrim(media_consumo_combustivel::text), '.', ''), ',', '.')::numeric(12,3)
+        ELSE NULL
+    END,
     CASE
         WHEN checklist IS NULL OR btrim(checklist::text) = '' THEN 'NÃO REGISTRADO'
         WHEN upper(btrim(checklist::text)) IN ('TRUE','T','SIM','S','REGISTRADO','REALIZADO') THEN 'REGISTRADO'
@@ -97,7 +142,7 @@ SELECT
     avarias_registradas,
     CASE
         WHEN lava_car IS NULL THEN NULL
-        ELSE lava_car::numeric(12,2)
+        ELSE lava_car::text
     END,
     CASE
         WHEN valor_higienizacao IS NULL THEN NULL
@@ -125,7 +170,11 @@ SELECT
     usuario,
     classificacao,
     localizacao,
-    duracao_atendimento,
+    CASE
+        WHEN duracao_atendimento IS NULL OR btrim(duracao_atendimento::text) = '' THEN NULL
+        WHEN btrim(duracao_atendimento::text) ~ '^\d{1,2}:\d{2}(:\d{2}(\.\d+)?)?$' THEN btrim(duracao_atendimento::text)::time
+        ELSE NULL
+    END,
     now(),
     now()
 FROM public.lancamentos;
