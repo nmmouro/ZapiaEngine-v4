@@ -13,7 +13,7 @@
 
 import { createModule } from "../engine/module.js";
 import { SCHEMA_AVARIAS } from "../schemas/avarias.js";
-import { listar } from "../services/crudService.js";
+import { listar, atualizar } from "../services/crudService.js";
 
 let modulo = null;
 let idLancamento = "";
@@ -111,7 +111,27 @@ function instalarRetornoAposSalvar() {
     container.dataset.avariasRetorno = "true";
     container.addEventListener(
         "form:salvo",
-        () => voltarAoLancamento(),
+        async () => {
+            try {
+                const registros = await listar("avarias", { id_lancamento: idLancamento });
+                const registro = Array.isArray(registros) && registros.length ? registros[0] : null;
+                if (!registro) {
+                    throw new Error("A avaria foi salva, mas o registro vinculado não foi localizado.");
+                }
+                await atualizar("lancamentos", {
+                    id: idLancamento,
+                    registro_avarias: true
+                });
+                console.log("AVARIAS → LANÇAMENTO SINCRONIZADO:", {
+                    id: idLancamento,
+                    registro_avarias: true
+                });
+                voltarAoLancamento();
+            } catch (erro) {
+                console.error("AVARIAS → ERRO AO SINCRONIZAR LANÇAMENTO:", erro);
+                alert("A avaria foi salva, mas não foi possível sincronizar o status no lançamento.\n\n" + (erro?.message || erro));
+            }
+        },
         { once: true }
     );
 }

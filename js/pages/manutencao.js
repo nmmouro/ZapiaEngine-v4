@@ -13,7 +13,7 @@
 
 import { createModule } from "../engine/module.js";
 import { SCHEMA_MANUTENCAO } from "../schemas/manutencao.js";
-import { listar } from "../services/crudService.js";
+import { listar, atualizar } from "../services/crudService.js";
 import { obterLocalizacao } from "../utils/geolocalizacao.js";
 
 let modulo = null;
@@ -128,7 +128,28 @@ function instalarRetornoAposSalvar() {
     if (!container || container.dataset.manutencaoRetorno === "true") return;
 
     container.dataset.manutencaoRetorno = "true";
-    container.addEventListener("form:salvo", () => voltarAoLancamento(), { once: true });
+    container.addEventListener("form:salvo", async () => {
+        try {
+            const registros = await listar("manutencao", { id_lancamento: idLancamento });
+            const registro = Array.isArray(registros) && registros.length ? registros[0] : null;
+            const valor = registro ? Number(registro.valor_total_nota) : NaN;
+            if (!registro || !Number.isFinite(valor)) {
+                throw new Error("A manutenção foi salva, mas o valor da nota não foi localizado como número.");
+            }
+            await atualizar("lancamentos", {
+                id: idLancamento,
+                notas_manutencao: Number(valor.toFixed(2))
+            });
+            console.log("MANUTENÇÃO → LANÇAMENTO SINCRONIZADO:", {
+                id: idLancamento,
+                notas_manutencao: Number(valor.toFixed(2))
+            });
+            voltarAoLancamento();
+        } catch (erro) {
+            console.error("MANUTENÇÃO → ERRO AO SINCRONIZAR LANÇAMENTO:", erro);
+            alert("A manutenção foi salva, mas não foi possível sincronizar o valor da nota no lançamento.\n\n" + (erro?.message || erro));
+        }
+    }, { once: true });
 }
 
 function adicionarBotaoVoltar() {

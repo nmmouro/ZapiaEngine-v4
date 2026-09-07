@@ -14,7 +14,8 @@
 import { createModule } from "../engine/module.js";
 import { SCHEMA_CHECKLIST } from "../schemas/checklist.js";
 import {
-    listar
+    listar,
+    atualizar
 } from "../services/crudService.js";
 
 
@@ -319,10 +320,36 @@ function instalarRetornoAposSalvar() {
 
     container.addEventListener(
         "form:salvo",
-        () => {
+        async () => {
             console.log(
-                "CHECKLIST → SALVO → RETORNANDO AO LANÇAMENTO"
+                "CHECKLIST → SALVO → ATUALIZANDO STATUS DO LANÇAMENTO"
             );
+
+            try {
+                // O registro do checklist é a fonte da verdade para o
+                // indicador no lançamento. Gravamos explicitamente o
+                // status TEXT na coluna public.lancamentos.checklist,
+                // em vez de depender apenas do valor visual do formulário.
+                await atualizar("lancamentos", {
+                    id: idLancamento,
+                    checklist: "REGISTRADO"
+                });
+
+                console.log(
+                    "CHECKLIST → LANÇAMENTO ATUALIZADO:",
+                    { id: idLancamento, checklist: "REGISTRADO" }
+                );
+            } catch (erro) {
+                console.error(
+                    "CHECKLIST → ERRO AO ATUALIZAR LANÇAMENTO:",
+                    erro
+                );
+                alert(
+                    "O Checklist foi salvo, mas não foi possível atualizar o status do lançamento.\n\n" +
+                    (erro?.message || erro)
+                );
+                return;
+            }
 
             voltarAoLancamento();
         },

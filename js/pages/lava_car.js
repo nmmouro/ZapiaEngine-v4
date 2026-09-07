@@ -13,7 +13,7 @@
 
 import { createModule } from "../engine/module.js";
 import { SCHEMA_LAVA_CAR } from "../schemas/lava_car.js";
-import { listar } from "../services/crudService.js";
+import { listar, atualizar } from "../services/crudService.js";
 
 
 const VALORES = {
@@ -155,7 +155,29 @@ function instalarRetornoAposSalvar() {
     container.dataset.lavaCarRetorno = "true";
     container.addEventListener(
         "form:salvo",
-        () => voltarAoLancamento(),
+        async () => {
+            try {
+                const registros = await listar("lava_car", { id_lancamento: idLancamento });
+                const registro = Array.isArray(registros) && registros.length ? registros[0] : null;
+                const valor = registro ? Number(registro.valor) : NaN;
+                if (!registro || !Number.isFinite(valor)) {
+                    throw new Error("O Lava-Car foi salvo, mas o valor do serviço não foi localizado como número.");
+                }
+                await atualizar("lancamentos", {
+                    id: idLancamento,
+                    lava_car: Number(valor.toFixed(2)),
+                    valor_higienizacao: Number(valor.toFixed(2))
+                });
+                console.log("LAVA-CAR → LANÇAMENTO SINCRONIZADO:", {
+                    id: idLancamento,
+                    lava_car: Number(valor.toFixed(2))
+                });
+                voltarAoLancamento();
+            } catch (erro) {
+                console.error("LAVA-CAR → ERRO AO SINCRONIZAR LANÇAMENTO:", erro);
+                alert("O Lava-Car foi salvo, mas não foi possível sincronizar o valor no lançamento.\n\n" + (erro?.message || erro));
+            }
+        },
         { once: true }
     );
 }

@@ -924,7 +924,26 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
 
         // Persiste somente valores compatíveis com os tipos das colunas.
         // A apresentação amigável permanece exclusivamente nos indicadores visuais.
-        setValor("checklist", checklist ? "REGISTRADO" : "NÃO REGISTRADO");
+        const statusChecklist = checklist ? "REGISTRADO" : "NÃO REGISTRADO";
+        setValor("checklist", statusChecklist);
+
+        // Mantém a coluna public.lancamentos.checklist sincronizada com
+        // a existência real do registro relacionado. O campo é TEXT.
+        try {
+            await atualizar("lancamentos", {
+                id: idLancamento,
+                checklist: statusChecklist
+            });
+            console.log(
+                "LANÇAMENTOS → CHECKLIST PERSISTIDO:",
+                { id: idLancamento, checklist: statusChecklist }
+            );
+        } catch (erroChecklist) {
+            console.error(
+                "LANÇAMENTOS → ERRO AO PERSISTIR CHECKLIST:",
+                erroChecklist
+            );
+        }
 
         const valorLavaCar = lavaCar ? Number(lavaCar.valor) : null;
         setValor("lava_car", Number.isFinite(valorLavaCar) ? valorLavaCar.toFixed(2) : "");
