@@ -274,7 +274,10 @@ function abrirChecklist() {
 function abrirAbastecimento() {
     try {
         const contexto = obterContextoLancamento();
-        const url = `abastecimentos.html?lancamento=${encodeURIComponent(contexto.id_lancamento)}`;
+        const id = String(contexto.id_lancamento || "").trim();
+        sessionStorage.setItem("painelFrota:lancamentoAtual", id);
+        localStorage.setItem("painelFrota:lancamentoAtual", id);
+        const url = `abastecimentos.html?lancamento=${encodeURIComponent(id)}`;
         console.log("LANÇAMENTOS → ABRIR ABASTECIMENTO:", contexto);
         window.location.href = url;
     } catch (erro) {

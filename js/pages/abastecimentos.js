@@ -26,12 +26,24 @@ export async function iniciarAbastecimentos() {
     const container = document.querySelector("#app");
     if (!container) throw new Error("PÁGINA ABASTECIMENTO → #app não encontrado.");
 
-    idLancamento = String(
-        new URLSearchParams(window.location.search).get("lancamento") || ""
-    ).trim();
+    const params = new URLSearchParams(window.location.search);
+    idLancamento = String(params.get("lancamento") || "").trim();
+
+    // Fallback: quando o navegador/servidor perde a query string,
+    // recupera o último lançamento aberto pelo módulo de Lançamentos.
+    if (!idLancamento) {
+        idLancamento = String(
+            sessionStorage.getItem("painelFrota:lancamentoAtual") ||
+            localStorage.getItem("painelFrota:lancamentoAtual") ||
+            ""
+        ).trim();
+        if (idLancamento) {
+            console.warn("PÁGINA ABASTECIMENTO → ID recuperado do armazenamento:", idLancamento);
+        }
+    }
 
     if (!idLancamento) {
-        throw new Error("Nenhum lançamento foi informado para o Abastecimento.");
+        throw new Error("Nenhum lançamento foi informado para o Abastecimento. Abra o Abastecimento pelo lançamento que deseja registrar.");
     }
 
     const lancamentos = await listar("lancamentos", { id: idLancamento });
