@@ -44,17 +44,16 @@ function renderizarEstrutura(container) {
             <div class="dashboard-grid">
                 <section class="dashboard-card">
                     <div class="dashboard-card-header">
-                        <h2>Veículos</h2>
-                        <span class="dashboard-count" data-dashboard-count="veiculos">0</span>
+                        <h2>VEÍCULOS</h2>
                     </div>
                     <div class="dashboard-table-container">
                         <table class="dashboard-table">
                             <thead>
                                 <tr>
-                                    <th>Placa</th>
-                                    <th>Status</th>
-                                    <th>Odômetro</th>
-                                    <th>Combustível</th>
+                                    <th>PLACA</th>
+                                    <th>STATUS</th>
+                                    <th>ODÔMETRO</th>
+                                    <th>COMBUSTÍVEL</th>
                                 </tr>
                             </thead>
                             <tbody data-dashboard-table="veiculos"></tbody>
@@ -64,16 +63,15 @@ function renderizarEstrutura(container) {
 
                 <section class="dashboard-card">
                     <div class="dashboard-card-header">
-                        <h2>Empregados</h2>
-                        <span class="dashboard-count" data-dashboard-count="empregados">0</span>
+                        <h2>MOTORISTAS</h2>
                     </div>
                     <div class="dashboard-table-container">
                         <table class="dashboard-table">
                             <thead>
                                 <tr>
-                                    <th>Empregado</th>
-                                    <th>Status</th>
-                                    <th>Condição</th>
+                                    <th>MOTORISTA</th>
+                                    <th>STATUS</th>
+                                    <th>CONDIÇÃO</th>
                                 </tr>
                             </thead>
                             <tbody data-dashboard-table="empregados"></tbody>
@@ -84,30 +82,25 @@ function renderizarEstrutura(container) {
 
             <section class="dashboard-card dashboard-panel-card">
                 <div class="dashboard-card-header">
-                    <div>
-                        <h2>Painel</h2>
-                        <p class="dashboard-subtitle">Ocorrências de hoje com status EM ANDAMENTO</p>
-                    </div>
-                    <span class="dashboard-count" data-dashboard-count="painel">0</span>
+                    <h2>PAINEL</h2>
                 </div>
                 <div class="dashboard-table-container">
                     <table class="dashboard-table dashboard-table-panel">
                         <thead>
                             <tr>
-                                <th>Hora</th>
-                                <th>Empregado</th>
-                                <th>Veículo</th>
-                                <th>Passageiro / Setor / Motivo</th>
-                                <th>Itinerário</th>
-                                <th>Status</th>
+                                <th>DATA</th>
+                                <th>HORA</th>
+                                <th>EMPREGADO / MATRÍCULA</th>
+                                <th>VEÍCULO</th>
+                                <th>PASSAGEIRO / SETOR / MOTIVO</th>
+                                <th>ITINERÁRIO</th>
+                                <th>STATUS</th>
                             </tr>
                         </thead>
                         <tbody data-dashboard-table="painel"></tbody>
                     </table>
                 </div>
             </section>
-
-            <div class="dashboard-atualizacao" data-dashboard-atualizacao></div>
         </section>
     `;
 }
@@ -192,9 +185,9 @@ function renderizarEmpregados(empregados, ocorrenciasAndamento) {
             const ocupado = idsOcupados.has(texto(empregado.id));
             return `
                 <tr>
-                    <td class="dashboard-primary">${escaparHTML(texto(empregado.empregado) || "—")}</td>
+                    <td class="dashboard-primary">${escaparHTML(formatarEmpregado(empregado))}</td>
                     <td>${badgeStatus(ocupado ? "ocupado" : "livre")}</td>
-                    <td>${escaparHTML(texto(empregado.status) || "—")}</td>
+                    <td>${badgeCondicao(empregado.status)}</td>
                 </tr>
             `;
         }).join("")
@@ -211,15 +204,16 @@ function renderizarPainel(ocorrencias) {
     tbody.innerHTML = ocorrencias.length
         ? ocorrencias.map((item) => `
             <tr>
+                <td>${escaparHTML(formatarDataPainel(item.data) || "—")}</td>
                 <td>${escaparHTML(formatarHoraValor(item.hora) || "—")}</td>
-                <td>${escaparHTML(texto(item.empregado_matricula) || "—")}</td>
+                <td>${escaparHTML(formatarEmpregadoLancamento(item))}</td>
                 <td>${escaparHTML(texto(item.veiculo) || "—")}</td>
                 <td>${escaparHTML(texto(item.passageiro_setor_motivo) || "—")}</td>
                 <td>${escaparHTML(texto(item.itinerario) || "—")}</td>
                 <td>${badgeStatus("ocupado", "EM ANDAMENTO")}</td>
             </tr>
         `).join("")
-        : linhaVazia(6, "Nenhuma ocorrência em andamento hoje.");
+        : linhaVazia(7, "Nenhuma ocorrência em andamento hoje.");
 
     if (count) count.textContent = String(ocorrencias.length);
 }
@@ -241,11 +235,24 @@ function obterMaiorOdometro(veiculo, lancamentos) {
 }
 
 function obterUltimoCombustivel(veiculo, lancamentos) {
-    const registros = [...lancamentos]
-        .filter((item) => texto(item.combustivel))
-        .sort(compararDataHoraDesc);
+    const valoresValidos = new Set([
+        "RESERVA",
+        "1/4",
+        "1/2",
+        "3/4",
+        "CHEIO"
+    ]);
 
-    return registros[0]?.combustivel || veiculo.combustivel || "";
+    const registros = [...lancamentos]
+        .filter((item) => normalizarStatus(item.status) === "CONCLUIDO")
+        .map((item) => ({
+            item,
+            valor: normalizarCombustivel(item.combustivel)
+        }))
+        .filter(({ valor }) => valoresValidos.has(valor))
+        .sort((a, b) => compararDataHoraDesc(a.item, b.item));
+
+    return registros[0]?.valor || "";
 }
 
 function agruparLancamentosPorCampo(registros, campo) {
@@ -260,8 +267,8 @@ function agruparLancamentosPorCampo(registros, campo) {
 }
 
 function compararDataHoraDesc(a, b) {
-    const aValor = `${normalizarData(a.data)} ${texto(a.hora)}`;
-    const bValor = `${normalizarData(b.data)} ${texto(b.hora)}`;
+    const aValor = `${normalizarData(a.data)} ${texto(a.hora)} ${texto(a.criado_em)}`;
+    const bValor = `${normalizarData(b.data)} ${texto(b.hora)} ${texto(b.criado_em)}`;
     return bValor.localeCompare(aValor);
 }
 
@@ -286,6 +293,39 @@ function normalizarStatus(valor) {
         .replace(/_/g, " ")
         .replace(/\s+/g, " ")
         .toUpperCase();
+}
+
+function formatarEmpregado(empregado) {
+    const nome = texto(empregado?.empregado);
+    const matricula = texto(empregado?.matricula);
+    if (nome && matricula) return `${nome} / ${matricula}`;
+    return nome || matricula || "—";
+}
+
+function formatarEmpregadoLancamento(item) {
+    const valor = texto(item?.empregado_matricula);
+    if (valor) return valor;
+
+    const nome = texto(item?.empregado);
+    const matricula = texto(item?.matricula);
+    if (nome && matricula) return `${nome} / ${matricula}`;
+    return nome || matricula || "—";
+}
+
+function badgeCondicao(valor) {
+    const condicao = texto(valor) || "—";
+    return `<span class="dashboard-condition"><span class="dashboard-condition-dot"></span>${escaparHTML(condicao)}</span>`;
+}
+
+function formatarDataPainel(valor) {
+    const data = normalizarData(valor);
+    if (!data) return "";
+    const [ano, mes, dia] = data.split("-");
+    return `${dia}/${mes}/${ano}`;
+}
+
+function normalizarCombustivel(valor) {
+    return texto(valor).toUpperCase().replace(/\s+/g, "");
 }
 
 function formatarHoraValor(valor) {
