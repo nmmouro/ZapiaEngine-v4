@@ -86,7 +86,7 @@ function renderizarEstrutura(container) {
                 <div class="dashboard-card-header">
                     <div>
                         <h2>Painel</h2>
-                        <p class="dashboard-subtitle">Ocorrências de hoje com status EM ANDAMENTO</p>
+                        <p class="dashboard-subtitle">Ocorrências EM ANDAMENTO</p>
                     </div>
                     <span class="dashboard-count" data-dashboard-count="painel">0</span>
                 </div>
