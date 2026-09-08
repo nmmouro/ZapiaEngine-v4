@@ -41,7 +41,7 @@ async function iniciarDashboard() {
 function renderizarEstrutura(container) {
     container.innerHTML = `
         <section class="dashboard" aria-label="Visão geral da frota">
-            <div class="dashboard-grid">
+            <div class="dashboard-top-row">
                 <section class="dashboard-card">
                     <div class="dashboard-card-header">
                         <h2>VEÍCULOS</h2>
