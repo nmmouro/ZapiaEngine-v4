@@ -175,7 +175,7 @@ function renderizarMotoristas(empregados, ocorrenciasAndamento, ocorrenciasHoje)
     // (ocorrência EM ANDAMENTO) e não fizer parte da lista fixa.
     const motoristasFixos = [
         { nome: "CACIO", matricula: "5000366" },
-        { nome: "CELSO DALDEGAN", matricula: "5000205" },
+        { nome: "CELSO", matricula: "5000205" },
         { nome: "NEIDIVAL", matricula: "5000199" }
     ];
 
