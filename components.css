@@ -1,0 +1,1133 @@
+/* ============================================================
+   COMPONENTS.CSS
+   Painel Frota
+   Componentes reutilizáveis
+   ============================================================ */
+
+
+/* ============================================================
+   BOTÕES
+   ============================================================ */
+
+.btn {
+    appearance: none;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    min-height: 40px;
+
+    padding: 9px 16px;
+
+    border: 1px solid transparent;
+
+    border-radius: 8px;
+
+    font-family: inherit;
+
+    font-size: 0.9rem;
+
+    font-weight: 600;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.1s ease;
+}
+
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+
+.btn:disabled {
+    opacity: 0.55;
+
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+
+.btn-primary {
+    background: #2563eb;
+    border-color: #2563eb;
+
+    color: #ffffff;
+}
+
+
+.btn-primary:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+
+.btn-secondary {
+    background: #ffffff;
+    border-color: #d1d5db;
+
+    color: #374151;
+}
+
+
+.btn-secondary:hover {
+    background: #f3f4f6;
+}
+
+
+.btn-danger {
+    background: #dc2626;
+    border-color: #dc2626;
+
+    color: #ffffff;
+}
+
+
+.btn-danger:hover {
+    background: #b91c1c;
+}
+
+
+/* ============================================================
+   BOTÃO TELA CHEIA
+   ============================================================ */
+
+.btn-fullscreen {
+    width: 40px;
+    height: 40px;
+
+    min-width: 40px;
+
+    padding: 0;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #374151;
+
+    font-size: 1.1rem;
+
+    cursor: pointer;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+.btn-fullscreen:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+
+/* ============================================================
+   TOOLBAR
+   ============================================================ */
+
+.engine-toolbar {
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    margin-bottom: 18px;
+
+    padding: 14px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 10px;
+}
+
+
+/* ============================================================
+   FORMULÁRIO
+   ============================================================ */
+
+.engine-form-container {
+    width: 100%;
+
+    margin-bottom: 20px;
+}
+
+
+.engine-form-wrapper {
+    width: 100%;
+
+    padding: 20px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 10px;
+
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+
+.engine-form-header {
+    margin-bottom: 20px;
+
+    padding-bottom: 12px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+
+.engine-form-header h2 {
+    margin: 0;
+
+    font-size: 1.2rem;
+
+    font-weight: 700;
+
+    color: #111827;
+}
+
+
+.engine-form-fields {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 16px;
+}
+
+
+.engine-field {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+
+    min-width: 0;
+}
+
+
+.engine-field label {
+    font-size: 0.86rem;
+
+    font-weight: 600;
+
+    color: #374151;
+}
+
+
+.engine-field input,
+.engine-field select,
+.engine-field textarea {
+    width: 100%;
+
+    min-height: 40px;
+
+    padding: 9px 11px;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 7px;
+
+    background: #ffffff;
+
+    color: #111827;
+
+    font-family: inherit;
+
+    font-size: 0.9rem;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.engine-field textarea {
+    min-height: 100px;
+
+    resize: vertical;
+}
+
+
+.engine-field input:focus,
+.engine-field select:focus,
+.engine-field textarea:focus {
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+
+.engine-field input:disabled,
+.engine-field select:disabled,
+.engine-field textarea:disabled {
+    background: #f3f4f6;
+
+    cursor: not-allowed;
+}
+
+
+.engine-required {
+    margin-left: 3px;
+
+    color: #dc2626;
+}
+
+
+.engine-form-actions {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 22px;
+
+    padding-top: 16px;
+
+    border-top: 1px solid #e5e7eb;
+}
+
+
+.engine-checkbox {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    cursor: pointer;
+}
+
+
+.engine-checkbox input {
+    width: auto;
+
+    min-height: auto;
+}
+
+
+.engine-radio-group {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 14px;
+}
+
+
+.engine-radio-group label {
+    display: inline-flex;
+
+    flex-direction: row;
+
+    align-items: center;
+
+    gap: 6px;
+
+    font-weight: 400;
+}
+
+
+/* ============================================================
+   TABELA
+   ============================================================ */
+
+.engine-table-container {
+    width: 100%;
+
+    overflow-x: auto;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 10px;
+}
+
+
+.engine-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    min-width: 700px;
+}
+
+
+.engine-table th {
+    padding: 12px 14px;
+
+    background: #f9fafb;
+
+    border-bottom: 1px solid #e5e7eb;
+
+    color: #374151;
+
+    font-size: 0.82rem;
+
+    font-weight: 700;
+
+    text-align: left;
+
+    white-space: nowrap;
+}
+
+
+.engine-table td {
+    padding: 11px 14px;
+
+    border-bottom: 1px solid #f0f1f3;
+
+    color: #374151;
+
+    font-size: 0.88rem;
+
+    vertical-align: middle;
+}
+
+
+.engine-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+
+.engine-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* ============================================================
+   AÇÕES DA TABELA
+   ============================================================ */
+
+.engine-table-actions {
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    white-space: nowrap;
+}
+
+
+.btn-table {
+    min-height: 32px;
+
+    padding: 6px 10px;
+
+    font-size: 0.78rem;
+}
+
+
+/* ============================================================
+   STATUS
+   ============================================================ */
+
+.status {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-width: 82px;
+
+    padding: 4px 9px;
+
+    border-radius: 999px;
+
+    font-size: 0.74rem;
+
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+
+.status-livre {
+    background: #dcfce7;
+    color: #166534;
+}
+
+
+.status-ocupado {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+
+.status-viagem {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+
+.status-manutencao {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+
+.status-andamento {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+
+.status-agendado {
+    background: #ede9fe;
+    color: #5b21b6;
+}
+
+
+.status-concluido {
+    background: #dcfce7;
+    color: #166534;
+}
+
+
+.status-cancelado {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+
+.status-default {
+    background: #f3f4f6;
+    color: #4b5563;
+}
+
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+
+.cards-container {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(220px, 1fr));
+
+    gap: 16px;
+}
+
+
+.card {
+    padding: 18px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 10px;
+
+    box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+
+.card-title {
+    margin-bottom: 8px;
+
+    font-size: 0.85rem;
+
+    font-weight: 600;
+
+    color: #6b7280;
+}
+
+
+.card-value {
+    font-size: 1.5rem;
+
+    font-weight: 700;
+
+    color: #111827;
+}
+
+
+/* ============================================================
+   RESUMO
+   ============================================================ */
+
+.resumo-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(180px, 1fr));
+
+    gap: 14px;
+
+    margin-bottom: 20px;
+}
+
+
+.resumo-item {
+    padding: 16px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 10px;
+}
+
+
+.resumo-item-label {
+    font-size: 0.8rem;
+
+    color: #6b7280;
+}
+
+
+.resumo-item-value {
+    margin-top: 4px;
+
+    font-size: 1.35rem;
+
+    font-weight: 700;
+
+    color: #111827;
+}
+
+
+/* ============================================================
+   HOME MENU
+   ============================================================ */
+
+.menu-card {
+    min-height: 140px;
+
+    padding: 22px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 12px;
+
+    text-decoration: none;
+
+    color: #111827;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+.menu-card:hover {
+    transform: translateY(-2px);
+
+    border-color: #cbd5e1;
+
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+
+.menu-card-title {
+    font-size: 1rem;
+
+    font-weight: 700;
+}
+
+
+.menu-card-description {
+    font-size: 0.82rem;
+
+    color: #6b7280;
+
+    text-align: center;
+}
+
+
+/* ============================================================
+   LOADING
+   ============================================================ */
+
+.loading-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 9999;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(255, 255, 255, 0.82);
+
+    backdrop-filter: blur(2px);
+}
+
+
+.loading-content {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 24px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 10px;
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+
+.loading-spinner {
+    width: 34px;
+    height: 34px;
+
+    border: 3px solid #e5e7eb;
+
+    border-top-color: #2563eb;
+
+    border-radius: 50%;
+
+    animation:
+        engine-spin 0.8s linear infinite;
+}
+
+
+@keyframes engine-spin {
+
+    to {
+        transform: rotate(360deg);
+    }
+
+}
+
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+
+.toast {
+    position: fixed;
+
+    right: 20px;
+    bottom: 20px;
+
+    z-index: 10000;
+
+    max-width: 380px;
+
+    padding: 13px 16px;
+
+    background: #111827;
+
+    color: #ffffff;
+
+    border-radius: 8px;
+
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.18);
+
+    font-size: 0.88rem;
+}
+
+
+/* ============================================================
+   VAZIO
+   ============================================================ */
+
+.engine-form-empty,
+.engine-table-empty {
+    padding: 35px 20px;
+
+    text-align: center;
+
+    color: #6b7280;
+
+    font-size: 0.9rem;
+}
+
+
+/* ============================================================
+   RESPONSIVO
+   ============================================================ */
+
+@media (max-width: 700px) {
+
+    .engine-form-fields {
+        grid-template-columns: 1fr;
+    }
+
+
+    .engine-form-wrapper {
+        padding: 15px;
+    }
+
+
+    .engine-toolbar {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+
+    .engine-form-actions {
+        flex-direction: column-reverse;
+
+        align-items: stretch;
+    }
+
+
+    .engine-form-actions .btn {
+        width: 100%;
+    }
+
+
+    .page-header {
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+
+}
+
+
+/* ============================================================
+   CAIXA ALTA — DADOS TEXTUAIS
+   ============================================================ */
+.engine-field input[type="text"],
+.engine-field textarea {
+    text-transform: uppercase;
+}
+
+/* ============================================================
+   INDICADORES DOS DADOS COMPLEMENTARES DO LANÇAMENTO
+   ============================================================ */
+.lancamento-auxiliares-lista {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.lancamento-aux-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+}
+
+.lancamento-aux-info,
+.lancamento-aux-valor {
+    min-height: 20px;
+    padding: 3px 2px;
+    font-size: 0.88rem;
+    line-height: 1.3;
+}
+
+.lancamento-aux-info {
+    font-weight: 700;
+}
+
+.lancamento-aux-valor {
+    color: inherit;
+}
+
+@media (max-width: 700px) {
+    .lancamento-auxiliares-lista {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================================
+   DASHBOARD — VISÃO GERAL DA FROTA
+   Layout operacional inspirado nas telas de listagem
+   ============================================================ */
+
+
+.dashboard-container {
+    padding: 0;
+    max-width: none;
+}
+
+.dashboard {
+    width: 100%;
+    color: #ffffff;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    gap: 16px;
+}
+
+/* Primeira linha: exatamente dois quadrantes iguais. */
+.dashboard-top-row {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    align-items: start;
+}
+
+.dashboard-card {
+    min-width: 0;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #0c1d40;
+    border: 0;
+    box-shadow: none;
+}
+
+.dashboard-card-header {
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 12px;
+    background: #304985;
+    border: 0;
+}
+
+.dashboard-card-header h2 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 0.92rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    line-height: 1.1;
+}
+
+.dashboard-table-container {
+    width: 100%;
+    overflow-x: auto;
+    padding: 10px 7px 7px;
+}
+
+.dashboard-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 0;
+    color: #ffffff;
+    background: #102650;
+}
+
+.dashboard-table th {
+    padding: 5px 7px;
+    background: #148b59;
+    border: 0;
+    color: #ffffff;
+    font-size: 0.73rem;
+    font-weight: 800;
+    line-height: 1.05;
+    text-align: left;
+    white-space: nowrap;
+    text-transform: uppercase;
+}
+
+.dashboard-table td {
+    padding: 6px 7px;
+    border: 0;
+    color: #ffffff;
+    font-size: 0.77rem;
+    font-weight: 500;
+    line-height: 1.15;
+    vertical-align: middle;
+}
+
+.dashboard-table tbody tr:nth-child(odd) {
+    background: #102650;
+}
+
+.dashboard-table tbody tr:nth-child(even) {
+    background: #18335f;
+}
+
+.dashboard-table tbody tr:hover {
+    background: #1d3b6d;
+}
+
+.dashboard-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.dashboard-table .dashboard-primary {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.dashboard-table .status {
+    min-width: auto;
+    padding: 0;
+    gap: 5px;
+    border-radius: 0;
+    background: transparent;
+    color: #ffffff;
+    font-size: 0.77rem;
+    font-weight: 800;
+    justify-content: flex-start;
+}
+
+.dashboard-table .status::before {
+    content: "";
+    width: 11px;
+    height: 11px;
+    flex: 0 0 11px;
+    border-radius: 50%;
+    background: #54d9a2;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18), 0 0 4px rgba(84,217,162,0.35);
+}
+
+.dashboard-table .status-ocupado {
+    background: transparent;
+    color: #ff404d;
+}
+
+.dashboard-table .status-ocupado::before {
+    background: #ef4457;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18), 0 0 4px rgba(239,68,87,0.35);
+}
+
+.dashboard-table .status-livre {
+    background: transparent;
+    color: #35e39a;
+}
+
+.dashboard-table .status-livre::before {
+    background: #55dca5;
+}
+
+.dashboard-condition {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #ffffff;
+    font-size: 0.77rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.dashboard-condition-dot {
+    width: 11px;
+    height: 11px;
+    flex: 0 0 11px;
+    border-radius: 50%;
+    background: #55dca5;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18), 0 0 4px rgba(85,220,165,0.3);
+}
+
+.dashboard-table-panel th,
+.dashboard-table-panel td {
+    padding-left: 7px;
+    padding-right: 7px;
+}
+
+/* Segunda linha: painel ocupa toda a largura disponível. */
+.dashboard-panel-card {
+    width: 100%;
+    margin-top: 0;
+    display: block;
+    grid-column: 1 / -1;
+}
+
+.dashboard-panel-card .dashboard-table-container {
+    padding-bottom: 7px;
+}
+
+.dashboard-table-panel {
+    width: 100%;
+    min-width: 0;
+}
+
+.dashboard-table-panel th:last-child,
+.dashboard-table-panel td:last-child {
+    width: 105px;
+}
+
+.dashboard-empty {
+    padding: 14px 10px !important;
+    color: #b9c5d9 !important;
+    text-align: center;
+}
+
+.dashboard-atualizacao {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    .dashboard-top-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 650px) {
+    .dashboard-table th,
+    .dashboard-table td {
+        padding: 6px 6px;
+        font-size: 0.72rem;
+    }
+
+    .dashboard-card-header {
+        min-height: 32px;
+        padding: 6px 10px;
+    }
+
+    .dashboard-card-header h2 {
+        font-size: 0.86rem;
+    }
+}
