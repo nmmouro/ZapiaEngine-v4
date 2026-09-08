@@ -42,12 +42,12 @@ function renderizarEstrutura(container) {
     container.innerHTML = `
         <section class="dashboard" aria-label="Visão geral da frota">
             <div class="dashboard-top-row">
-                <section class="dashboard-card">
-                    <div class="dashboard-card-header">
+                <section class="card dashboard-card">
+                    <div class="dashboard-card-header card-title">
                         <h2>VEÍCULOS</h2>
                     </div>
-                    <div class="dashboard-table-container">
-                        <table class="dashboard-table">
+                    <div class="engine-table-container dashboard-table-container">
+                        <table class="engine-table dashboard-table">
                             <thead>
                                 <tr>
                                     <th>PLACA</th>
@@ -61,12 +61,12 @@ function renderizarEstrutura(container) {
                     </div>
                 </section>
 
-                <section class="dashboard-card">
-                    <div class="dashboard-card-header">
+                <section class="card dashboard-card">
+                    <div class="dashboard-card-header card-title">
                         <h2>MOTORISTAS</h2>
                     </div>
-                    <div class="dashboard-table-container">
-                        <table class="dashboard-table">
+                    <div class="engine-table-container dashboard-table-container">
+                        <table class="engine-table dashboard-table">
                             <thead>
                                 <tr>
                                     <th>MOTORISTA</th>
@@ -81,11 +81,11 @@ function renderizarEstrutura(container) {
             </div>
 
             <section class="dashboard-card dashboard-panel-card">
-                <div class="dashboard-card-header">
+                <div class="dashboard-card-header card-title">
                     <h2>PAINEL</h2>
                 </div>
-                <div class="dashboard-table-container">
-                    <table class="dashboard-table dashboard-table-panel">
+                <div class="engine-table-container dashboard-table-container">
+                    <table class="engine-table dashboard-table dashboard-table-panel">
                         <thead>
                             <tr>
                                 <th>DATA</th>
@@ -122,7 +122,7 @@ async function atualizarDashboard() {
         .sort(compararDataHoraDesc);
 
     renderizarVeiculos(veiculos, lancamentos);
-    renderizarEmpregados(empregados, ocorrenciasAndamento);
+    renderizarMotoristas(empregados, ocorrenciasAndamento, ocorrenciasHoje);
     renderizarPainel(ocorrenciasHoje);
 
     const atualizacao = document.querySelector("[data-dashboard-atualizacao]");
@@ -165,10 +165,26 @@ function renderizarVeiculos(veiculos, lancamentos) {
     if (count) count.textContent = String(registros.length);
 }
 
-function renderizarEmpregados(empregados, ocorrenciasAndamento) {
+function renderizarMotoristas(empregados, ocorrenciasAndamento, ocorrenciasHoje) {
     const tbody = document.querySelector('[data-dashboard-table="empregados"]');
     const count = document.querySelector('[data-dashboard-count="empregados"]');
     if (!tbody) return;
+
+    // A tabela do Dashboard representa os condutores operacionais fixos.
+    // Um quarto condutor é incluído somente quando aparecer no Painel do dia
+    // (ocorrência EM ANDAMENTO) e não fizer parte da lista fixa.
+    const motoristasFixos = [
+        { nome: "CACIO", matricula: "5000366" },
+        { nome: "CELSO DALDEGAN", matricula: "5000205" },
+        { nome: "NEIDIVAL", matricula: "5000199" }
+    ];
+
+    const porId = new Map(empregados.map((item) => [texto(item.id), item]));
+    const porMatricula = new Map(
+        empregados
+            .map((item) => [texto(item.matricula), item])
+            .filter(([matricula]) => Boolean(matricula))
+    );
 
     const idsOcupados = new Set(
         ocorrenciasAndamento
@@ -176,24 +192,111 @@ function renderizarEmpregados(empregados, ocorrenciasAndamento) {
             .filter(Boolean)
     );
 
-    const registros = [...empregados].sort((a, b) =>
-        texto(a.empregado).localeCompare(texto(b.empregado), "pt-BR")
+    const snapshotsOcupados = new Set(
+        ocorrenciasAndamento
+            .map((item) => normalizarEmpregadoChave(formatarEmpregadoLancamento(item)))
+            .filter(Boolean)
     );
 
-    tbody.innerHTML = registros.length
-        ? registros.map((empregado) => {
-            const ocupado = idsOcupados.has(texto(empregado.id));
-            return `
-                <tr>
-                    <td class="dashboard-primary">${escaparHTML(formatarEmpregado(empregado))}</td>
-                    <td>${badgeStatus(ocupado ? "ocupado" : "livre")}</td>
-                    <td>${badgeCondicao(empregado.status)}</td>
-                </tr>
-            `;
-        }).join("")
-        : linhaVazia(3, "Nenhum empregado cadastrado.");
+    const registros = motoristasFixos.map((motorista) => {
+        const empregado = porMatricula.get(motorista.matricula) ||
+            empregados.find((item) =>
+                normalizarTextoSemAcento(item.empregado) === normalizarTextoSemAcento(motorista.nome)
+            );
 
-    if (count) count.textContent = String(registros.length);
+        const ocupado = empregado
+            ? idsOcupados.has(texto(empregado.id))
+            : snapshotsOcupados.has(normalizarEmpregadoChave(`${motorista.nome} / ${motorista.matricula}`));
+
+        return {
+            nome: motorista.nome,
+            matricula: motorista.matricula,
+            ocupado,
+            condicao: texto(empregado?.status) || "ATIVO",
+            fixo: true
+        };
+    });
+
+    const chavesFixas = new Set(
+        motoristasFixos.map((item) => normalizarEmpregadoChave(`${item.nome} / ${item.matricula}`))
+    );
+
+    // Procura condutores flutuantes diretamente nas ocorrências que aparecem
+    // no Painel. Se já estiver na lista fixa, não duplica.
+    const flutuantes = [];
+    for (const ocorrencia of ocorrenciasHoje) {
+        const identificacao = formatarEmpregadoLancamento(ocorrencia);
+        const chave = normalizarEmpregadoChave(identificacao);
+        if (!chave || chavesFixas.has(chave)) continue;
+
+        const matricula = extrairMatriculaEmpregado(identificacao);
+        const nome = extrairNomeEmpregado(identificacao);
+        const empregado = texto(ocorrencia.id_empregado)
+            ? porId.get(texto(ocorrencia.id_empregado))
+            : (matricula ? porMatricula.get(matricula) : null);
+
+        const chaveEmpregado = normalizarEmpregadoChave(
+            formatarEmpregado(empregado) || identificacao
+        );
+        if (chavesFixas.has(chaveEmpregado)) continue;
+        if (flutuantes.some((item) => item.chave === chave)) continue;
+
+        flutuantes.push({
+            nome: nome || texto(empregado?.empregado) || identificacao,
+            matricula: matricula || texto(empregado?.matricula),
+            ocupado: true,
+            // Condutor flutuante é identificado como USUÁRIO no Dashboard.
+            condicao: "USUÁRIO",
+            chave,
+            fixo: false
+        });
+    }
+
+    const todos = [...registros, ...flutuantes];
+
+    tbody.innerHTML = todos.length
+        ? todos.map((motorista) => `
+            <tr>
+                <td class="dashboard-primary">${escaparHTML(formatarMotorista(motorista))}</td>
+                <td>${badgeStatus(motorista.ocupado ? "ocupado" : "livre")}</td>
+                <td>${badgeCondicao(motorista.condicao)}</td>
+            </tr>
+        `).join("")
+        : linhaVazia(3, "Nenhum motorista disponível.");
+
+    if (count) count.textContent = String(todos.length);
+}
+
+function normalizarTextoSemAcento(valor) {
+    return texto(valor)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toUpperCase();
+}
+
+function normalizarEmpregadoChave(valor) {
+    return normalizarTextoSemAcento(valor)
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function extrairMatriculaEmpregado(valor) {
+    const textoValor = texto(valor);
+    const match = textoValor.match(/(?:\/|-)\s*(\d{4,})\s*$/);
+    return match ? match[1] : "";
+}
+
+function extrairNomeEmpregado(valor) {
+    const textoValor = texto(valor);
+    const match = textoValor.match(/^(.*?)\s*(?:\/|-)\s*\d{4,}\s*$/);
+    return match ? match[1].trim() : textoValor;
+}
+
+function formatarMotorista(motorista) {
+    const nome = texto(motorista?.nome);
+    const matricula = texto(motorista?.matricula);
+    if (nome && matricula) return `${nome} / ${matricula}`;
+    return nome || matricula || "—";
 }
 
 function renderizarPainel(ocorrencias) {
@@ -314,7 +417,7 @@ function formatarEmpregadoLancamento(item) {
 
 function badgeCondicao(valor) {
     const condicao = texto(valor) || "—";
-    return `<span class="dashboard-condition"><span class="dashboard-condition-dot"></span>${escaparHTML(condicao)}</span>`;
+    return `<span class="status status-default">${escaparHTML(condicao)}</span>`;
 }
 
 function formatarDataPainel(valor) {
