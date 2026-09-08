@@ -492,7 +492,7 @@ function instalarControlesDoCiclo() {
     const formulario = modulo.form.formulario;
     if (!formulario) return;
 
-    formulario.addEventListener("submit", validarAntesDeSalvar, true);
+    formulario.addEventListener("submit", interceptarESalvarComCalculados, true);
 
     container.addEventListener("form:novo", async () => {
         modo = "abertura";
@@ -689,6 +689,107 @@ function configurarEdicao() {
     ocultarCamposInformativos();
     setTextoBotaoSalvar("ATUALIZAR");
     adicionarBotoesAuxiliares();
+}
+
+async function interceptarESalvarComCalculados(evento) {
+    // O listener genérico do Engine também escuta submit. Para garantir que
+    // os campos calculados estejam no payload ANTES do POST/PATCH, este
+    // listener interrompe o fluxo genérico, calcula/preenche os valores e
+    // chama form.salvar() diretamente.
+    if (preparando || modulo?.form?.salvando) return;
+
+    if (modo === "abertura") {
+        await validarAntesDeSalvar(evento);
+        return;
+    }
+
+    evento.preventDefault();
+    evento.stopImmediatePropagation();
+
+    const formularioAtual = modulo?.form?.formulario;
+    if (!formularioAtual) return;
+
+    if (!formularioAtual.checkValidity()) {
+        formularioAtual.reportValidity();
+        return;
+    }
+
+    try {
+        await preencherCamposCalculados();
+        await modulo.form.salvar();
+    } catch (erro) {
+        console.error("LANÇAMENTOS → ERRO AO PREPARAR CAMPOS CALCULADOS:", erro);
+    }
+}
+
+async function preencherCamposCalculados() {
+    const kmInicial = converterNumero(getValor("km_inicial"));
+    const kmFinal = converterNumero(getValor("km_final"));
+
+    if (Number.isFinite(kmInicial) && Number.isFinite(kmFinal)) {
+        const distancia = kmFinal - kmInicial;
+        if (distancia >= 0) {
+            setValor("distancia_percorrida", Number(distancia.toFixed(2)));
+        } else {
+            throw new Error("Km Final não pode ser menor que Km Inicial.");
+        }
+    } else {
+        setValor("distancia_percorrida", "");
+    }
+
+    const horarioInicial = getValor("horario_inicial");
+    const horarioFinal = getValor("horario_final");
+    const minutos = calcularDiferencaMinutos(horarioInicial, horarioFinal);
+
+    if (Number.isFinite(minutos)) {
+        setValor("duracao_atendimento", formatarDuracao(minutos));
+    } else {
+        setValor("duracao_atendimento", "");
+    }
+
+    const idEmpregado = getValor("id_empregado");
+    if (idEmpregado) {
+        const empregados = await listar("empregados", { id: idEmpregado });
+        const empregado = Array.isArray(empregados) ? empregados[0] : null;
+        const classificacao = empregado?.classificacao ?? "";
+        setValor("classificacao", classificacao);
+        console.log("LANÇAMENTOS → CLASSIFICAÇÃO DO EMPREGADO:", classificacao);
+    } else {
+        setValor("classificacao", "");
+    }
+
+    console.log("LANÇAMENTOS → CAMPOS CALCULADOS:", {
+        distancia_percorrida: getValor("distancia_percorrida"),
+        classificacao: getValor("classificacao"),
+        duracao_atendimento: getValor("duracao_atendimento")
+    });
+}
+
+function converterNumero(valor) {
+    if (valor === null || valor === undefined || valor === "") return NaN;
+    const numero = Number(String(valor).replace(",", "."));
+    return Number.isFinite(numero) ? numero : NaN;
+}
+
+function calcularDiferencaMinutos(inicio, fim) {
+    if (!inicio || !fim) return NaN;
+    const [hi, mi] = String(inicio).split(":").map(Number);
+    const [hf, mf] = String(fim).split(":").map(Number);
+    if (![hi, mi, hf, mf].every(Number.isFinite)) return NaN;
+
+    let totalInicio = hi * 60 + mi;
+    let totalFim = hf * 60 + mf;
+    let diferenca = totalFim - totalInicio;
+
+    // Permite atendimento que atravesse a meia-noite.
+    if (diferenca < 0) diferenca += 24 * 60;
+    return diferenca;
+}
+
+function formatarDuracao(minutos) {
+    const horas = Math.floor(minutos / 60);
+    const mins = minutos % 60;
+    return `${String(horas).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
 }
 
 async function validarAntesDeSalvar(evento) {

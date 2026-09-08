@@ -285,6 +285,7 @@ export const SCHEMA_LANCAMENTOS = {
             type: "number",
             required: false,
             visible: true,
+            readonly: true,
             min: 0,
             step: 0.01
         },
@@ -298,7 +299,8 @@ export const SCHEMA_LANCAMENTOS = {
             label: "Duração Atendimento / HH:MM",
             type: "time",
             required: false,
-            visible: true
+            visible: true,
+            readonly: true
         },
 
         // ========================================================
@@ -422,7 +424,8 @@ export const SCHEMA_LANCAMENTOS = {
             type: "select",
             required: false,
             visible: false,
-            
+            hidden: true,
+            readonly: true,
         },
 
         // ========================================================
