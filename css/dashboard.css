@@ -1,188 +1,83 @@
 /* ============================================================
-   DASHBOARD - LAYOUT OPERACIONAL
+   DASHBOARD
+   Layout específico da página — sem substituir os padrões
+   globais definidos em style.css e components.css.
    ============================================================ */
 
-html, body {
-    width: 100%;
-    min-height: 100%;
-    margin: 0;
-}
-
-body[data-page="dashboard"] {
-    background: #f4f6f8;
-}
+/* O visual dos cards, tabelas, status, tipografia e espaçamentos
+   permanece vindo dos componentes globais. Este arquivo cuida
+   somente da distribuição espacial do Dashboard. */
 
 body[data-page="dashboard"] #app.dashboard-container {
-    width: 100% !important;
-    max-width: none !important;
-    min-height: calc(100vh - 76px);
-    box-sizing: border-box;
-    padding: 16px !important;
-    margin: 0 !important;
+    width: 100%;
+    max-width: none;
 }
 
 .dashboard {
-    width: 100% !important;
-    max-width: none !important;
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) !important;
-    grid-auto-flow: row;
-    gap: 16px;
-    box-sizing: border-box;
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
 }
 
-/* PRIMEIRA LINHA: dois quadrantes iguais */
+/* Primeira linha: dois quadrantes exatamente iguais. */
 .dashboard-top-row {
-    width: 100% !important;
-    max-width: none !important;
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-    gap: 12px !important;
-    align-items: start !important;
-    box-sizing: border-box;
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
 }
 
 .dashboard-top-row > .dashboard-card {
-    width: 100% !important;
-    min-width: 0 !important;
-}
-
-/* PAINEL: linha seguinte, 100% */
-.dashboard-panel-card {
-    width: 100% !important;
-    max-width: none !important;
-    min-width: 0 !important;
-    grid-column: 1 / -1 !important;
-    margin: 0 !important;
-}
-
-.dashboard-card {
+    width: 100%;
     min-width: 0;
-    overflow: hidden;
-    border-radius: 8px;
-    background: #0c1d40 !important;
-    color: #fff;
-    box-sizing: border-box;
+}
+
+/* Linha seguinte: Painel ocupa 100% da largura. */
+.dashboard-panel-card {
+    width: 100%;
+    min-width: 0;
+    grid-column: 1 / -1;
+}
+
+/* Permite que as tabelas usem toda a largura do card sem
+   introduzir um segundo padrão visual. */
+.dashboard-table-container {
+    width: 100%;
+}
+
+.dashboard-table {
+    width: 100%;
+}
+
+.dashboard-table-panel {
+    min-width: 0;
 }
 
 .dashboard-card-header {
-    min-height: 34px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 7px 12px;
-    background: #304985 !important;
-    box-sizing: border-box;
+    margin-bottom: 12px;
+    color: inherit;
 }
 
 .dashboard-card-header h2 {
     margin: 0;
-    color: #fff !important;
-    font-size: .92rem;
-    font-weight: 800;
-    line-height: 1.1;
-    text-transform: uppercase;
-}
-
-.dashboard-table-container {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 10px 7px 7px;
-    overflow-x: auto;
-}
-
-.dashboard-table {
-    width: 100% !important;
-    min-width: 0 !important;
-    border-collapse: separate;
-    border-spacing: 0;
-    color: #fff !important;
-    background: #102650 !important;
-}
-
-.dashboard-table th {
-    padding: 5px 7px;
-    border: 0;
-    background: #148b59 !important;
-    color: #fff !important;
-    font-size: .73rem;
-    font-weight: 800;
-    line-height: 1.05;
-    text-align: left;
-    white-space: nowrap;
-    text-transform: uppercase;
-}
-
-.dashboard-table td {
-    padding: 6px 7px;
-    border: 0;
-    color: #fff !important;
-    font-size: .77rem;
-    font-weight: 500;
-    line-height: 1.15;
-    vertical-align: middle;
-}
-
-.dashboard-table tbody tr:nth-child(odd) { background: #102650 !important; }
-.dashboard-table tbody tr:nth-child(even) { background: #18335f !important; }
-.dashboard-table tbody tr:hover { background: #1d3b6d !important; }
-
-.dashboard-table .dashboard-primary {
-    color: #fff !important;
-    font-weight: 700;
-}
-
-.dashboard-table .status {
-    min-width: auto !important;
-    padding: 0 !important;
-    gap: 5px;
-    border-radius: 0 !important;
-    background: transparent !important;
-    color: #fff;
-    font-size: .77rem;
-    font-weight: 800;
-    justify-content: flex-start;
-}
-
-.dashboard-table .status::before {
-    content: "";
-    width: 11px;
-    height: 11px;
-    flex: 0 0 11px;
-    border-radius: 50%;
-    background: #55dca5;
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,.18), 0 0 4px rgba(84,217,162,.35);
-}
-
-.dashboard-table .status-livre { color: #35e39a !important; background: transparent !important; }
-.dashboard-table .status-livre::before { background: #55dca5; }
-.dashboard-table .status-ocupado { color: #ff404d !important; background: transparent !important; }
-.dashboard-table .status-ocupado::before { background: #ef4457; }
-
-.dashboard-condition {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: #fff !important;
-    font-size: .77rem;
+    color: inherit;
+    font-size: 0.85rem;
     font-weight: 600;
-    white-space: nowrap;
+    text-transform: uppercase;
 }
 
-.dashboard-condition-dot {
-    width: 11px;
-    height: 11px;
-    flex: 0 0 11px;
-    border-radius: 50%;
-    background: #55dca5;
+.dashboard-empty {
+    text-align: center;
 }
 
-.dashboard-table-panel { width: 100% !important; min-width: 0 !important; }
-.dashboard-table-panel th:last-child,
-.dashboard-table-panel td:last-child { width: 105px; }
-.dashboard-empty { padding: 14px 10px !important; color: #b9c5d9 !important; text-align: center; }
-.dashboard-atualizacao { display: none !important; }
+.dashboard-atualizacao {
+    display: none;
+}
 
-@media (max-width: 700px) {
-    .dashboard-top-row { grid-template-columns: 1fr !important; }
+@media (max-width: 900px) {
+    .dashboard-top-row {
+        grid-template-columns: 1fr;
+    }
 }
