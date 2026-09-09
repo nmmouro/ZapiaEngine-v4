@@ -17,7 +17,7 @@ body[data-page="dashboard"] #app.dashboard-container {
     width: 100%;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 20px;
+    gap: 10px;
 }
 
 /* Primeira linha: dois quadrantes exatamente iguais. */
@@ -25,7 +25,7 @@ body[data-page="dashboard"] #app.dashboard-container {
     width: 100%;
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 20px;
+    gap: 10px;
     align-items: start;
 }
 
@@ -63,8 +63,8 @@ body[data-page="dashboard"] #app.dashboard-container {
 .dashboard-card-header h2 {
     margin: 0;
     color: inherit;
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 1.85rem;
+    font-weight: 700;
     text-transform: uppercase;
 }
 
