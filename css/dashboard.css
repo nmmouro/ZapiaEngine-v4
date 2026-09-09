@@ -61,7 +61,7 @@ body[data-page="dashboard"] #app.dashboard-container {
 
 .dashboard-page table thead th {
     font-size: 18px;
-    padding: 9px 8px;
+    padding: 5px 4px;
 }
 
 .dashboard-page table tbody tr {
