@@ -13,6 +13,10 @@ body[data-page="dashboard"] #app.dashboard-container {
     max-width: none;
 }
 
+.dashboard-page table {
+    font-size: 16px;
+}
+
 .dashboard {
     width: 100%;
     display: grid;
@@ -53,6 +57,20 @@ body[data-page="dashboard"] #app.dashboard-container {
 
 .dashboard-table-panel {
     min-width: 0;
+}
+
+.dashboard-page table thead th {
+    font-size: 15px;
+    padding: 9px 8px;
+}
+
+.dashboard-page table tbody tr {
+    height: 40px;
+}
+
+.dashboard-page table tbody td {
+    padding-top: 8px;
+    padding-bottom: 8px;
 }
 
 .dashboard-card-header {
