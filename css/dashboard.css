@@ -63,7 +63,7 @@ body[data-page="dashboard"] #app.dashboard-container {
 .dashboard-card-header h2 {
     margin: 0;
     color: inherit;
-    font-size: 0.85rem;
+    font-size: 1.85rem;
     font-weight: 700;
     text-transform: uppercase;
 }
