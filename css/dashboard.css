@@ -14,7 +14,7 @@ body[data-page="dashboard"] #app.dashboard-container {
 }
 
 .dashboard-page table {
-    font-size: 16px;
+    font-size: 18px;
 }
 
 .dashboard {
@@ -60,12 +60,12 @@ body[data-page="dashboard"] #app.dashboard-container {
 }
 
 .dashboard-page table thead th {
-    font-size: 15px;
+    font-size: 18px;
     padding: 9px 8px;
 }
 
 .dashboard-page table tbody tr {
-    height: 40px;
+    height: 50px;
 }
 
 .dashboard-page table tbody td {
@@ -81,7 +81,7 @@ body[data-page="dashboard"] #app.dashboard-container {
 .dashboard-card-header h2 {
     margin: 0;
     color: inherit;
-    font-size: 1.85rem;
+    font-size: 0.85rem;
     font-weight: 700;
     text-transform: uppercase;
 }
