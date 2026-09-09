@@ -65,12 +65,12 @@ body[data-page="dashboard"] #app.dashboard-container {
 }
 
 .dashboard-page table tbody tr {
-    height: 55px;
+    height: 50px;
 }
 
 .dashboard-page table tbody td {
-    padding-top: 8px;
-    padding-bottom: 8px;
+    padding-top: 4px;
+    padding-bottom: 4px;
 }
 
 .dashboard-card-header {
