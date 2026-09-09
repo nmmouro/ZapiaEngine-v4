@@ -1,22 +1,57 @@
 -- PAINEL FROTA - SUPABASE / POSTGRESQL
--- Execute este arquivo no SQL Editor do Supabase.
+-- Schema atualizado para o módulo de veículos.
+-- Execute no SQL Editor do Supabase.
 
 create table if not exists public.veiculos (
     id text primary key,
-    data_cadastro date not null default current_date,
+    data date not null default current_date,
     foto text,
     placa text not null,
-    modelo text not null,
-    marca text,
-    ano integer,
-    cor text,
-    combustivel text,
-    km_atual numeric,
+    renavam text,
+    chassi text,
+    patrimonio text,
+    ano_fabricacao_modelo integer,
+    marca_modelo_versao text,
+    cor_predominante text,
+    combustivel text not null,
+    ultima_revisao date,
+    proxima_revisao date,
+    km_atual numeric not null default 0,
+    alerta_revisao text,
+    crlv text,
+    numero_tag text,
+    tag_foto text,
+    cartao_neo text,
+    foto_neo text,
+    codigo_neo text,
+    pontos_abastecimento text,
+    manual_digital text,
     status text not null default 'ATIVO',
-    created_at timestamptz not null default now(),
-    updated_at timestamptz not null default now()
+    criado_em timestamptz not null default now(),
+    atualizado_em timestamptz not null default now(),
+    constraint veiculos_combustivel_chk check (
+        combustivel in ('GASOLINA','ETANOL','FLEX','DIESEL','DIESEL S10','ELÉTRICO')
+    ),
+    constraint veiculos_status_chk check (
+        status in ('ATIVO','INATIVO','MANUTENÇÃO')
+    ),
+    constraint veiculos_ano_chk check (
+        ano_fabricacao_modelo is null
+        or ano_fabricacao_modelo between 1900 and 2100
+    ),
+    constraint veiculos_km_chk check (km_atual >= 0)
 );
 
+create index if not exists idx_veiculos_placa
+    on public.veiculos(placa);
+
+create index if not exists idx_veiculos_status
+    on public.veiculos(status);
+
+create index if not exists idx_veiculos_proxima_revisao
+    on public.veiculos(proxima_revisao);
+
+-- Demais tabelas existentes do Painel Frota permanecem abaixo.
 create table if not exists public.empregados (
     id text primary key,
     data_cadastro date not null default current_date,
@@ -103,52 +138,3 @@ create table if not exists public.manutencao (
     criado_em timestamptz not null default now(),
     atualizado_em timestamptz not null default now()
 );
-
-create index if not exists idx_abastecimentos_veiculo on public.abastecimentos(id_veiculo);
-create index if not exists idx_manutencao_lancamento on public.manutencao(id_lancamento);
-create index if not exists idx_manutencao_data on public.manutencao(data desc);
-create index if not exists idx_manutencao_veiculo on public.manutencao(veiculo);
-create index if not exists idx_abastecimentos_data on public.abastecimentos(data desc);
-create index if not exists idx_lancamentos_veiculo on public.lancamentos(id_veiculo);
-create index if not exists idx_lancamentos_empregado on public.lancamentos(id_empregado);
-create index if not exists idx_lancamentos_data on public.lancamentos(data desc);
-
-create or replace function public.atualizar_updated_at()
-returns trigger
-language plpgsql
-as $$
-begin
-    new.updated_at = now();
-    return new;
-end;
-$$;
-
-create or replace function public.atualizar_atualizado_em_manutencao()
-returns trigger
-language plpgsql
-as $$
-begin
-    new.atualizado_em = now();
-    return new;
-end;
-$$;
-
-drop trigger if exists trg_veiculos_updated_at on public.veiculos;
-create trigger trg_veiculos_updated_at before update on public.veiculos
-for each row execute function public.atualizar_updated_at();
-
-drop trigger if exists trg_empregados_updated_at on public.empregados;
-create trigger trg_empregados_updated_at before update on public.empregados
-for each row execute function public.atualizar_updated_at();
-
-drop trigger if exists trg_abastecimentos_updated_at on public.abastecimentos;
-create trigger trg_abastecimentos_updated_at before update on public.abastecimentos
-for each row execute function public.atualizar_updated_at();
-
-drop trigger if exists trg_manutencao_updated_at on public.manutencao;
-create trigger trg_manutencao_updated_at before update on public.manutencao
-for each row execute function public.atualizar_atualizado_em_manutencao();
-
-drop trigger if exists trg_lancamentos_updated_at on public.lancamentos;
-create trigger trg_lancamentos_updated_at before update on public.lancamentos
-for each row execute function public.atualizar_updated_at();
