@@ -65,7 +65,7 @@ body[data-page="dashboard"] #app.dashboard-container {
 }
 
 .dashboard-page table tbody tr {
-    height: 50px;
+    height: 55px;
 }
 
 .dashboard-page table tbody td {
