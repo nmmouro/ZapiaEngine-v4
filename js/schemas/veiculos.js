@@ -185,6 +185,7 @@ export const SCHEMA_VEICULOS = {
 
             visible:
                 true
+        },
 
 
         // ----------------------------------------------------
