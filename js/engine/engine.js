@@ -49,6 +49,11 @@ import {
     excluir
 } from "./crud.js";
 
+import {
+    uploadArquivo,
+    excluirArquivo
+} from "../services/storageService.js";
+
 
 // ============================================================
 // CREATE ENGINE
@@ -569,246 +574,149 @@ export function createEngine(config = {}) {
         async salvar(dados) {
 
             if (state.salvando) {
-
-                console.warn(
-                    `ENGINE ${entity}: salvamento já em andamento.`
-                );
-
+                console.warn(`ENGINE ${entity}: salvamento já em andamento.`);
                 return;
-
             }
 
+            state.salvando = true;
+            const arquivosEnviados = [];
+            const arquivosAntigos = [];
 
-            state.salvando =
-                true;
-
-
-            console.log(
-                `ENGINE ${entity} → SALVAR`,
-                dados
-            );
-
-
-            emitir(
-                "salvando",
-                dados
-            );
-
+            console.log(`ENGINE ${entity} → SALVAR`, dados);
+            emitir("salvando", dados);
 
             try {
+                const fields = Array.isArray(schema?.fields)
+                    ? schema.fields
+                    : Array.isArray(schema) ? schema : [];
+
+                const fileFields = fields.filter(campo =>
+                    String(campo?.type || "").toLowerCase() === "file"
+                );
+
+                const dadosProcessados = { ...dados };
+                const idExistente = state.registroEditando
+                    ? normalizarId(state.registroEditando.id)
+                    : "";
+                const id = idExistente || await gerarId(entity);
+
+                // A coluna veiculos.km_atual é NOT NULL.
+                if (entity === "veiculos" &&
+                    (dadosProcessados.km_atual === undefined ||
+                     dadosProcessados.km_atual === null ||
+                     String(dadosProcessados.km_atual).trim() === "")) {
+                    dadosProcessados.km_atual = 0;
+                }
+
+                // Upload dos arquivos somente depois que o ID do veículo é conhecido.
+                for (const campo of fileFields) {
+                    const nome = campo.name || campo.nome;
+                    if (!nome) continue;
+
+                    const arquivo = dadosProcessados[nome];
+
+                    if (arquivo instanceof File) {
+                        const upload = await uploadArquivo(arquivo, {
+                            idVeiculo: id,
+                            campo: campo.storageFolder || nome,
+                            accept: campo.accept || "",
+                            maxSizeMB: campo.maxSizeMB ?? 10,
+                            label: campo.label || nome
+                        });
+
+                        arquivosEnviados.push(upload);
+                        dadosProcessados[nome] = upload.url;
+
+                        if (idExistente && state.registroEditando?.[nome]) {
+                            arquivosAntigos.push(state.registroEditando[nome]);
+                        }
+                    } else if (
+                        idExistente &&
+                        (arquivo === null || arquivo === undefined || arquivo === "")
+                    ) {
+                        // Nenhum novo arquivo escolhido: mantém o existente.
+                        if (state.registroEditando?.[nome]) {
+                            dadosProcessados[nome] = state.registroEditando[nome];
+                        }
+                    }
+                }
 
                 let resposta;
 
+                if (idExistente) {
+                    const registro = {
+                        ...state.registroEditando,
+                        ...dadosProcessados,
+                        id: idExistente
+                    };
 
-                // ==================================================
-                // ATUALIZAR
-                // ==================================================
-
-                if (
-                    state.registroEditando
-                ) {
-
-                    const id =
-                        normalizarId(
-                            state.registroEditando.id
-                        );
-
-
-                    if (!id) {
-
-                        throw new Error(
-                            "Engine: registro em edição sem ID."
-                        );
-
-                    }
-
-
-                    const registro =
-                        {
-
-                            ...state.registroEditando,
-
-                            ...dados,
-
-                            id
-
-                        };
-
-
-                    console.log(
-                        `ENGINE ${entity} → ATUALIZAR`,
-                        registro
-                    );
-
-
-
-console.log(
-    "DEBUG ENGINE → CHAMANDO ATUALIZAR",
-    {
-        entity,
-        id,
-        registro,
-        tipoRegistro: typeof registro
-    }
-);
-
-
-                    
-
-
-                    resposta =
-                        await atualizar(
-                            entity,
-                            
-                            registro
-                        );
-
+                    console.log(`ENGINE ${entity} → ATUALIZAR`, registro);
+                    resposta = await atualizar(entity, registro);
 
                     const registroAtualizado =
-                        normalizarRegistroResposta(
-                            resposta
-                        ) ||
-                        registro;
+                        normalizarRegistroResposta(resposta) || registro;
 
+                    atualizarEstadoLocal(registroAtualizado);
+                } else {
+                    const dadosCriar = {
+                        ...dadosProcessados,
+                        id
+                    };
 
-                    atualizarEstadoLocal(
-                        registroAtualizado
-                    );
+                    console.log(`ENGINE ${entity} → NOVO ID:`, id);
+                    resposta = await criar(entity, dadosCriar);
 
+                    const novoRegistro =
+                        normalizarRegistroResposta(resposta);
+
+                    if (novoRegistro) {
+                        state.registros.push(novoRegistro);
+                    }
                 }
 
-
-               
-// ==================================================
-// CRIAR
-// ==================================================
-
-else {
-
-    console.log(
-        `ENGINE ${entity} → CRIAR`
-    );
-
-
-    /*
-     * Gerar ID antes de enviar
-     * para o Supabase.
-     */
-
-    const id =
-        await gerarId(
-            entity
-        );
-
-
-    const dadosCriar = {
-
-        ...dados,
-
-        id
-
-    };
-
-
-    console.log(
-        `ENGINE ${entity} → NOVO ID:`,
-        id
-    );
-
-
-    resposta =
-        await criar(
-            entity,
-            dadosCriar
-        );
-
-
-    const novoRegistro =
-        normalizarRegistroResposta(
-            resposta
-        );
-
-
-    if (novoRegistro) {
-
-        state.registros.push(
-            novoRegistro
-        );
-
-    }
-
-}
-
-
-
-                // ==================================================
-                // FINALIZAR
-                // ==================================================
-
-                state.registroEditando =
-                    null;
-
-
-                if (
-                    form &&
-                    typeof form.limpar === "function"
-                ) {
-
-                    form.limpar();
-
+                // Remove anexos antigos somente depois do POST/PATCH confirmado.
+                for (const antigo of arquivosAntigos) {
+                    try {
+                        await excluirArquivo(antigo);
+                    } catch (erro) {
+                        console.warn(
+                            `ENGINE ${entity} → NÃO FOI POSSÍVEL EXCLUIR ANEXO ANTIGO:`,
+                            erro
+                        );
+                    }
                 }
 
+                state.registroEditando = null;
 
-                if (
-                    form &&
-                    typeof form.fechar === "function"
-                ) {
-
-                    form.fechar();
-
-                }
-
+                if (form && typeof form.limpar === "function") form.limpar();
+                if (form && typeof form.fechar === "function") form.fechar();
 
                 renderizarTabela();
-
-
-                emitir(
-                    "salvo",
-                    resposta
-                );
-
-
+                emitir("salvo", resposta);
                 return resposta;
-
 
             } catch (erro) {
 
-                console.error(
-                    `ENGINE ${entity}: erro ao salvar`,
-                    erro
-                );
+                // Não deixa arquivos órfãos no Storage quando o banco falha.
+                for (const upload of arquivosEnviados) {
+                    try {
+                        await excluirArquivo(upload.path || upload.url);
+                    } catch (limpezaErro) {
+                        console.warn(
+                            `ENGINE ${entity} → FALHA NA LIMPEZA DO UPLOAD:`,
+                            limpezaErro
+                        );
+                    }
+                }
 
-
-                mostrarErro(
-                    erro
-                );
-
-
+                console.error(`ENGINE ${entity}: erro ao salvar`, erro);
+                mostrarErro(erro);
                 throw erro;
 
-
             } finally {
-
-                state.salvando =
-                    false;
-
-
-                emitir(
-                    "fim-salvamento"
-                );
-
+                state.salvando = false;
+                emitir("fim-salvamento");
             }
-
         },
 
 

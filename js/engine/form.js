@@ -631,10 +631,8 @@ if (campoHorarioInicial) {
                     let valor;
 
                     if (campo.type === "file") {
-                        const arquivo = campo.files?.[0] || null;
-                        valor = arquivo
-                            ? await arquivoComoDataURL(arquivo)
-                            : "";
+                        // Mantém o objeto File. O Engine fará o upload ao Storage.
+                        valor = campo.files?.[0] || null;
                     } else {
                         valor = obterValorCampo(campo);
                     }
@@ -2946,6 +2944,12 @@ function atualizarIdsRelacionados() {
         }
 
 
+        if (campo.type === "file") {
+            // Browsers do not allow setting a file input programmatically.
+            // Existing attachment is preserved by the Engine during edit.
+            return;
+        }
+
         campo.value =
             valor === null ||
             valor === undefined
@@ -2960,16 +2964,6 @@ function atualizarIdsRelacionados() {
      * OBTER VALOR DO CAMPO
      * ========================================================
      */
-
-    function arquivoComoDataURL(arquivo) {
-        return new Promise((resolve, reject) => {
-            const leitor = new FileReader();
-            leitor.onload = () => resolve(String(leitor.result || ""));
-            leitor.onerror = () => reject(new Error("Não foi possível ler a imagem selecionada."));
-            leitor.readAsDataURL(arquivo);
-        });
-    }
-
 
     function obterValorCampo(
         campo
