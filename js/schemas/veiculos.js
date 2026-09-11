@@ -65,7 +65,7 @@ export const SCHEMA_VEICULOS = {
         // FOTO
         // ----------------------------------------------------
 
-        arquivo('Foto', { name: 'foto', image: true }),
+        { label:"Foto", name:"foto", type:"file", accept:"image/jpeg,image/png,image/webp", maxSizeMB:5, preview:true, storageFolder:"foto" },
 
 
         // ----------------------------------------------------
@@ -216,7 +216,7 @@ export const SCHEMA_VEICULOS = {
 
         {
             name:
-                "marca_modelo_verssao",
+                "marca_modelo_versao",
 
             label:
                 "Marca / Modelo / Versão",
@@ -418,7 +418,7 @@ export const SCHEMA_VEICULOS = {
         // ----------------------------------------------------
 
 
-        arquivo('CRLV', { name: 'crlv' }),
+        { label:"CRLV", name:"crlv", type:"file", accept:".pdf,application/pdf", maxSizeMB:10, preview:true, storageFolder:"crlv" },
 
 
         // ----------------------------------------------------
@@ -438,7 +438,7 @@ export const SCHEMA_VEICULOS = {
         // FOTO TAG
         // ----------------------------------------------------
         
-            arquivo('Foto da TAG', { name: 'tag_foto', image: true }),
+            { label:"Foto da TAG", name:"tag_foto", type:"file", accept:"image/jpeg,image/png,image/webp", maxSizeMB:5, preview:true, storageFolder:"tag_foto" },
 
         // ----------------------------------------------------
         // CARTÃO NEO
@@ -457,7 +457,7 @@ export const SCHEMA_VEICULOS = {
         // foto cartão neo
         // ----------------------------------------------------
     
-            arquivo('Foto NEO', { name: 'foto_neo', image: true }),
+            { label:"Foto NEO", name:"foto_neo", type:"file", accept:"image/jpeg,image/png,image/webp", maxSizeMB:5, preview:true, storageFolder:"foto_neo" },
 
         // ----------------------------------------------------
         // CÓDIGO NEO
@@ -475,13 +475,13 @@ export const SCHEMA_VEICULOS = {
         // POSTOR CREDENCIADOS
         // ----------------------------------------------------
         
-            arquivo('Pontos de abastecimento', { name: 'pontos_abastecimento' }),
+            { label:"Pontos de abastecimento", name:"pontos_abastecimento", type:"file", accept:".pdf,application/pdf", maxSizeMB:10, preview:true, storageFolder:"pontos_abastecimento" },
 
         // ----------------------------------------------------
         // MANUAL DIGITAL
         // ----------------------------------------------------
         
-            arquivo('Manual digital', { name: 'manual_digital' }),
+            { label:"Manual digital", name:"manual_digital", type:"file", accept:".pdf,application/pdf", maxSizeMB:20, preview:true, storageFolder:"manual_digital" },
 
         // ----------------------------------------------------
         // STATUS
