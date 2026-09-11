@@ -3,27 +3,7 @@
  * SCHEMA — VEÍCULOS
  * Painel Frota
  * Arquivo: js/schemas/veiculos.js
- *
- * Responsabilidade:
- *
- * - Definir os campos da tabela VEÍCULOS
- * - Definir labels
- * - Definir tipos
- * - Definir campos visíveis na tabela
- * - Definir campos editáveis
- * - Definir campos obrigatórios
- * - Definir opções dos campos SELECT
- *
- * Não possui:
- *
- * - CRUD
- * - Supabase
- * - PostgreSQL
- * - HTML
- * - Eventos
- *
- * ============================================================
- */
+ * */
 
 
 // ============================================================
@@ -81,17 +61,23 @@ export const SCHEMA_VEICULOS = {
                 false
         },
 
+        // ----------------------------------------------------
+        // FOTO
+        // ----------------------------------------------------
+
+        arquivo('Foto', { name: 'foto', image: true }),
+
 
         // ----------------------------------------------------
-        // DATA DE CADASTRO
+        // DATA
         // ----------------------------------------------------
 
         {
             name:
-                "data_cadastro",
+                "data",
 
             label:
-                "Data de Cadastro",
+                "Data",
 
             type:
                 "date",
@@ -104,29 +90,7 @@ export const SCHEMA_VEICULOS = {
 
             readonly:
                 false
-        },
-
-
-        // ----------------------------------------------------
-        // FOTO
-        // ----------------------------------------------------
-
-        {
-            name:
-                "foto",
-
-            label:
-                "Foto",
-
-            type:
-                "text",
-
-            required:
-                false,
-
-            visible:
-                true
-        },
+        },      
 
 
         // ----------------------------------------------------
@@ -153,17 +117,16 @@ export const SCHEMA_VEICULOS = {
                 10
         },
 
-
         // ----------------------------------------------------
-        // MODELO
+        // RENAVAM
         // ----------------------------------------------------
 
         {
             name:
-                "modelo",
+                "renavam",
 
             label:
-                "Modelo",
+                "RENAVAM",
 
             type:
                 "text",
@@ -172,20 +135,22 @@ export const SCHEMA_VEICULOS = {
                 true,
 
             visible:
-                true
+                true,
+
+            maxlength:
+                11
         },
 
-
         // ----------------------------------------------------
-        // MARCA
+        // CHASSI
         // ----------------------------------------------------
 
         {
             name:
-                "marca",
+                "chassi",
 
             label:
-                "Marca",
+                "Chassi",
 
             type:
                 "text",
@@ -194,20 +159,23 @@ export const SCHEMA_VEICULOS = {
                 true,
 
             visible:
-                true
+                true,
+
+            maxlength:
+                17
         },
 
 
-        // ----------------------------------------------------
-        // ANO
+         // ----------------------------------------------------
+        // PATRIMÔNIO
         // ----------------------------------------------------
 
         {
             name:
-                "ano",
+                "patrimonio",
 
             label:
-                "Ano",
+                "Patrimônio",
 
             type:
                 "number",
@@ -216,13 +184,72 @@ export const SCHEMA_VEICULOS = {
                 true,
 
             visible:
+                true
+
+
+        // ----------------------------------------------------
+        // ANO FABRICAÇÃO / MODELO
+        // ----------------------------------------------------
+
+        {
+            name:
+                "ano_fabricacao_modelo",
+
+            label:
+                "Ano Fabricação / Modelo",
+
+            type:
+                "text",
+
+            required:
                 true,
 
-            min:
-                1900,
+            visible:
+                true
+        },
 
-            max:
-                2100
+
+        // ----------------------------------------------------
+        // MARCA / Modelo / Versão
+        // ----------------------------------------------------
+
+        {
+            name:
+                "marca_modelo_verssao",
+
+            label:
+                "Marca / Modelo / Versão",
+
+            type:
+                "text",
+
+            required:
+                true,
+
+            visible:
+                true
+        },
+
+
+        // ----------------------------------------------------
+        // COR PREDOMINANTE
+        // ----------------------------------------------------
+
+        {
+            name:
+                "cor_predominante",
+
+            label:
+                "Cor Predominante",
+
+            type:
+                "text",
+
+            required:
+                false,
+
+            visible:
+                true
         },
 
 
@@ -293,26 +320,167 @@ export const SCHEMA_VEICULOS = {
 
 
         // ----------------------------------------------------
-        // COR
+        // ÚLTIMA REVISÃO
         // ----------------------------------------------------
 
         {
             name:
-                "cor",
+                "ultima_revisao",
 
             label:
-                "Cor",
+                "Última Revisão",
 
             type:
-                "text",
+                "date",
+
+            required:
+                true,
+
+            visible:
+                true,
+
+            readonly:
+                false
+        },
+
+
+        // ----------------------------------------------------
+        // PRÓXIMA REVISÃO
+        // ----------------------------------------------------
+
+        {
+            name:
+                "proxima_revisao",
+
+            label:
+                "Próxima Revisão",
+
+            type:
+                "date",
+
+            required:
+                true,
+
+            visible:
+                true,
+
+            readonly:
+                false
+        },
+
+
+        // ----------------------------------------------------
+        // KM ATUAL
+        // ----------------------------------------------------
+
+        {
+            name:
+                "km_atual",
+
+            label:
+                "Km Atual",
+
+            type:
+                "number",
 
             required:
                 false,
 
             visible:
-                true
+                true,
+
+            readonly: true,
+            
+            auto: true
         },
 
+
+        // ----------------------------------------------------
+        // ALERTA REVISÃO
+        // ----------------------------------------------------
+
+        {
+            name: 'alerta_revisao',
+            
+            label: 'Alerta de revisão',
+            
+            type: 'text',
+            
+            readonly: true,
+            
+            auto: true
+        },
+
+
+       // ----------------------------------------------------
+        // CRLV
+        // ----------------------------------------------------
+
+
+        arquivo('CRLV', { name: 'crlv' }),
+
+
+        // ----------------------------------------------------
+        // TAG
+        // ----------------------------------------------------
+
+        {
+            name: 'numero_tag',
+            
+            label: 'Número da TAG',
+            
+            type: 'text'
+        },
+
+
+        // ----------------------------------------------------
+        // FOTO TAG
+        // ----------------------------------------------------
+        
+            arquivo('Foto da TAG', { name: 'tag_foto', image: true }),
+
+        // ----------------------------------------------------
+        // CARTÃO NEO
+        // ----------------------------------------------------
+        
+        {
+            name: 'cartao_neo',
+            
+            label: 'Cartão NEO',
+            
+            type: 'text'
+        },
+
+
+        // ----------------------------------------------------
+        // foto cartão neo
+        // ----------------------------------------------------
+    
+            arquivo('Foto NEO', { name: 'foto_neo', image: true }),
+
+        // ----------------------------------------------------
+        // CÓDIGO NEO
+        // ----------------------------------------------------
+        
+        {
+            name: 'codigo_neo',
+            
+            label: 'Código NEO',
+            
+            type: 'text'
+        },
+
+        // ----------------------------------------------------
+        // POSTOR CREDENCIADOS
+        // ----------------------------------------------------
+        
+            arquivo('Pontos de abastecimento', { name: 'pontos_abastecimento' }),
+
+        // ----------------------------------------------------
+        // MANUAL DIGITAL
+        // ----------------------------------------------------
+        
+            arquivo('Manual digital', { name: 'manual_digital' }),
 
         // ----------------------------------------------------
         // STATUS
