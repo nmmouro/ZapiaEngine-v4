@@ -110,7 +110,19 @@ fields: [
                 "Foto",
 
             type:
-                "text",
+                "file",
+
+            accept:
+                "image/jpeg,image/png,image/webp",
+
+            maxSizeMB:
+                5,
+
+            storageFolder:
+                "foto",
+
+            storageBucket:
+                "veiculos",
 
             required:
                 false,

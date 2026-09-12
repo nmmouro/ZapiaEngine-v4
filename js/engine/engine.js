@@ -617,11 +617,13 @@ export function createEngine(config = {}) {
 
                     if (arquivo instanceof File) {
                         const upload = await uploadArquivo(arquivo, {
-                            idVeiculo: id,
+                            entidade: entity,
+                            idRegistro: id,
                             campo: campo.storageFolder || nome,
                             accept: campo.accept || "",
                             maxSizeMB: campo.maxSizeMB ?? 10,
-                            label: campo.label || nome
+                            label: campo.label || nome,
+                            bucket: campo.storageBucket || "veiculos"
                         });
 
                         arquivosEnviados.push(upload);
