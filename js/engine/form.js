@@ -566,6 +566,8 @@ if (campoHorarioInicial) {
             );
 
 
+            renderizarAnexosExistentes(dados);
+
             atualizarModo();
 
 
@@ -1557,6 +1559,28 @@ if (campoHorarioInicial) {
 
 
         /*
+         * ANEXO / FILE
+         */
+        if (tipo === "file") {
+            const maxSizeMB = campo.maxSizeMB !== undefined ? campo.maxSizeMB : 10;
+            return `
+                <input
+                    id="${id}"
+                    type="file"
+                    name="${escaparAtributo(nome)}"
+                    ${required}
+                    ${disabled}
+                    ${accept}
+                    ${capture}
+                    data-engine-file="true"
+                    data-max-size-mb="${escaparAtributo(maxSizeMB)}"
+                >
+                <div class="engine-file-preview" data-engine-file-preview="${escaparAtributo(nome)}" aria-live="polite"></div>
+            `;
+        }
+
+
+        /*
          * INPUT
          */
 
@@ -2333,6 +2357,30 @@ function atualizarIdsRelacionados() {
 
 
         /*
+         * ANEXOS — seleção, validação e pré-visualização
+         */
+        formulario
+            .querySelectorAll('input[type="file"][data-engine-file="true"]')
+            .forEach(input => {
+                input.addEventListener("change", () => {
+                    const definicao = obterFields().find(item => obterNomeCampo(item) === input.name) || {};
+                    const arquivo = input.files?.[0] || null;
+                    if (!arquivo) {
+                        limparPreviewArquivo(input.name);
+                        return;
+                    }
+                    const validacao = validarArquivoVisual(arquivo, definicao);
+                    if (!validacao.valido) {
+                        input.value = "";
+                        mostrarMensagemArquivo(input.name, validacao.mensagem);
+                        return;
+                    }
+                    renderizarPreviewArquivo(input.name, arquivo);
+                });
+            });
+
+
+        /*
          * SUBMIT
          */
 
@@ -2956,6 +3004,100 @@ function atualizarIdsRelacionados() {
                 ? ""
                 : String(valor);
 
+    }
+
+
+    /*
+     * ========================================================
+     * ANEXOS — VISUALIZAÇÃO E PRÉVIA
+     * ========================================================
+     */
+    function obterPreviewContainer(nome) {
+        if (!formulario) return null;
+        return formulario.querySelector(`[data-engine-file-preview="${CSS.escape(nome)}"]`);
+    }
+
+    function limparPreviewArquivo(nome) {
+        const preview = obterPreviewContainer(nome);
+        if (!preview) return;
+        const objectUrl = preview.dataset.objectUrl;
+        if (objectUrl) URL.revokeObjectURL(objectUrl);
+        delete preview.dataset.objectUrl;
+        preview.innerHTML = "";
+    }
+
+    function mostrarMensagemArquivo(nome, mensagem) {
+        limparPreviewArquivo(nome);
+        const preview = obterPreviewContainer(nome);
+        if (!preview) return;
+        const box = document.createElement("div");
+        box.className = "engine-file-message engine-file-message-erro";
+        box.textContent = mensagem;
+        preview.appendChild(box);
+    }
+
+    function validarArquivoVisual(arquivo, definicao = {}) {
+        const regras = String(definicao.accept || "").split(",").map(x => x.trim().toLowerCase()).filter(Boolean);
+        const tipo = String(arquivo?.type || "").toLowerCase();
+        const nome = String(arquivo?.name || "");
+        const ponto = nome.lastIndexOf(".");
+        const extensao = ponto >= 0 ? nome.slice(ponto + 1).toLowerCase() : "";
+        if (regras.length) {
+            const aceito = regras.some(regra => regra.startsWith(".") ? extensao === regra.slice(1) : regra.endsWith("/*") ? tipo.startsWith(regra.slice(0, -1)) : tipo === regra);
+            if (!aceito) return { valido:false, mensagem:`${definicao.label || nome}: tipo de arquivo não permitido.` };
+        }
+        const max = Number(definicao.maxSizeMB ?? 10);
+        if (max > 0 && arquivo.size > max * 1024 * 1024) return { valido:false, mensagem:`${definicao.label || nome}: o arquivo excede o limite de ${max} MB.` };
+        return { valido:true };
+    }
+
+    function renderizarPreviewArquivo(nome, arquivoOuUrl) {
+        const preview = obterPreviewContainer(nome);
+        if (!preview) return;
+        limparPreviewArquivo(nome);
+        const local = arquivoOuUrl instanceof File;
+        const url = local ? URL.createObjectURL(arquivoOuUrl) : String(arquivoOuUrl || "");
+        if (!url) return;
+        const tipo = local ? String(arquivoOuUrl.type || "").toLowerCase() : (/\.pdf(?:$|[?#])/i.test(url) ? "application/pdf" : "");
+        const card = document.createElement("div");
+        card.className = "engine-file-card";
+        if (tipo.startsWith("image/")) {
+            const img = document.createElement("img");
+            img.src = url;
+            img.alt = local ? arquivoOuUrl.name : "Imagem anexada";
+            img.className = "engine-file-image";
+            card.appendChild(img);
+        } else if (tipo === "application/pdf") {
+            const frame = document.createElement("iframe");
+            frame.src = url;
+            frame.title = "Visualização do PDF";
+            frame.className = "engine-file-pdf";
+            card.appendChild(frame);
+        }
+        const info = document.createElement("div");
+        info.className = "engine-file-info";
+        const titulo = document.createElement("strong");
+        titulo.textContent = local ? arquivoOuUrl.name : "Arquivo anexado";
+        info.appendChild(titulo);
+        const abrir = document.createElement("a");
+        abrir.href = url;
+        abrir.target = "_blank";
+        abrir.rel = "noopener noreferrer";
+        abrir.textContent = "Abrir em nova aba";
+        abrir.className = "engine-file-open";
+        info.appendChild(abrir);
+        card.appendChild(info);
+        preview.appendChild(card);
+        if (local) preview.dataset.objectUrl = url;
+    }
+
+    function renderizarAnexosExistentes(dados = {}) {
+        obterFields().filter(campo => campo?.type === "file").forEach(campo => {
+            const nome = obterNomeCampo(campo);
+            const valor = obterValorRegistro(dados, nome);
+            limparPreviewArquivo(nome);
+            if (valor) renderizarPreviewArquivo(nome, valor);
+        });
     }
 
 
