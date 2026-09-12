@@ -1,0 +1,8 @@
+ZAPIAENGINE V4 - IMPLEMENTAÇÃO DEFINITIVA DE ANEXOS
+
+ARQUIVO NOVO: js/services/storageService.js
+
+Campos: foto, crlv, tag_foto, foto_neo, pontos_abastecimento, manual_digital.
+O banco deve guardar somente URL/path; não Data URL nem binário.
+Estrutura Storage: veiculos/<ID_DO_VEICULO>/<CAMPO>/<ARQUIVO>.
+Bucket padrão: veiculos.
