@@ -71,6 +71,13 @@ async function iniciarLancamentos() {
             permitirEditar: true,
             permitirExcluir: true,
             pageSize: 10,
+            actions: {
+                visualizar(registro) {
+                    const id = registro?.id;
+                    if (!id) return;
+                    window.location.href = "lancamentos_view.html?id=" + encodeURIComponent(id);
+                }
+            },
             colunas: [
                 { name: "data", label: "Data", type: "date",
                   format: formatarData },

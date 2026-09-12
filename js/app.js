@@ -591,7 +591,32 @@
                DASHBOARD
             ================================================= */
 
-            case "dashboard": {
+    
+        case "veiculos_view": {
+            const modulo = await import("./views/veiculos_view.js");
+            await modulo.iniciar();
+            return { page: pagina, view: true };
+        }
+
+        case "empregados_view": {
+            const modulo = await import("./views/empregados_view.js");
+            await modulo.iniciar();
+            return { page: pagina, view: true };
+        }
+
+        case "abastecimentos_view": {
+            const modulo = await import("./views/abastecimentos_view.js");
+            await modulo.iniciar();
+            return { page: pagina, view: true };
+        }
+
+        case "lancamentos_view": {
+            const modulo = await import("./views/lancamentos_view.js");
+            await modulo.iniciar();
+            return { page: pagina, view: true };
+        }
+
+        case "dashboard": {
 
                 console.log(
                     "APP → CARREGANDO DASHBOARD"

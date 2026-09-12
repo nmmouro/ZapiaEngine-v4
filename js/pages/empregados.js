@@ -115,7 +115,17 @@ async function iniciarEmpregados() {
                     true,
 
                 pageSize:
-                    10
+                    10,
+
+                actions: {
+
+                    visualizar(registro) {
+                        const id = registro?.id;
+                        if (!id) return;
+                        window.location.href = "empregados_view.html?id=" + encodeURIComponent(id);
+                    }
+
+                }
 
             }
 
