@@ -33,12 +33,21 @@ const CAMPOS_ABERTURA = [
 ];
 
 const CAMPOS_CONCLUSAO = [
-    "horario_final", "km_final", "combustivel",
-    "media_consumo_combustivel", "checklist",
-    
-    "avarias_registradas", "lava_car",
-    "valor_higienizacao", "notas_abastecimento",
-    "notas_manutencao", "horas_extras", "revisao"
+    "avaliacao_visual",
+    "avarias_registradas",
+    "km_final",
+    "horario_final",
+    "combustivel",
+    "media_consumo_combustivel",
+    "distancia_percorrida",
+    "duracao_atendimento",
+    "lava_car",
+    "valor_higienizacao",
+    "notas_abastecimento",
+    "notas_manutencao",
+    "checklist",
+    "horas_extras",
+    "revisao"
 ];
 
 async function iniciarLancamentos() {
@@ -674,6 +683,17 @@ function configurarAbertura() {
     setValor("localizacao_final", "");
 }
 
+    mostrarCampo("avaliacao_visual", false);
+    mostrarCampo("avarias_registradas", false);
+    mostrarCampo("combustivel", false);
+    mostrarCampo("media_consumo_combustivel", false);
+    mostrarCampo("lava_car", false);
+    mostrarCampo("valor_higienizacao", false);
+    mostrarCampo("notas_abastecimento", false);
+    mostrarCampo("notas_manutencao", false);
+    mostrarCampo("checklist", false);
+    mostrarCampo("horas_extras", false);
+    mostrarCampo("revisao", false);
 function configurarConclusao(registro = {}) {
     [...CAMPOS_ABERTURA].forEach(n => mostrarCampo(n, true));
     [...CAMPOS_CONCLUSAO].forEach(n => {
@@ -700,6 +720,17 @@ function configurarConclusao(registro = {}) {
     adicionarBotoesAuxiliares();
 }
 
+    mostrarCampo("avaliacao_visual", true);
+    mostrarCampo("avarias_registradas", true);
+    mostrarCampo("combustivel", true);
+    mostrarCampo("media_consumo_combustivel", true);
+    mostrarCampo("lava_car", true);
+    mostrarCampo("valor_higienizacao", true);
+    mostrarCampo("notas_abastecimento", true);
+    mostrarCampo("notas_manutencao", true);
+    mostrarCampo("checklist", true);
+    mostrarCampo("horas_extras", true);
+    mostrarCampo("revisao", true);
 function configurarEdicao() {
     [...CAMPOS_ABERTURA, ...CAMPOS_CONCLUSAO].forEach(n => mostrarCampo(n, true));
     [...CAMPOS_CONCLUSAO].forEach(n => setRequired(n, false));

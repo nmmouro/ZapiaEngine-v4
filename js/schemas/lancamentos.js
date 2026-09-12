@@ -171,7 +171,7 @@ export const SCHEMA_LANCAMENTOS = {
             label: "Avaliação Visual",
             type: "select",
             required: false,
-            visible: true,
+            visible: false,
             options: [
                 "COM AVARIAS",
                 "SEM AVARIAS"
@@ -187,7 +187,7 @@ export const SCHEMA_LANCAMENTOS = {
             label: "Avarias Registradas",
             type: "textarea",
             required: false,
-            visible: true
+            visible: false
         },
 
         // ========================================================
@@ -251,7 +251,7 @@ export const SCHEMA_LANCAMENTOS = {
             label: "Combustível",
             type: "select",
             required: false,
-            visible: true,
+            visible: false,
             options: [
                 "RESERVA",
                 "1/4",
@@ -270,7 +270,7 @@ export const SCHEMA_LANCAMENTOS = {
             label: "Média de consumo de combustível",
             type: "number",
             required: false,
-            visible: true,
+            visible: false,
             min: 0,
             step: 0.01
         },
@@ -284,7 +284,7 @@ export const SCHEMA_LANCAMENTOS = {
             label: "Distância Percorrida",
             type: "number",
             required: false,
-            visible: true,
+            visible: false,
             readonly: true,
             min: 0,
             step: 0.01
@@ -299,7 +299,7 @@ export const SCHEMA_LANCAMENTOS = {
             label: "Duração Atendimento / HH:MM",
             type: "time",
             required: false,
-            visible: true,
+            visible: false,
             readonly: true
         ,
             visible: false
@@ -328,7 +328,7 @@ export const SCHEMA_LANCAMENTOS = {
             label: "Valor Higienização",
             type: "number",
             required: false,
-            visible: true,
+            visible: false,
             min: 0,
             step: 0.01
         },
@@ -358,7 +358,7 @@ export const SCHEMA_LANCAMENTOS = {
             label: "Notas de Manutenção",
             type: "textarea",
             required: false,
-            visible: true
+            visible: false
         },
 
         // ========================================================
@@ -387,7 +387,7 @@ export const SCHEMA_LANCAMENTOS = {
             label: "Horas Extras",
             type: "time",
             required: false,
-            visible: true
+            visible: false
         },
 
         // ========================================================
@@ -399,7 +399,7 @@ export const SCHEMA_LANCAMENTOS = {
             label: "Revisão",
             type: "text",
             required: false,
-            visible: true
+            visible: false
         },
 
         // ========================================================
