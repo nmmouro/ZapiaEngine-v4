@@ -1,11 +1,29 @@
 import { obter, listar } from "../services/crudService.js";
 
 export async function carregarRegistro(entity, id) {
-    const identificador = String(id || "").trim();
+    const identificador = String(id ?? "").trim();
     if (!identificador) throw new Error("ID não informado para visualização.");
-    const resultado = await obter(entity, identificador);
-    if (Array.isArray(resultado)) return resultado[0] || null;
-    return resultado?.data?.[0] || resultado?.dados?.[0] || resultado || null;
+
+    console.log("VIEW → CARREGAR REGISTRO:", entity, identificador);
+
+    // A visualização usa o mesmo caminho de LISTAR já validado pelo Engine.
+    // Isso evita diferenças entre a consulta individual e a consulta da tabela.
+    const lista = await listar(entity, { id: identificador });
+    if (Array.isArray(lista) && lista.length) {
+        const encontrado = lista.find(r => String(r?.id ?? "").trim() === identificador);
+        if (encontrado) return encontrado;
+        return lista[0] || null;
+    }
+
+    // Fallback para compatibilidade com APIs que implementem OBTER de forma diferente.
+    try {
+        const resultado = await obter(entity, identificador);
+        if (Array.isArray(resultado)) return resultado[0] || null;
+        return resultado?.data?.[0] || resultado?.dados?.[0] || resultado || null;
+    } catch (erro) {
+        console.error("VIEW → ERRO AO OBTER REGISTRO:", entity, identificador, erro);
+        throw erro;
+    }
 }
 
 export async function carregarRelacionados(entity, campo, valor) {
