@@ -301,6 +301,8 @@ export const SCHEMA_LANCAMENTOS = {
             required: false,
             visible: true,
             readonly: true
+        ,
+            visible: false
         },
 
         // ========================================================

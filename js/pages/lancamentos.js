@@ -35,7 +35,7 @@ const CAMPOS_ABERTURA = [
 const CAMPOS_CONCLUSAO = [
     "horario_final", "km_final", "combustivel",
     "media_consumo_combustivel", "checklist",
-    "avaliacao_visual",
+    
     "avarias_registradas", "lava_car",
     "valor_higienizacao", "notas_abastecimento",
     "notas_manutencao", "horas_extras", "revisao"
@@ -631,6 +631,9 @@ function resetarIndicadoresAuxiliares() {
 }
 
 function configurarAbertura() {
+    // Avaliação visual é preenchida pelo usuário na abertura da ocorrência.
+    mostrarCampo("avaliacao_visual", true);
+
     const form = modulo.form.formulario;
     if (!form) return;
 
@@ -643,6 +646,12 @@ function configurarAbertura() {
         mostrarCampo(n, false);
         setRequired(n, false);
     });
+
+    // Campos calculados da conclusão:
+    // permanecem ocultos durante a abertura e só aparecem
+    // depois que a ocorrência entra na etapa de conclusão.
+    mostrarCampo("distancia_percorrida", false);
+    mostrarCampo("duracao_atendimento", false);
 
     ocultarCamposInformativos();
 
@@ -673,6 +682,11 @@ function configurarConclusao(registro = {}) {
     });
 
     ocultarCamposInformativos();
+
+    // Os campos calculados passam a ser apresentados somente
+    // na conclusão, após existirem KM Final e Horário Final.
+    mostrarCampo("distancia_percorrida", true);
+    mostrarCampo("duracao_atendimento", true);
 
     setRequired("horario_final", true);
     setRequired("km_final", true);
