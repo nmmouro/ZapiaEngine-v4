@@ -288,7 +288,7 @@ export const SCHEMA_VEICULOS = {
 
                 {
                     value:
-                        "gasolina",
+                        "GASOLINA",
 
                     label:
                         "GASOLINA"
@@ -517,7 +517,7 @@ export const SCHEMA_VEICULOS = {
 
                 {
                     value:
-                        "ativo",
+                        "ATIVO",
 
                     label:
                         "ATIVO"
