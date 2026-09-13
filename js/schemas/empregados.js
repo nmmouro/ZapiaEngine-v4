@@ -263,6 +263,9 @@ fields: [
             required:
                 false,
 
+            uppercase:
+                false,
+
             visible:
                 true
         },
