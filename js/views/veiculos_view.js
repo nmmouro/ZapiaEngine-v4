@@ -108,7 +108,7 @@ export async function iniciar() {
 
                     ${
                         [
-                            r.foto,
+                            
                             r.crlv,
                             r.tag_foto,
                             r.foto_neo,
@@ -121,7 +121,7 @@ export async function iniciar() {
                                         ? renderizarAnexo(
                                             u,
                                             [
-                                                "Foto",
+                                                
                                                 "CRLV",
                                                 "Foto da TAG",
                                                 "Foto NEO",
@@ -147,7 +147,7 @@ export async function iniciar() {
                     lanc,
                     null,
                     [
-                        "id",
+                        
                         "data",
                         "hora",
                         "passageiro_setor_motivo",
@@ -164,7 +164,7 @@ export async function iniciar() {
                     aba,
                     null,
                     [
-                        "id",
+                        
                         "data",
                         "hora",
                         "odometro",
