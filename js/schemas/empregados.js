@@ -294,34 +294,34 @@ fields: [
 
                 {
                     value:
-                        "admin",
+                        "ADMIN",
 
                     label:
-                        "Admin"
+                        "ADMIN"
                 },
 
                 {
                     value:
-                        "supervisor",
+                        "SUOERVISOR",
 
                     label:
-                        "Supervisor"
+                        "SUPERVISOR"
                 },
 
                 {
                     value:
-                        "motorista",
+                        "MOTORISTA",
 
                     label:
-                        "Motorista"
+                        "MOTORISTA"
                 },
 
                 {
                     value:
-                        "usuario",
+                        "USUÁRIO",
 
                     label:
-                        "Usuário"
+                        "USUÁRIO"
                 },
                 
             ]
@@ -352,7 +352,7 @@ fields: [
 
                 {
                     value:
-                        "ativo",
+                        "ATIVO",
 
                     label:
                         "ATIVO"
@@ -360,7 +360,7 @@ fields: [
                 
                 {
                     value:
-                        "inativo",
+                        "INATIVO",
 
                     label:
                         "INATIVO"
@@ -368,7 +368,7 @@ fields: [
 
                 {
                     value:
-                        "ferias",
+                        "FÉRIAS",
 
                     label:
                         "FÉRIAS"
@@ -377,7 +377,7 @@ fields: [
 
                 {
                     value:
-                        "viagem",
+                        "VIAGEM",
 
                     label:
                         "VIAGEM"
