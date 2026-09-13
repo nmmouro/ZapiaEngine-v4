@@ -185,7 +185,7 @@ export async function iniciar() {
                 aba,
                 null,
                 [
-                    "id",
+                    
                     "data",
                     "hora",
                     "veiculo",
@@ -206,7 +206,7 @@ export async function iniciar() {
                 ava,
                 null,
                 [
-                    "id",
+                    
                     "data",
                     "hora",
                     "relato_avaria",
@@ -224,7 +224,7 @@ export async function iniciar() {
                 man,
                 null,
                 [
-                    "id",
+                    
                     "data",
                     "hora",
                     "odometro",
@@ -243,7 +243,7 @@ export async function iniciar() {
                 lava,
                 null,
                 [
-                    "id",
+                    
                     "data",
                     "hora",
                     "opcao",
@@ -261,7 +261,7 @@ export async function iniciar() {
                 che,
                 null,
                 [
-                    "id",
+                    
                     "data",
                     "hora",
                     "oleo_motor",
