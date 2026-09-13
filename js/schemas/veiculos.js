@@ -65,7 +65,17 @@ export const SCHEMA_VEICULOS = {
         // FOTO
         // ----------------------------------------------------
 
-        { label:"Foto", name:"foto", type:"file", accept:"image/jpeg,image/png,image/webp", maxSizeMB:5, preview:true, storageFolder:"foto" },
+        { 
+            label:"Foto",
+            name:"foto",
+            type:"file",
+            visible:
+                false,
+            accept:"image/jpeg,image/png,image/webp",
+            maxSizeMB:5,
+            preview:true,
+            storageFolder:"foto"
+        },
 
 
         // ----------------------------------------------------
