@@ -161,6 +161,9 @@ export async function iniciar() {
                     {
                         excluir: [
                             "id",
+                            "empregado_matricula",
+                            "veiculo",
+                            
                             "criado_em",
                             "atualizado_em"
                         ]
