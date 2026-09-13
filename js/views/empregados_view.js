@@ -162,4 +162,7 @@ export async function iniciar() {
                     ${escapar(e.message)}
                 </div>
 
-            </section>
+            </section>`;
+    }
+}
+    
