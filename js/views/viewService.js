@@ -67,45 +67,208 @@ export function montarMapaLabels(schema) {
     return mapa;
 }
 
-export function renderizarAnexo(url, label="Anexo") {
-    const href=String(url||"").trim();
-    if (!href) return "";
-    const safe=escapar(href);
-    const lower=href.toLowerCase();
-    if (/\.(jpg|jpeg|png|webp|gif)(\?|#|$)/i.test(lower) || lower.startsWith("data:image/")) {
-        return `<div class="view-attachment"><a href="${safe}" target="_blank" rel="noopener"><img src="${safe}" alt="${escapar(label)}"></a><span>${escapar(label)}</span></div>`;
+export function identificarAnexo(valor) {
+    const texto = String(valor ?? "").trim();
+    if (!texto) return null;
+
+    const lower = texto.toLowerCase();
+
+    // Data URLs de imagem/documento.
+    if (lower.startsWith("data:image/")) {
+        return { tipo: "imagem", href: texto };
     }
-    return `<div class="view-document"><div class="view-document-icon">PDF</div><div><strong>${escapar(label)}</strong><a href="${safe}" target="_blank" rel="noopener">Abrir documento</a></div></div>`;
+
+    if (lower.startsWith("data:application/pdf")) {
+        return { tipo: "pdf", href: texto };
+    }
+
+    // URLs HTTP/HTTPS, inclusive URLs do Supabase Storage.
+    const ehUrl = /^https?:\/\//i.test(texto);
+
+    // Caminhos/URLs que indicam explicitamente Storage ou arquivo.
+    const ehStorage = /\/storage\/v1\/object\//i.test(texto)
+        || /(^|\/)veiculos\/(?:[^/]+\/){1,3}[^/]+$/i.test(texto)
+        || /(^|\/)\w+\/(?:VEI|EMP|ABA|AVA|MAN|LAN)\d{3,}/i.test(texto);
+
+    // Extensões de imagens e documentos.
+    const ehImagem = /\.(jpg|jpeg|png|webp|gif|bmp|svg|avif)(\?|#|$)/i.test(lower);
+    const ehPdf = /\.pdf(\?|#|$)/i.test(lower);
+    const ehDocumento = /\.(doc|docx|xls|xlsx|csv|txt|rtf|odt|ods|zip|rar)(\?|#|$)/i.test(lower);
+
+    if (ehImagem) return { tipo: "imagem", href: texto };
+    if (ehPdf) return { tipo: "pdf", href: texto };
+    if (ehDocumento) return { tipo: "documento", href: texto };
+
+    // URLs que não possuem extensão continuam sendo tratadas como links,
+    // mas sem ocupar toda a largura da coluna.
+    if (ehUrl || ehStorage) return { tipo: "link", href: texto };
+
+    return null;
 }
 
-export function renderizarCampos(registro, schema, opcoes={}) {
-    const labels=montarMapaLabels(schema);
-    const excluir=new Set(opcoes.excluir || ["id"]);
-    const campos=(schema?.fields||[]).filter(c => c?.name && !excluir.has(c.name));
-    const nomes=new Set(campos.map(c=>c.name));
-    const extras=Object.keys(registro||{}).filter(k=>!nomes.has(k) && !excluir.has(k));
-    const todos=[...campos.map(c=>c.name), ...extras];
-    let html="";
-    for (const nome of todos) {
-        const valor=registro?.[nome];
-        if (valor===undefined || valor===null || valor==="") continue;
-        const label=labels[nome] || nome.replaceAll("_"," ").replace(/\b\w/g,m=>m.toUpperCase());
-        if (/^(foto|imagem|crlv|tag_foto|foto_neo|pontos_abastecimento|manual_digital|vista_frontal|vista_traseira|vista_lateral_direita|vista_lateral_esquerda|vista_teto)$/i.test(nome)) {
-            html += renderizarAnexo(valor,label); continue;
-        }
-        html += `<div class="view-field"><dt>${escapar(label)}</dt><dd>${escapar(formatarValor(valor,nome))}</dd></div>`;
+export function nomeArquivo(valor) {
+    const texto = String(valor ?? "").trim();
+    if (!texto) return "Arquivo";
+
+    try {
+        const url = new URL(texto, window.location.href);
+        const partes = decodeURIComponent(url.pathname).split("/").filter(Boolean);
+        const nome = partes.at(-1);
+        if (nome && nome.length <= 120) return nome;
+    } catch (_) {
+        // Caminho relativo ou valor não-URL.
     }
+
+    const partes = texto.split(/[\\/]/).filter(Boolean);
+    return partes.at(-1) || "Arquivo";
+}
+
+export function rotuloAnexo(valor, label = "Arquivo") {
+    const nome = nomeArquivo(valor);
+    if (!nome || nome === "Arquivo") return label;
+    return `${label} — ${nome}`;
+}
+
+export function renderizarAnexo(url, label = "Anexo") {
+    const href = String(url ?? "").trim();
+    if (!href) return "";
+
+    const info = identificarAnexo(href);
+    if (!info) return `<span class="view-file-text">${escapar(formatarValor(href))}</span>`;
+
+    const safe = escapar(href);
+    const nome = escapar(nomeArquivo(href));
+    const titulo = escapar(label);
+
+    if (info.tipo === "imagem") {
+        return `
+            <div class="view-attachment">
+                <a href="${safe}" target="_blank" rel="noopener" title="${titulo}">
+                    <img src="${safe}" alt="${titulo}" loading="lazy">
+                </a>
+                <span title="${nome}">${titulo}</span>
+            </div>
+        `;
+    }
+
+    const tipo = info.tipo === "pdf" ? "PDF" : info.tipo === "documento" ? "DOC" : "LINK";
+
+    return `
+        <div class="view-document" title="${nome}">
+            <div class="view-document-icon">${tipo}</div>
+            <div class="view-document-info">
+                <strong>${titulo}</strong>
+                <span class="view-document-name" title="${nome}">${nome}</span>
+                <a href="${safe}" target="_blank" rel="noopener">Abrir arquivo</a>
+            </div>
+        </div>
+    `;
+}
+
+export function renderizarValorVisual(valor, campo = "", label = "") {
+    if (valor === null || valor === undefined || valor === "") return "—";
+
+    const info = identificarAnexo(valor);
+    if (info) return renderizarAnexo(valor, label || campo);
+
+    return escapar(formatarValor(valor, campo));
+}
+
+export function renderizarCampos(registro, schema, opcoes = {}) {
+    const labels = montarMapaLabels(schema);
+    const excluir = new Set(opcoes.excluir || ["id"]);
+    const campos = (schema?.fields || []).filter(c => c?.name && !excluir.has(c.name));
+    const nomes = new Set(campos.map(c => c.name));
+    const extras = Object.keys(registro || {}).filter(k => !nomes.has(k) && !excluir.has(k));
+    const todos = [...campos.map(c => c.name), ...extras];
+
+    let html = "";
+
+    for (const nome of todos) {
+        const valor = registro?.[nome];
+        if (valor === undefined || valor === null || valor === "") continue;
+
+        const label = labels[nome]
+            || nome.replaceAll("_", " ").replace(/\b\w/g, m => m.toUpperCase());
+
+        const info = identificarAnexo(valor);
+
+        if (info) {
+            html += `
+                <div class="view-field view-field-file">
+                    <dt>${escapar(label)}</dt>
+                    <dd>${renderizarAnexo(valor, label)}</dd>
+                </div>
+            `;
+            continue;
+        }
+
+        html += `
+            <div class="view-field">
+                <dt>${escapar(label)}</dt>
+                <dd>${escapar(formatarValor(valor, nome))}</dd>
+            </div>
+        `;
+    }
+
     return `<dl class="view-fields">${html}</dl>`;
 }
 
-export function renderizarLista(titulo, registros, schema, campos=[]) {
-    const labels=montarMapaLabels(schema);
-    const lista=Array.isArray(registros)?registros:[];
-    if (!lista.length) return `<section class="view-section"><h2>${escapar(titulo)}</h2><div class="view-empty">Nenhum registro relacionado.</div></section>`;
-    const colunas=campos.length ? campos : (schema?.fields||[]).filter(c=>c?.name && !c.hidden).slice(0,6).map(c=>c.name);
-    let head=colunas.map(c=>`<th>${escapar(labels[c]||c)}</th>`).join("");
-    let rows=lista.map(r=>`<tr>${colunas.map(c=>`<td>${escapar(formatarValor(r?.[c],c))}</td>`).join("")}</tr>`).join("");
-    return `<section class="view-section"><h2>${escapar(titulo)}</h2><div class="view-table-wrap"><table class="view-table"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div></section>`;
+export function renderizarLista(titulo, registros, schema, campos = []) {
+    const labels = montarMapaLabels(schema);
+    const lista = Array.isArray(registros) ? registros : [];
+
+    if (!lista.length) {
+        return `
+            <section class="view-section">
+                <h2>${escapar(titulo)}</h2>
+                <div class="view-empty">Nenhum registro relacionado.</div>
+            </section>
+        `;
+    }
+
+    const colunas = campos.length
+        ? campos
+        : (schema?.fields || [])
+            .filter(c => c?.name && !c.hidden)
+            .slice(0, 6)
+            .map(c => c.name);
+
+    const head = colunas
+        .map(c => `<th>${escapar(labels[c] || c)}</th>`)
+        .join("");
+
+    const rows = lista
+        .map(r => `
+            <tr>
+                ${colunas.map(c => {
+                    const valor = r?.[c];
+                    const label = labels[c] || c;
+                    const info = identificarAnexo(valor);
+
+                    if (info) {
+                        return `<td class="view-table-file">${renderizarAnexo(valor, label)}</td>`;
+                    }
+
+                    return `<td>${escapar(formatarValor(valor, c))}</td>`;
+                }).join("")}
+            </tr>
+        `)
+        .join("");
+
+    return `
+        <section class="view-section">
+            <h2>${escapar(titulo)}</h2>
+            <div class="view-table-wrap">
+                <table class="view-table">
+                    <thead>
+                        <tr>${head}</tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>
+        </section>
+    `;
 }
 
 export function calcularAlertaRevisao(registro) {
