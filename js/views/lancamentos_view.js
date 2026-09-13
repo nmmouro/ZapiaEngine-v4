@@ -167,7 +167,7 @@ export async function iniciar() {
                             "veiculo",
                             "hora",
                             "notas_abastecimento",
-                            "creatd_at",
+                            "created_at",
                             "updated_at"
                         ]
                     }
