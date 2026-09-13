@@ -161,11 +161,14 @@ export async function iniciar() {
                     {
                         excluir: [
                             "id",
-                            "empregado_matricula",
+                            "id_empregado",
+                            "id_veiculo",
+                            "empregado_matricula",                      
                             "veiculo",
-                            
-                            "criado_em",
-                            "atualizado_em"
+                            "hora",
+                            "notas_abastecimento",
+                            "creatd_at",
+                            "updated_at"
                         ]
                     }
                 )}
