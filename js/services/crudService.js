@@ -732,12 +732,17 @@ export async function criar(
             entity
         );
 
-
+/*
     console.log(
         `CRUD SERVICE: CRIAR ${entity}`,
         dados
     );
+*/
 
+    console.log(
+    "CRUD SERVICE → CRIAR → PAYLOAD FINAL:",
+    JSON.stringify(dados, null, 2)
+);
 
     /*
      * IMPORTANTE:
