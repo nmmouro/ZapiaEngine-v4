@@ -296,34 +296,34 @@ export const SCHEMA_VEICULOS = {
 
                 {
                     value:
-                        "etanol",
+                        "ETANOL",
 
                     label:
-                        "Etanol"
+                        "ETANOL"
                 },
 
                 {
                     value:
-                        "flex",
+                        "FLEX",
 
                     label:
-                        "Flex"
+                        "FLEX"
                 },
 
                 {
                     value:
-                        "diesel",
+                        "DIESEL",
 
                     label:
-                        "Diesel"
+                        "DIESEL"
                 },
 
                 {
                     value:
-                        "eletrico",
+                        "ELÉTRICO",
 
                     label:
-                        "Elétrico"
+                        "ELÉTRICO"
                 }
 
             ]
@@ -525,18 +525,18 @@ export const SCHEMA_VEICULOS = {
 
                 {
                     value:
-                        "manutencao",
+                        "MANUTENÇÃO",
 
                     label:
-                        "Manutenção"
+                        "MANUTENÇÃO"
                 },
 
                 {
                     value:
-                        "inativo",
+                        "INATIVO",
 
                     label:
-                        "Inativo"
+                        "INATIVO"
                 }
 
             ]
