@@ -1,4 +1,3 @@
-```javascript
 import { SCHEMA_ABASTECIMENTO } from "../schemas/abastecimentos.js";
 
 import {
@@ -136,4 +135,3 @@ export async function iniciar() {
         `;
     }
 }
-```
