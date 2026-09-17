@@ -161,6 +161,7 @@ async function iniciarChecklistInterno() {
     await moduloChecklist.iniciar();
 
     garantirCampoOculto("id_lancamento");
+    adicionarBotaoMarcarTodas();
     adicionarBotaoVoltar();
 
     const registros =
@@ -300,6 +301,138 @@ function adicionarBotaoVoltar() {
 
     (actions || form).appendChild(botao);
 }
+
+
+
+
+/* ============================================================
+   MARCAR / DESMARCAR TODAS AS OPÇÕES DO CHECKLIST
+============================================================ */
+
+function adicionarBotaoMarcarTodas() {
+
+    const form = moduloChecklist?.form?.formulario;
+
+    if (!form) return;
+
+    if (form.querySelector("[data-checklist-marcar-todas]")) {
+        return;
+    }
+
+    // Somente os campos que fazem parte do Checklist.
+    const nomesChecklist = [
+        "oleo_motor",
+        "agua_radiador",
+        "pneus",
+        "estepe",
+        "freios",
+        "farois",
+        "lanternas",
+        "setas",
+        "limpadores",
+       /* "extintor",*/
+        "triangulo",
+        "macaco",
+        "chave_roda",
+        "cintos_seguranca",
+        "cartao_neofacilidades"
+    ];
+
+    const checkboxes = nomesChecklist
+        .map(nome => form.elements.namedItem(nome))
+        .filter(campo =>
+            campo &&
+            campo.type === "checkbox"
+        );
+
+    if (!checkboxes.length) {
+
+        console.warn(
+            "CHECKLIST → NENHUMA CHECKBOX DO CHECKLIST ENCONTRADA"
+        );
+
+        return;
+    }
+
+    const botao = document.createElement("button");
+
+    botao.type = "button";
+    botao.className = "btn btn-secondary";
+    botao.dataset.checklistMarcarTodas = "true";
+    botao.textContent = "Marcar todas";
+
+    botao.addEventListener("click", () => {
+
+        const todasMarcadas =
+            checkboxes.every(campo => campo.checked);
+
+        const novoEstado = !todasMarcadas;
+
+        checkboxes.forEach(campo => {
+
+            campo.checked = novoEstado;
+
+            campo.dispatchEvent(
+                new Event("change", {
+                    bubbles: true
+                })
+            );
+        });
+
+        atualizarTextoBotao();
+
+        console.log(
+            "CHECKLIST → TODAS AS OPÇÕES:",
+            novoEstado
+                ? "MARCADAS"
+                : "DESMARCADAS"
+        );
+    });
+
+    function atualizarTextoBotao() {
+
+        const todasMarcadas =
+            checkboxes.every(campo => campo.checked);
+
+        botao.textContent =
+            todasMarcadas
+                ? "Desmarcar todas"
+                : "Marcar todas";
+    }
+
+    // Se o usuário marcar/desmarcar individualmente,
+    // o texto do botão acompanha o estado real.
+    checkboxes.forEach(campo => {
+
+        campo.addEventListener("change", () => {
+            atualizarTextoBotao();
+        });
+
+    });
+
+    const actions =
+        form.querySelector(".engine-form-actions");
+
+    if (actions) {
+        actions.prepend(botao);
+    } else {
+        form.prepend(botao);
+    }
+
+    atualizarTextoBotao();
+
+    console.log(
+        "CHECKLIST → BOTÃO 'MARCAR TODAS' INSTALADO:",
+        checkboxes.length,
+        "opções"
+    );
+}
+
+
+
+
+
+
 
 
 /* ============================================================
