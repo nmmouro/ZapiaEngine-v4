@@ -230,7 +230,7 @@ fields: [
 
         {
             name:
-                "tel",
+                "telefone",
 
             label:
                 "Telefone",
