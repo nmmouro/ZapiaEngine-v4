@@ -79,10 +79,10 @@ fields: [
 
         {
             name:
-                "data_cadastro",
+                "data",
 
             label:
-                "Data de Cadastro",
+                "Data",
 
             type:
                 "date",
