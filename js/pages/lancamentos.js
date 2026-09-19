@@ -46,7 +46,7 @@ const CAMPOS_CONCLUSAO = [
     "notas_abastecimento",
     "notas_manutencao",
     "checklist",
-    "horas_extras",
+    
     "revisao"
 ];
 
