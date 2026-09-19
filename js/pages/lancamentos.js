@@ -637,12 +637,12 @@ function resetarIndicadoresAuxiliares() {
     if (!grupo) return;
 
     definirIndicador(grupo.querySelector('[data-indicador="checklist"]'), "NÃO REGISTRADO");
-    definirIndicador(grupo.querySelector('[data-indicador="abastecimento-status"]'), "NÃO REGISTRADO");
+    definirIndicador(grupo.querySelector('[data-indicador="abastecimento-status"]'), "NÃO REALIZADO");
     definirIndicador(grupo.querySelector('[data-indicador="abastecimento-valor"]'), "Valor da nota: —");
     definirIndicador(grupo.querySelector('[data-indicador="avarias"]'), "NÃO REGISTRADO");
     definirIndicador(grupo.querySelector('[data-indicador="lava-car"]'), "NÃO REALIZADO");
     definirIndicador(grupo.querySelector('[data-indicador="lava-car-valor"]'), "Valor: —");
-    definirIndicador(grupo.querySelector('[data-indicador="manutencao"]'), "NÃO REGISTRADA");
+    definirIndicador(grupo.querySelector('[data-indicador="manutencao"]'), "NÃO REALIZADO");
     definirIndicador(grupo.querySelector('[data-indicador="manutencao-valor"]'), "Valor da nota: —");
 }
 
@@ -943,7 +943,7 @@ function adicionarBotoesAuxiliares() {
 
                 <div class="lancamento-aux-item">
                     <button type="button" class="btn btn-secondary" data-lancamento-aux="Abastecimento">Abastecimento</button>
-                    <div class="lancamento-aux-info" data-indicador="abastecimento-status">NÃO REGISTRADO</div>
+                    <div class="lancamento-aux-info" data-indicador="abastecimento-status">NÃO REALIZADO</div>
                     <div class="lancamento-aux-valor" data-indicador="abastecimento-valor">Valor da nota: —</div>
                 </div>
 
@@ -960,7 +960,7 @@ function adicionarBotoesAuxiliares() {
 
                 <div class="lancamento-aux-item">
                     <button type="button" class="btn btn-secondary" data-lancamento-aux="Manutenção">Manutenção</button>
-                    <div class="lancamento-aux-info" data-indicador="manutencao">NÃO REGISTRADA</div>
+                    <div class="lancamento-aux-info" data-indicador="manutencao">NÃO REALIZADO</div>
                     <div class="lancamento-aux-valor" data-indicador="manutencao-valor">Valor da nota: —</div>
                 </div>
             </div>
@@ -1035,7 +1035,7 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
 
         definirIndicador(
             indicadores.abastecimentoStatus,
-            abastecimento ? "REGISTRADO" : "NÃO REGISTRADO"
+            abastecimento ? "REALIZADO" : "NÃO REALIZADO"
         );
 
         definirIndicador(
@@ -1062,7 +1062,7 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
 
         definirIndicador(
             indicadores.manutencao,
-            manutencao ? "REGISTRADA" : "NÃO REGISTRADA"
+            manutencao ? "REALIZADO" : "NÃO REALIZADO"
         );
 
         const valorManutencao = manutencao ? Number(manutencao.valor_total_nota) : null;
