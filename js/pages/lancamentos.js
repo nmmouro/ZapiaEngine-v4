@@ -41,11 +41,11 @@ const CAMPOS_CONCLUSAO = [
     "media_consumo_combustivel",
     "distancia_percorrida",
     "duracao_atendimento",
-    "lava_car",
+   /* "lava_car",
     "valor_higienizacao",
     "notas_abastecimento",
     "notas_manutencao",
-    "checklist",
+    "checklist",*/
     
     "revisao"
 ];
