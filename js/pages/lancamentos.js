@@ -540,7 +540,7 @@ function instalarControlesDoCiclo() {
             modo = "conclusao";
             configurarConclusao(registro);
             adicionarBotoesAuxiliares();
-            setValor("status", "CONCLUÍDA");
+            setValor("status", "CONCLUÍDO");
             await atualizarIndicadoresRelacionados(registro.id);
             await capturarGPS("localizacao_final");
         } else {
@@ -718,7 +718,7 @@ function configurarConclusao(registro = {}) {
     sincronizarRevisaoDoVeiculo(registro?.id_veiculo || getValor("id_veiculo"));
 
     setTextoBotaoSalvar("CONCLUIR OCORRÊNCIA");
-    setValor("status", "CONCLUÍDA");
+    setValor("status", "CONCLUÍDO");
     mostrarDadosComplementares();
 }
 function configurarEdicao() {
