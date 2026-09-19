@@ -647,12 +647,15 @@ function resetarIndicadoresAuxiliares() {
 }
 
 function configurarAbertura() {
-    // Avaliação visual é preenchida pelo usuário na abertura da ocorrência.
-    mostrarCampo("avaliacao_visual", true);
-
-    const form = modulo.form.formulario;
+    const form = modulo?.form?.formulario;
     if (!form) return;
 
+    // ========================================================
+    // FASE: INICIAR OCORRÊNCIA
+    // Somente estes 8 campos ficam visíveis/editáveis nesta fase.
+    // Todos os dados complementares ficam exclusivamente para a
+    // fase de conclusão, depois que o lançamento já possui ID.
+    // ========================================================
     [...CAMPOS_ABERTURA].forEach(n => {
         mostrarCampo(n, true);
         setRequired(n, true);
@@ -663,20 +666,10 @@ function configurarAbertura() {
         setRequired(n, false);
     });
 
-    // Campos calculados da conclusão:
-    // permanecem ocultos durante a abertura e só aparecem
-    // depois que a ocorrência entra na etapa de conclusão.
-    mostrarCampo("distancia_percorrida", false);
-    mostrarCampo("duracao_atendimento", false);
-
+    // Garante que nenhum campo complementar residual de uma edição
+    // anterior permaneça visível.
     ocultarCamposInformativos();
-
-    mostrarCampo("id_empregado", true);
-    mostrarCampo("id_veiculo", true);
-    mostrarCampo("data", true);
-    mostrarCampo("hora", true);
-    mostrarCampo("horario_inicial", true);
-    mostrarCampo("km_inicial", true);
+    ocultarDadosComplementares();
 
     setReadonly("data", true);
     setReadonly("hora", true);
@@ -690,54 +683,40 @@ function configurarAbertura() {
     setValor("localizacao_final", "");
 }
 
-    mostrarCampo("avaliacao_visual", false);
-    mostrarCampo("avarias_registradas", false);
-    mostrarCampo("combustivel", false);
-    mostrarCampo("media_consumo_combustivel", false);
-    mostrarCampo("lava_car", false);
-    mostrarCampo("valor_higienizacao", false);
-    mostrarCampo("notas_abastecimento", false);
-    mostrarCampo("notas_manutencao", false);
-    mostrarCampo("checklist", false);
-    mostrarCampo("horas_extras", false);
-    mostrarCampo("revisao", false);
 function configurarConclusao(registro = {}) {
-    [...CAMPOS_ABERTURA].forEach(n => mostrarCampo(n, true));
+    const form = modulo?.form?.formulario;
+    if (!form) return;
+
+    // ========================================================
+    // FASE: CONCLUIR OCORRÊNCIA
+    // Mantém os 8 dados da abertura somente para consulta e
+    // apresenta aqui todos os dados complementares.
+    // ========================================================
+    [...CAMPOS_ABERTURA].forEach(n => {
+        mostrarCampo(n, true);
+        setRequired(n, false);
+    });
+
     [...CAMPOS_CONCLUSAO].forEach(n => {
         mostrarCampo(n, true);
         setRequired(n, false);
     });
 
+    // Campos auxiliares de Checklist, Abastecimento, Avarias,
+    // Lava-Car e Manutenção são acessados por seus botões nesta fase.
     ocultarCamposInformativos();
-
-    // Os campos calculados passam a ser apresentados somente
-    // na conclusão, após existirem KM Final e Horário Final.
     mostrarCampo("distancia_percorrida", true);
     mostrarCampo("duracao_atendimento", true);
 
     setRequired("horario_final", true);
     setRequired("km_final", true);
 
-    ["data", "hora", "id_empregado", "id_veiculo",
-     "passageiro_setor_motivo", "itinerario",
-     "horario_inicial", "km_inicial"].forEach(n => setReadonly(n, true));
+    CAMPOS_ABERTURA.forEach(n => setReadonly(n, true));
 
     setTextoBotaoSalvar("CONCLUIR OCORRÊNCIA");
     setValor("status", "CONCLUÍDA");
-    adicionarBotoesAuxiliares();
+    mostrarDadosComplementares();
 }
-
-    mostrarCampo("avaliacao_visual", true);
-    mostrarCampo("avarias_registradas", true);
-    mostrarCampo("combustivel", true);
-    mostrarCampo("media_consumo_combustivel", true);
-    mostrarCampo("lava_car", true);
-    mostrarCampo("valor_higienizacao", true);
-    mostrarCampo("notas_abastecimento", true);
-    mostrarCampo("notas_manutencao", true);
-    mostrarCampo("checklist", true);
-    mostrarCampo("horas_extras", true);
-    mostrarCampo("revisao", true);
 function configurarEdicao() {
     [...CAMPOS_ABERTURA, ...CAMPOS_CONCLUSAO].forEach(n => mostrarCampo(n, true));
     [...CAMPOS_CONCLUSAO].forEach(n => setRequired(n, false));
@@ -931,6 +910,20 @@ async function capturarGPS(nomeCampo) {
     }
 }
 
+function obterGrupoDadosComplementares() {
+    return modulo?.form?.formulario?.querySelector("[data-lancamento-auxiliares]") || null;
+}
+
+function mostrarDadosComplementares() {
+    const grupo = obterGrupoDadosComplementares();
+    if (grupo) grupo.hidden = false;
+}
+
+function ocultarDadosComplementares() {
+    const grupo = obterGrupoDadosComplementares();
+    if (grupo) grupo.hidden = true;
+}
+
 function adicionarBotoesAuxiliares() {
     const form = modulo?.form?.formulario;
     if (!form) return;
@@ -975,7 +968,8 @@ function adicionarBotoesAuxiliares() {
         const actions = form.querySelector(".engine-form-actions");
         (actions || form).before(grupo);
     }
-    grupo.hidden = false;
+    // O grupo só aparece na conclusão. Na abertura permanece oculto.
+    grupo.hidden = modo === "abertura";
 }
 
 function ocultarCamposInformativos() {
