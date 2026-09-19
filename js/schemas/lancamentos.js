@@ -251,7 +251,7 @@ export const SCHEMA_LANCAMENTOS = {
             label: "Combustível",
             type: "select",
             required: false,
-            visible: false,
+            visible: true,
             options: [
                 "RESERVA",
                 "1/4",
@@ -270,7 +270,7 @@ export const SCHEMA_LANCAMENTOS = {
             label: "Média de consumo de combustível",
             type: "number",
             required: false,
-            visible: false,
+            visible: true,
             min: 0,
             step: 0.01
         },
@@ -284,7 +284,7 @@ export const SCHEMA_LANCAMENTOS = {
             label: "Distância Percorrida",
             type: "number",
             required: false,
-            visible: false,
+            visible: true,
             readonly: true,
             min: 0,
             step: 0.01
@@ -299,7 +299,7 @@ export const SCHEMA_LANCAMENTOS = {
             label: "Duração Atendimento / HH:MM",
             type: "time",
             required: false,
-            visible: false,
+            visible: true,
             readonly: true
         ,
             visible: false
@@ -399,7 +399,7 @@ export const SCHEMA_LANCAMENTOS = {
             label: "Revisão",
             type: "text",
             required: false,
-            visible: false
+            visible: true
         },
 
         // ========================================================
