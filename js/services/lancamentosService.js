@@ -9,6 +9,15 @@
  */
 import { listar } from "./crudService.js";
 
+export async function obterAlertaRevisaoVeiculo(idVeiculo) {
+    if (!idVeiculo) return "";
+
+    const registros = await listar("veiculos", { id: idVeiculo });
+    const veiculo = Array.isArray(registros) ? registros[0] : null;
+
+    return veiculo?.alerta_revisao ?? "";
+}
+
 export async function obterUltimoKmVeiculo(idVeiculo) {
     if (!idVeiculo) return 0;
     const registros = await listar("lancamentos", { id_veiculo: idVeiculo });

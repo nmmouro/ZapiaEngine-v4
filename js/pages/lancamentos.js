@@ -17,6 +17,7 @@ import { listar, atualizar } from "../services/crudService.js";
 import { obterLocalizacao } from "../utils/geolocalizacao.js";
 import {
     obterUltimoKmVeiculo,
+    obterAlertaRevisaoVeiculo,
     veiculoEmAndamento,
     extrairIdRegistro
 } from "../services/lancamentosService.js";
@@ -41,12 +42,12 @@ const CAMPOS_CONCLUSAO = [
     "media_consumo_combustivel",
     "distancia_percorrida",
     "duracao_atendimento",
-   /* "lava_car",
+    "lava_car",
     "valor_higienizacao",
     "notas_abastecimento",
     "notas_manutencao",
-    "checklist",*/
-    
+    "checklist",
+    "horas_extras",
     "revisao"
 ];
 
@@ -637,12 +638,12 @@ function resetarIndicadoresAuxiliares() {
     if (!grupo) return;
 
     definirIndicador(grupo.querySelector('[data-indicador="checklist"]'), "NÃO REGISTRADO");
-    definirIndicador(grupo.querySelector('[data-indicador="abastecimento-status"]'), "NÃO REALIZADO");
+    definirIndicador(grupo.querySelector('[data-indicador="abastecimento-status"]'), "NÃO REGISTRADO");
     definirIndicador(grupo.querySelector('[data-indicador="abastecimento-valor"]'), "Valor da nota: —");
     definirIndicador(grupo.querySelector('[data-indicador="avarias"]'), "NÃO REGISTRADO");
     definirIndicador(grupo.querySelector('[data-indicador="lava-car"]'), "NÃO REALIZADO");
     definirIndicador(grupo.querySelector('[data-indicador="lava-car-valor"]'), "Valor: —");
-    definirIndicador(grupo.querySelector('[data-indicador="manutencao"]'), "NÃO REALIZADO");
+    definirIndicador(grupo.querySelector('[data-indicador="manutencao"]'), "NÃO REGISTRADA");
     definirIndicador(grupo.querySelector('[data-indicador="manutencao-valor"]'), "Valor da nota: —");
 }
 
@@ -675,6 +676,7 @@ function configurarAbertura() {
     setReadonly("hora", true);
     setReadonly("horario_inicial", true);
     setReadonly("km_inicial", true);
+    setReadonly("revisao", true);
 
     setTextoBotaoSalvar("INICIAR OCORRÊNCIA");
     removerBotaoConcluir();
@@ -712,6 +714,8 @@ function configurarConclusao(registro = {}) {
     setRequired("km_final", true);
 
     CAMPOS_ABERTURA.forEach(n => setReadonly(n, true));
+    setReadonly("revisao", true);
+    sincronizarRevisaoDoVeiculo(registro?.id_veiculo || getValor("id_veiculo"));
 
     setTextoBotaoSalvar("CONCLUIR OCORRÊNCIA");
     setValor("status", "CONCLUÍDA");
@@ -852,6 +856,22 @@ async function validarAntesDeSalvar(evento) {
     }
 }
 
+async function sincronizarRevisaoDoVeiculo(idVeiculo = getValor("id_veiculo")) {
+    if (!idVeiculo) {
+        setValor("revisao", "");
+        return;
+    }
+
+    try {
+        const alerta = await obterAlertaRevisaoVeiculo(idVeiculo);
+        setValor("revisao", alerta);
+        console.log("LANÇAMENTOS → REVISÃO SINCRONIZADA:", alerta);
+    } catch (erro) {
+        console.error("LANÇAMENTOS → erro ao obter Alerta de Revisão do veículo:", erro);
+        setValor("revisao", "");
+    }
+}
+
 function instalarListenerVeiculo() {
     if (vehicleListenerRegistrado) return;
 
@@ -865,6 +885,7 @@ function instalarListenerVeiculo() {
         const idVeiculo = select.value;
         if (!idVeiculo) {
             setValor("km_inicial", "");
+            setValor("revisao", "");
             return;
         }
 
@@ -872,6 +893,7 @@ function instalarListenerVeiculo() {
             const ocupado = await veiculoEmAndamento(idVeiculo);
             if (ocupado) {
                 setReadonly("km_inicial", true);
+                setValor("revisao", "");
                 setTextoBotaoSalvar("VEÍCULO EM ANDAMENTO");
                 alert("Este veículo já possui uma ocorrência EM ANDAMENTO. Selecione outro veículo.");
                 return;
@@ -880,6 +902,8 @@ function instalarListenerVeiculo() {
             const km = await obterUltimoKmVeiculo(idVeiculo);
             setValor("km_inicial", String(km));
             setReadonly("km_inicial", true);
+            await sincronizarRevisaoDoVeiculo(idVeiculo);
+            setReadonly("revisao", true);
             setTextoBotaoSalvar("INICIAR OCORRÊNCIA");
             console.log("LANÇAMENTOS → KM INICIAL:", km);
         } catch (erro) {
@@ -943,7 +967,7 @@ function adicionarBotoesAuxiliares() {
 
                 <div class="lancamento-aux-item">
                     <button type="button" class="btn btn-secondary" data-lancamento-aux="Abastecimento">Abastecimento</button>
-                    <div class="lancamento-aux-info" data-indicador="abastecimento-status">NÃO REALIZADO</div>
+                    <div class="lancamento-aux-info" data-indicador="abastecimento-status">NÃO REGISTRADO</div>
                     <div class="lancamento-aux-valor" data-indicador="abastecimento-valor">Valor da nota: —</div>
                 </div>
 
@@ -960,7 +984,7 @@ function adicionarBotoesAuxiliares() {
 
                 <div class="lancamento-aux-item">
                     <button type="button" class="btn btn-secondary" data-lancamento-aux="Manutenção">Manutenção</button>
-                    <div class="lancamento-aux-info" data-indicador="manutencao">NÃO REALIZADO</div>
+                    <div class="lancamento-aux-info" data-indicador="manutencao">NÃO REGISTRADA</div>
                     <div class="lancamento-aux-valor" data-indicador="manutencao-valor">Valor da nota: —</div>
                 </div>
             </div>
@@ -1035,7 +1059,7 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
 
         definirIndicador(
             indicadores.abastecimentoStatus,
-            abastecimento ? "REALIZADO" : "NÃO REALIZADO"
+            abastecimento ? "REGISTRADO" : "NÃO REGISTRADO"
         );
 
         definirIndicador(
@@ -1062,7 +1086,7 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
 
         definirIndicador(
             indicadores.manutencao,
-            manutencao ? "REALIZADO" : "NÃO REALIZADO"
+            manutencao ? "REGISTRADA" : "NÃO REGISTRADA"
         );
 
         const valorManutencao = manutencao ? Number(manutencao.valor_total_nota) : null;
