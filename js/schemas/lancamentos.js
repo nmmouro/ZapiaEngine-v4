@@ -368,15 +368,10 @@ export const SCHEMA_LANCAMENTOS = {
         {
             name: "status",
             label: "Status",
-            type: "select",
+            type: "text",
             required: false,
             visible: true,
-            readonly: true,
-            options: [
-                "EM ANDAMENTO",
-                "CONCLUÍDO",
-                "CANCELADO"
-            ]
+            readonly: true            
         },
 
         // ========================================================
