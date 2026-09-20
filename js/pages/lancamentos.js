@@ -677,6 +677,7 @@ function configurarAbertura() {
     setReadonly("horario_inicial", true);
     setReadonly("km_inicial", true);
     setReadonly("revisao", true);
+    setReadonly("status", true);
 
     setTextoBotaoSalvar("INICIAR OCORRÊNCIA");
     removerBotaoConcluir();
