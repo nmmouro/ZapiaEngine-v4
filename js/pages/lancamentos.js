@@ -534,19 +534,26 @@ function instalarControlesDoCiclo() {
 
     container.addEventListener("form:editar", async evento => {
         const registro = evento.detail || {};
-        const status = normalizarStatus(registro.status);
+        const kmInicial = converterNumero(registro?.km_inicial);
+        const kmFinal = converterNumero(registro?.km_final);
+        const concluida = Number.isFinite(kmFinal) &&
+            (!Number.isFinite(kmInicial) || kmFinal >= kmInicial);
 
-        if (status === "EM ANDAMENTO") {
+        // O status não é mais lido como uma escolha do usuário.
+        // Ele é derivado exclusivamente da existência de Km Final válido
+        // e, quando houver Km Inicial, da regra Km Final >= Km Inicial.
+        if (!concluida) {
             modo = "conclusao";
             configurarConclusao(registro);
             adicionarBotoesAuxiliares();
             setValor("status", "EM ANDAMENTO");
             await atualizarIndicadoresRelacionados(registro.id);
             await capturarGPS("localizacao_final");
-        } else {
+        } else tValor("status", "CONCLUÍDO");
+            {
             modo = "edicao";
             configurarEdicao(registro);
-            await atualizarIndicadoresRelacionados(registro.id);
+            seawait atualizarIndicadoresRelacionados(registro.id);
         }
     });
 
@@ -568,20 +575,6 @@ function instalarControlesDoCiclo() {
     });
 
 
-
-/*
-    
-
-    // Botões auxiliares são preparados agora, mas os formulários
-    // específicos serão conectados na próxima etapa.
-    container.addEventListener("click", evento => {
-        const botao = evento.target.closest("[data-lancamento-aux]");
-        if (!botao) return;
-        const acao = botao.dataset.lancamentoAux;
-        alert(`Formulário de ${acao} será conectado na próxima etapa.`);
-    });
-
-*/
 
 
     
@@ -672,13 +665,16 @@ function configurarAbertura() {
     ocultarCamposInformativos();
     ocultarDadosComplementares();
 
+    // Status é informativo e calculado pelo sistema.
+    mostrarCampo("status", true);
+    setReadonly("status", true);
+
     setReadonly("data", true);
     setReadonly("hora", true);
     setReadonly("horario_inicial", true);
     setReadonly("km_inicial", true);
     setReadonly("revisao", true);
-    setReadonly("status", true);
-
+    
     setTextoBotaoSalvar("INICIAR OCORRÊNCIA");
     removerBotaoConcluir();
 
@@ -716,6 +712,7 @@ function configurarConclusao(registro = {}) {
 
     CAMPOS_ABERTURA.forEach(n => setReadonly(n, true));
     setReadonly("revisao", true);
+    setReadonly("status", true);
     sincronizarRevisaoDoVeiculo(registro?.id_veiculo || getValor("id_veiculo"));
 
     setTextoBotaoSalvar("CONCLUIR OCORRÊNCIA");
@@ -725,6 +722,8 @@ function configurarConclusao(registro = {}) {
 function configurarEdicao() {
     [...CAMPOS_ABERTURA, ...CAMPOS_CONCLUSAO].forEach(n => mostrarCampo(n, true));
     [...CAMPOS_CONCLUSAO].forEach(n => setRequired(n, false));
+    mostrarCampo("status", true);
+    setReadonly("status", true);
     ocultarCamposInformativos();
     setTextoBotaoSalvar("ATUALIZAR");
     adicionarBotoesAuxiliares();
@@ -770,6 +769,16 @@ async function interceptarESalvarComCalculados(evento) {
             console.warn("LANÇAMENTOS → CONCLUSÃO BLOQUEADA: Km Final não preenchido.");
             return;
         }
+
+        const kmInicial = converterNumero(getValor("km_inicial"));
+        if (Number.isFinite(kmInicial) && kmFinal < kmInicial) {
+            setValor("status", "EM ANDAMENTO");
+            const campoKmFinal = formularioAtual.querySelector('[name="km_final"]');
+            campoKmFinal?.focus();
+            console.warn("LANÇAMENTOS → CONCLUSÃO BLOQUEADA: Km Final menor que Km Inicial.");
+            return;
+        }
+
 
         await preencherCamposCalculados();
 
