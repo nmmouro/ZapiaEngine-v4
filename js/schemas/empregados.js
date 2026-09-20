@@ -302,7 +302,7 @@ fields: [
 
                 {
                     value:
-                        "SUOERVISOR",
+                        "SUPERVISOR",
 
                     label:
                         "SUPERVISOR"
