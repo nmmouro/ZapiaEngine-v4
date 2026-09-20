@@ -636,7 +636,7 @@ function resetarIndicadoresAuxiliares() {
     definirIndicador(grupo.querySelector('[data-indicador="abastecimento-status"]'), "NÃO REGISTRADO");
     definirIndicador(grupo.querySelector('[data-indicador="abastecimento-valor"]'), "Valor da nota: —");
     definirIndicador(grupo.querySelector('[data-indicador="avarias"]'), "NÃO REGISTRADO");
-    definirIndicador(grupo.querySelector('[data-indicador="lava-car"]'), "NÃO REALIZADO");
+    definirIndicador(grupo.querySelector('[data-indicador="lava-car"]'), "NÃO REGISTRADO");
     definirIndicador(grupo.querySelector('[data-indicador="lava-car-valor"]'), "Valor: —");
     definirIndicador(grupo.querySelector('[data-indicador="manutencao"]'), "NÃO REGISTRADA");
     definirIndicador(grupo.querySelector('[data-indicador="manutencao-valor"]'), "Valor da nota: —");
@@ -1016,13 +1016,13 @@ function adicionarBotoesAuxiliares() {
 
                 <div class="lancamento-aux-item">
                     <button type="button" class="btn btn-secondary" data-lancamento-aux="Lava-car">Lava-Car</button>
-                    <div class="lancamento-aux-info" data-indicador="lava-car">NÃO REALIZADO</div>
+                    <div class="lancamento-aux-info" data-indicador="lava-car">NÃO REGISTRADO</div>
                     <div class="lancamento-aux-valor" data-indicador="lava-car-valor">Valor: —</div>
                 </div>
 
                 <div class="lancamento-aux-item">
                     <button type="button" class="btn btn-secondary" data-lancamento-aux="Manutenção">Manutenção</button>
-                    <div class="lancamento-aux-info" data-indicador="manutencao">NÃO REGISTRADA</div>
+                    <div class="lancamento-aux-info" data-indicador="manutencao">NÃO REGISTRADO</div>
                     <div class="lancamento-aux-valor" data-indicador="manutencao-valor">Valor da nota: —</div>
                 </div>
             </div>
@@ -1114,7 +1114,7 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
 
         definirIndicador(
             indicadores.lavaCar,
-            lavaCar ? "REALIZADO" : "NÃO REALIZADO"
+            lavaCar ? "REGISTRADO" : "NÃO REGISTRADO"
         );
 
         definirIndicador(
@@ -1124,7 +1124,7 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
 
         definirIndicador(
             indicadores.manutencao,
-            manutencao ? "REGISTRADA" : "NÃO REGISTRADA"
+            manutencao ? "REGISTRADO" : "NÃO REGISTRADO"
         );
 
         const valorManutencao = manutencao ? Number(manutencao.valor_total_nota) : null;
