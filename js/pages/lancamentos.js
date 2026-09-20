@@ -576,21 +576,6 @@ function instalarControlesDoCiclo() {
 
 
 
-/*
-    
-
-    // Botões auxiliares são preparados agora, mas os formulários
-    // específicos serão conectados na próxima etapa.
-    container.addEventListener("click", evento => {
-        const botao = evento.target.closest("[data-lancamento-aux]");
-        if (!botao) return;
-        const acao = botao.dataset.lancamentoAux;
-        alert(`Formulário de ${acao} será conectado na próxima etapa.`);
-    });
-
-*/
-
-
     
 }
 
