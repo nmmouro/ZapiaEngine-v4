@@ -4,7 +4,7 @@
  * Painel Frota
  *
  * Ciclo:
- *     NOVO → ABERTURA → EM ANDAMENTO → CONCLUSÃO → CONCLUÍDA
+ *     NOVO → ABERTURA → EM ANDAMENTO → CONCLUSÃO → CONCLUÍDO
  *
  * O Engine continua genérico.
  * As regras específicas do ciclo ficam nesta página e em
@@ -549,11 +549,11 @@ function instalarControlesDoCiclo() {
             setValor("status", "EM ANDAMENTO");
             await atualizarIndicadoresRelacionados(registro.id);
             await capturarGPS("localizacao_final");
-        } else tValor("status", "CONCLUÍDO");
-            {
+        } else {
             modo = "edicao";
             configurarEdicao(registro);
-            seawait atualizarIndicadoresRelacionados(registro.id);
+            setValor("status", "CONCLUÍDO");
+            await atualizarIndicadoresRelacionados(registro.id);
         }
     });
 
@@ -575,6 +575,20 @@ function instalarControlesDoCiclo() {
     });
 
 
+
+/*
+    
+
+    // Botões auxiliares são preparados agora, mas os formulários
+    // específicos serão conectados na próxima etapa.
+    container.addEventListener("click", evento => {
+        const botao = evento.target.closest("[data-lancamento-aux]");
+        if (!botao) return;
+        const acao = botao.dataset.lancamentoAux;
+        alert(`Formulário de ${acao} será conectado na próxima etapa.`);
+    });
+
+*/
 
 
     
@@ -630,13 +644,13 @@ function resetarIndicadoresAuxiliares() {
     const grupo = modulo?.form?.formulario?.querySelector("[data-lancamento-auxiliares]");
     if (!grupo) return;
 
-    definirIndicador(grupo.querySelector('[data-indicador="checklist"]'), "NÃO REALIZADO");
-    definirIndicador(grupo.querySelector('[data-indicador="abastecimento-status"]'), "NÃO REALIZADO");
+    definirIndicador(grupo.querySelector('[data-indicador="checklist"]'), "NÃO REGISTRADO");
+    definirIndicador(grupo.querySelector('[data-indicador="abastecimento-status"]'), "NÃO REGISTRADO");
     definirIndicador(grupo.querySelector('[data-indicador="abastecimento-valor"]'), "Valor da nota: —");
     definirIndicador(grupo.querySelector('[data-indicador="avarias"]'), "NÃO REGISTRADO");
     definirIndicador(grupo.querySelector('[data-indicador="lava-car"]'), "NÃO REALIZADO");
     definirIndicador(grupo.querySelector('[data-indicador="lava-car-valor"]'), "Valor: —");
-    definirIndicador(grupo.querySelector('[data-indicador="manutencao"]'), "NÃO REALIZADO");
+    definirIndicador(grupo.querySelector('[data-indicador="manutencao"]'), "NÃO REGISTRADA");
     definirIndicador(grupo.querySelector('[data-indicador="manutencao-valor"]'), "Valor da nota: —");
 }
 
@@ -674,7 +688,7 @@ function configurarAbertura() {
     setReadonly("horario_inicial", true);
     setReadonly("km_inicial", true);
     setReadonly("revisao", true);
-    
+
     setTextoBotaoSalvar("INICIAR OCORRÊNCIA");
     removerBotaoConcluir();
 
@@ -704,6 +718,7 @@ function configurarConclusao(registro = {}) {
     // Campos auxiliares de Checklist, Abastecimento, Avarias,
     // Lava-Car e Manutenção são acessados por seus botões nesta fase.
     ocultarCamposInformativos();
+    mostrarCampo("status", true);
     mostrarCampo("distancia_percorrida", true);
     mostrarCampo("duracao_atendimento", true);
 
@@ -716,6 +731,10 @@ function configurarConclusao(registro = {}) {
     sincronizarRevisaoDoVeiculo(registro?.id_veiculo || getValor("id_veiculo"));
 
     setTextoBotaoSalvar("CONCLUIR OCORRÊNCIA");
+
+    // Enquanto a ocorrência estiver apenas na tela de conclusão, ela continua
+    // EM ANDAMENTO. O status só será alterado para CONCLUÍDO no submit, depois
+    // da validação do Km Final.
     setValor("status", "EM ANDAMENTO");
     mostrarDadosComplementares();
 }
@@ -779,10 +798,9 @@ async function interceptarESalvarComCalculados(evento) {
             return;
         }
 
-
         await preencherCamposCalculados();
 
-        // Somente agora, com Km Final válido, a ocorrência é concluída.
+        // O status é derivado exclusivamente da regra do Km Final.
         setValor("status", "CONCLUÍDO");
         console.log("LANÇAMENTOS → STATUS AUTOMÁTICO: CONCLUÍDO");
 
@@ -994,12 +1012,12 @@ function adicionarBotoesAuxiliares() {
             <div class="lancamento-auxiliares-lista">
                 <div class="lancamento-aux-item">
                     <button type="button" class="btn btn-secondary" data-lancamento-aux="Checklist">Checklist</button>
-                    <div class="lancamento-aux-info" data-indicador="checklist">NÃO REALIZADO</div>
+                    <div class="lancamento-aux-info" data-indicador="checklist">NÃO REGISTRADO</div>
                 </div>
 
                 <div class="lancamento-aux-item">
                     <button type="button" class="btn btn-secondary" data-lancamento-aux="Abastecimento">Abastecimento</button>
-                    <div class="lancamento-aux-info" data-indicador="abastecimento-status">NÃO REALIZADO</div>
+                    <div class="lancamento-aux-info" data-indicador="abastecimento-status">NÃO REGISTRADO</div>
                     <div class="lancamento-aux-valor" data-indicador="abastecimento-valor">Valor da nota: —</div>
                 </div>
 
@@ -1016,7 +1034,7 @@ function adicionarBotoesAuxiliares() {
 
                 <div class="lancamento-aux-item">
                     <button type="button" class="btn btn-secondary" data-lancamento-aux="Manutenção">Manutenção</button>
-                    <div class="lancamento-aux-info" data-indicador="manutencao">NÃO REALIZADO</div>
+                    <div class="lancamento-aux-info" data-indicador="manutencao">NÃO REGISTRADA</div>
                     <div class="lancamento-aux-valor" data-indicador="manutencao-valor">Valor da nota: —</div>
                 </div>
             </div>
@@ -1086,12 +1104,12 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
 
         definirIndicador(
             indicadores.checklist,
-            checklist ? "REALIZADO" : "NÃO REALIZADO"
+            checklist ? "REGISTRADO" : "NÃO REGISTRADO"
         );
 
         definirIndicador(
             indicadores.abastecimentoStatus,
-            abastecimento ? "REALIZADO" : "NÃO REALIZADO"
+            abastecimento ? "REGISTRADO" : "NÃO REGISTRADO"
         );
 
         definirIndicador(
@@ -1118,7 +1136,7 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
 
         definirIndicador(
             indicadores.manutencao,
-            manutencao ? "REALIZADO" : "NÃO REALIZADO"
+            manutencao ? "REGISTRADA" : "NÃO REGISTRADA"
         );
 
         const valorManutencao = manutencao ? Number(manutencao.valor_total_nota) : null;
@@ -1130,7 +1148,7 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
 
         // Persiste somente valores compatíveis com os tipos das colunas.
         // A apresentação amigável permanece exclusivamente nos indicadores visuais.
-        const statusChecklist = checklist ? "REALIZADO" : "NÃO REALIZADO";
+        const statusChecklist = checklist ? "REGISTRADO" : "NÃO REGISTRADO";
         setValor("checklist", statusChecklist);
 
         // Mantém a coluna public.lancamentos.checklist sincronizada com
@@ -1248,7 +1266,7 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
 
     } catch (erro) {
         console.error("LANÇAMENTOS → ERRO AO ATUALIZAR INDICADORES:", erro);
-        definirIndicador(indicadores.checklist, "NÃO REALIZADO");
+        definirIndicador(indicadores.checklist, "NÃO REGISTRADO");
         definirIndicador(indicadores.abastecimentoStatus, "NÃO DISPONÍVEL");
         definirIndicador(indicadores.abastecimentoValor, "Valor da nota: —");
         definirIndicador(indicadores.avarias, "NÃO DISPONÍVEL");
@@ -1360,8 +1378,14 @@ function setReadonly(nome, readonly) {
     const campo = getCampo(nome);
     if (!campo) return;
     if (campo.type === "checkbox" || campo.tagName === "SELECT") {
+        // Selects não possuem readOnly nativo. Mantemos o campo habilitado
+        // para que seu valor continue sendo enviado no POST/PATCH, mas
+        // bloqueamos a interação do usuário quando o campo é calculado pelo sistema.
         campo.disabled = false;
         campo.dataset.lifecycleReadonly = readonly ? "true" : "false";
+        campo.setAttribute("aria-readonly", readonly ? "true" : "false");
+        campo.tabIndex = readonly ? -1 : 0;
+        campo.style.pointerEvents = readonly ? "none" : "";
         return;
     }
     campo.readOnly = readonly;
@@ -1374,10 +1398,6 @@ function getBotaoSalvar() {
 function setTextoBotaoSalvar(texto) {
     const botao = getBotaoSalvar();
     if (botao) botao.textContent = texto;
-}
-
-function normalizarStatus(valor) {
-    return String(valor ?? "").trim().toUpperCase().replace(/_/g, " ");
 }
 
 function formatarData(valor) {
