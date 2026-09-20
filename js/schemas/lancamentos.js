@@ -371,6 +371,7 @@ export const SCHEMA_LANCAMENTOS = {
             type: "select",
             required: false,
             visible: true,
+            readonly: true,
             options: [
                 "EM ANDAMENTO",
                 "CONCLUÍDO",
