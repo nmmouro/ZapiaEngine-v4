@@ -576,6 +576,9 @@ function instalarControlesDoCiclo() {
 
 
 
+
+
+
     
 }
 
@@ -629,13 +632,13 @@ function resetarIndicadoresAuxiliares() {
     const grupo = modulo?.form?.formulario?.querySelector("[data-lancamento-auxiliares]");
     if (!grupo) return;
 
-    definirIndicador(grupo.querySelector('[data-indicador="checklist"]'), "NÃO REALIZADO");
-    definirIndicador(grupo.querySelector('[data-indicador="abastecimento-status"]'), "NÃO REALIZADO");
+    definirIndicador(grupo.querySelector('[data-indicador="checklist"]'), "NÃO REGISTRADO");
+    definirIndicador(grupo.querySelector('[data-indicador="abastecimento-status"]'), "NÃO REGISTRADO");
     definirIndicador(grupo.querySelector('[data-indicador="abastecimento-valor"]'), "Valor da nota: —");
     definirIndicador(grupo.querySelector('[data-indicador="avarias"]'), "NÃO REGISTRADO");
     definirIndicador(grupo.querySelector('[data-indicador="lava-car"]'), "NÃO REALIZADO");
     definirIndicador(grupo.querySelector('[data-indicador="lava-car-valor"]'), "Valor: —");
-    definirIndicador(grupo.querySelector('[data-indicador="manutencao"]'), "NÃO REALIZADO");
+    definirIndicador(grupo.querySelector('[data-indicador="manutencao"]'), "NÃO REGISTRADA");
     definirIndicador(grupo.querySelector('[data-indicador="manutencao-valor"]'), "Valor da nota: —");
 }
 
@@ -997,12 +1000,12 @@ function adicionarBotoesAuxiliares() {
             <div class="lancamento-auxiliares-lista">
                 <div class="lancamento-aux-item">
                     <button type="button" class="btn btn-secondary" data-lancamento-aux="Checklist">Checklist</button>
-                    <div class="lancamento-aux-info" data-indicador="checklist">NÃO REALIZADO</div>
+                    <div class="lancamento-aux-info" data-indicador="checklist">NÃO REGISTRADO</div>
                 </div>
 
                 <div class="lancamento-aux-item">
                     <button type="button" class="btn btn-secondary" data-lancamento-aux="Abastecimento">Abastecimento</button>
-                    <div class="lancamento-aux-info" data-indicador="abastecimento-status">NÃO REALIZADO</div>
+                    <div class="lancamento-aux-info" data-indicador="abastecimento-status">NÃO REGISTRADO</div>
                     <div class="lancamento-aux-valor" data-indicador="abastecimento-valor">Valor da nota: —</div>
                 </div>
 
@@ -1019,7 +1022,7 @@ function adicionarBotoesAuxiliares() {
 
                 <div class="lancamento-aux-item">
                     <button type="button" class="btn btn-secondary" data-lancamento-aux="Manutenção">Manutenção</button>
-                    <div class="lancamento-aux-info" data-indicador="manutencao">NÃO REALIZADO</div>
+                    <div class="lancamento-aux-info" data-indicador="manutencao">NÃO REGISTRADA</div>
                     <div class="lancamento-aux-valor" data-indicador="manutencao-valor">Valor da nota: —</div>
                 </div>
             </div>
@@ -1089,12 +1092,12 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
 
         definirIndicador(
             indicadores.checklist,
-            checklist ? "REALIZADO" : "NÃO REALIZADO"
+            checklist ? "REGISTRADO" : "NÃO REGISTRADO"
         );
 
         definirIndicador(
             indicadores.abastecimentoStatus,
-            abastecimento ? "REALIZADO : "NÃO REALIZADO"
+            abastecimento ? "REGISTRADO" : "NÃO REGISTRADO"
         );
 
         definirIndicador(
@@ -1121,7 +1124,7 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
 
         definirIndicador(
             indicadores.manutencao,
-            manutencao ? "REALIZADO" : "NÃO REALIZADO"
+            manutencao ? "REGISTRADA" : "NÃO REGISTRADA"
         );
 
         const valorManutencao = manutencao ? Number(manutencao.valor_total_nota) : null;
@@ -1133,7 +1136,7 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
 
         // Persiste somente valores compatíveis com os tipos das colunas.
         // A apresentação amigável permanece exclusivamente nos indicadores visuais.
-        const statusChecklist = checklist ? "REALIZADO" : "NÃO REALIZADO";
+        const statusChecklist = checklist ? "REGISTRADO" : "NÃO REGISTRADO";
         setValor("checklist", statusChecklist);
 
         // Mantém a coluna public.lancamentos.checklist sincronizada com
@@ -1251,7 +1254,7 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
 
     } catch (erro) {
         console.error("LANÇAMENTOS → ERRO AO ATUALIZAR INDICADORES:", erro);
-        definirIndicador(indicadores.checklist, "NÃO REALIZADO");
+        definirIndicador(indicadores.checklist, "NÃO REGISTRADO");
         definirIndicador(indicadores.abastecimentoStatus, "NÃO DISPONÍVEL");
         definirIndicador(indicadores.abastecimentoValor, "Valor da nota: —");
         definirIndicador(indicadores.avarias, "NÃO DISPONÍVEL");
