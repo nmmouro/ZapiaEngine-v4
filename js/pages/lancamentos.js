@@ -540,7 +540,7 @@ function instalarControlesDoCiclo() {
             modo = "conclusao";
             configurarConclusao(registro);
             adicionarBotoesAuxiliares();
-            setValor("status", "CONCLUÍDO");
+            setValor("status", "EM ANDAMENTO");
             await atualizarIndicadoresRelacionados(registro.id);
             await capturarGPS("localizacao_final");
         } else {
@@ -718,7 +718,7 @@ function configurarConclusao(registro = {}) {
     sincronizarRevisaoDoVeiculo(registro?.id_veiculo || getValor("id_veiculo"));
 
     setTextoBotaoSalvar("CONCLUIR OCORRÊNCIA");
-    setValor("status", "CONCLUÍDO");
+    setValor("status", "EM ANDAMENTO");
     mostrarDadosComplementares();
 }
 function configurarEdicao() {
@@ -753,7 +753,29 @@ async function interceptarESalvarComCalculados(evento) {
     }
 
     try {
+        // ====================================================
+        // STATUS AUTOMÁTICO DA OCORRÊNCIA
+        // ====================================================
+        // Na fase de conclusão, o lançamento continua EM ANDAMENTO
+        // até que o Km Final esteja realmente preenchido.
+        const valorKmFinal = String(getValor("km_final") ?? "").trim();
+        const kmFinal = converterNumero(valorKmFinal);
+
+        if (!valorKmFinal || !Number.isFinite(kmFinal)) {
+            setValor("status", "EM ANDAMENTO");
+            const campoKmFinal = formularioAtual.querySelector('[name="km_final"]');
+            campoKmFinal?.focus();
+            campoKmFinal?.reportValidity?.();
+            console.warn("LANÇAMENTOS → CONCLUSÃO BLOQUEADA: Km Final não preenchido.");
+            return;
+        }
+
         await preencherCamposCalculados();
+
+        // Somente agora, com Km Final válido, a ocorrência é concluída.
+        setValor("status", "CONCLUÍDO");
+        console.log("LANÇAMENTOS → STATUS AUTOMÁTICO: CONCLUÍDO");
+
         await modulo.form.salvar();
     } catch (erro) {
         console.error("LANÇAMENTOS → ERRO AO PREPARAR CAMPOS CALCULADOS:", erro);
