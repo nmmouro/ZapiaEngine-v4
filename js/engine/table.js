@@ -1412,13 +1412,13 @@ function formatarData(valor) {
             return false;
         }
 
-        return Object.keys(
-            options.actions
-        ).some(
-            nome => !(
-                options.visualizarAoClicarNaLinha === true &&
-                nome === "visualizar"
-            )
+        // "visualizar" é uma ação interna da linha quando
+        // visualizarAoClicarNaLinha está habilitado. Ela nunca
+        // deve gerar um botão na coluna de ações.
+        return Object.keys(options.actions).some(
+            nome =>
+                nome !== "visualizar" &&
+                typeof options.actions[nome] === "function"
         );
 
     }
@@ -1451,10 +1451,8 @@ function formatarData(valor) {
         .map(
             nome => {
 
-                if (
-                    options.visualizarAoClicarNaLinha === true &&
-                    nome === "visualizar"
-                ) {
+                // Visualizar por clique na linha não possui botão próprio.
+                if (nome === "visualizar") {
                     return "";
                 }
 

@@ -66,13 +66,6 @@ export async function iniciarAbastecimentos() {
             permitirExcluir: false,
             pageSize: 10,
             visualizarAoClicarNaLinha: true,
-            actions: {
-                visualizar(registro) {
-                    const id = registro?.id;
-                    if (!id) return;
-                    window.location.href = "abastecimentos_view.html?id=" + encodeURIComponent(id);
-                }
-            },
             colunas: [
                 { name: "data", label: "Data", format: formatarData },
                 { name: "hora", label: "Hora", format: formatarHora },
