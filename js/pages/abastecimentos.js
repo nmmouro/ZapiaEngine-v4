@@ -65,6 +65,7 @@ export async function iniciarAbastecimentos() {
             permitirEditar: false,
             permitirExcluir: false,
             pageSize: 10,
+            visualizarAoClicarNaLinha: true,
             actions: {
                 visualizar(registro) {
                     const id = registro?.id;

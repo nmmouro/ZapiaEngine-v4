@@ -71,6 +71,7 @@ async function iniciarLancamentos() {
             permitirNovo: true,
             permitirEditar: true,
             permitirExcluir: true,
+            visualizarAoClicarNaLinha: true,
             pageSize: 10,
             actions: {
                 visualizar(registro) {

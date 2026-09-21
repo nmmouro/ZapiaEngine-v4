@@ -117,6 +117,9 @@ async function iniciarEmpregados() {
                 pageSize:
                     10,
 
+                visualizarAoClicarNaLinha:
+                    true,
+
                 actions: {
 
                     visualizar(registro) {

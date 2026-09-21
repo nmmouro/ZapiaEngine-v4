@@ -117,6 +117,9 @@ async function iniciarVeiculos() {
                 pageSize:
                     10,
 
+                visualizarAoClicarNaLinha:
+                    true,
+
                 actions: {
 
                     visualizar(registro) {

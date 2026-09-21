@@ -728,7 +728,10 @@ export function createTable(config = {}) {
                     `;
 
 
-                    if (permitirEditar) {
+                    if (
+                        permitirEditar &&
+                        options.editarAoClicarNaLinha !== true
+                    ) {
 
                         html += `
 
@@ -1402,12 +1405,20 @@ function formatarData(valor) {
 
     function possuiActions() {
 
-        return (
-            options.actions &&
-            typeof options.actions === "object" &&
-            Object.keys(
-                options.actions
-            ).length > 0
+        if (
+            !options.actions ||
+            typeof options.actions !== "object"
+        ) {
+            return false;
+        }
+
+        return Object.keys(
+            options.actions
+        ).some(
+            nome => !(
+                options.visualizarAoClicarNaLinha === true &&
+                nome === "visualizar"
+            )
         );
 
     }
@@ -1439,6 +1450,13 @@ function formatarData(valor) {
         )
         .map(
             nome => {
+
+                if (
+                    options.visualizarAoClicarNaLinha === true &&
+                    nome === "visualizar"
+                ) {
+                    return "";
+                }
 
                 if (
                     typeof options.actions[nome] !==
