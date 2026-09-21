@@ -427,6 +427,12 @@
 }
 
 
+/* Linhas configuradas para abrir a visualização por clique */
+.engine-table tbody tr.engine-table-row-visualizavel {
+    cursor: pointer;
+}
+
+
 .engine-table tbody tr:last-child td {
     border-bottom: none;
 }
