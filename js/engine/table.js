@@ -334,6 +334,54 @@ export function createTable(config = {}) {
 
     function tratarClique(evento) {
 
+        // ----------------------------------------------------
+        // CLIQUE NA LINHA
+        // ----------------------------------------------------
+        // Quando habilitado, qualquer área da linha (exceto
+        // controles/botões interativos) abre a visualização
+        // do registro.
+        const linha =
+            evento.target.closest(
+                "tbody tr[data-row-id]"
+            );
+
+        if (
+            linha &&
+            options.visualizarAoClicarNaLinha === true &&
+            !evento.target.closest(
+                "button, a, input, select, textarea, label"
+            )
+        ) {
+
+            const idLinha =
+                linha.dataset.rowId;
+
+            const registro =
+                obterRegistroPorId(idLinha);
+
+            const visualizar =
+                options.actions?.visualizar;
+
+            if (
+                registro &&
+                typeof visualizar === "function"
+            ) {
+
+                visualizar(registro);
+
+            } else {
+
+                console.warn(
+                    `TABLE ${entity} → VISUALIZAR LINHA → ação visualizar não configurada.`
+                );
+
+            }
+
+            return;
+
+        }
+
+
         const botao =
             evento.target.closest(
                 "button"
@@ -603,9 +651,22 @@ export function createTable(config = {}) {
         registros.forEach(
             registro => {
 
+                const idLinha =
+                    obterIdRegistro(
+                        registro
+                    );
+
+                const classeLinha =
+                    options.visualizarAoClicarNaLinha === true
+                        ? " engine-table-row-visualizavel"
+                        : "";
+
                 html += `
 
-                    <tr>
+                    <tr
+                        data-row-id="${escaparAtributo(idLinha)}"
+                        class="${classeLinha.trim()}"
+                    >
 
                 `;
 
