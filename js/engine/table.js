@@ -369,10 +369,31 @@ export function createTable(config = {}) {
 
                 visualizar(registro);
 
+            } else if (
+                registro &&
+                options.visualizarUrl
+            ) {
+
+                const urlBase =
+                    typeof options.visualizarUrl === "function"
+                        ? options.visualizarUrl(registro)
+                        : options.visualizarUrl;
+
+                if (urlBase) {
+                    const separador =
+                        String(urlBase).includes("?") ? "&" : "?";
+
+                    window.location.href =
+                        String(urlBase) +
+                        separador +
+                        "id=" +
+                        encodeURIComponent(idLinha);
+                }
+
             } else {
 
                 console.warn(
-                    `TABLE ${entity} → VISUALIZAR LINHA → ação visualizar não configurada.`
+                    `TABLE ${entity} → VISUALIZAR LINHA → URL de visualização não configurada.`
                 );
 
             }

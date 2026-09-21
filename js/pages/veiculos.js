@@ -120,6 +120,9 @@ async function iniciarVeiculos() {
                 visualizarAoClicarNaLinha:
                     true,
 
+                visualizarUrl:
+                    "veiculos_view.html",
+
                 actions: {
 
                     visualizar(registro) {

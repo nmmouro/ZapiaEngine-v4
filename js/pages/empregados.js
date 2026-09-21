@@ -120,6 +120,9 @@ async function iniciarEmpregados() {
                 visualizarAoClicarNaLinha:
                     true,
 
+                visualizarUrl:
+                    "empregados_view.html",
+
                 actions: {
 
                     visualizar(registro) {

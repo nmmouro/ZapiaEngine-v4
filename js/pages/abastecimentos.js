@@ -66,6 +66,7 @@ export async function iniciarAbastecimentos() {
             permitirExcluir: false,
             pageSize: 10,
             visualizarAoClicarNaLinha: true,
+            visualizarUrl: "abastecimentos_view.html",
             colunas: [
                 { name: "data", label: "Data", format: formatarData },
                 { name: "hora", label: "Hora", format: formatarHora },

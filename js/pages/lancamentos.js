@@ -72,6 +72,7 @@ async function iniciarLancamentos() {
             permitirEditar: true,
             permitirExcluir: true,
             visualizarAoClicarNaLinha: true,
+            visualizarUrl: "lancamentos_view.html",
             pageSize: 10,
             colunas: [
                 { name: "data", label: "Data", type: "date",
