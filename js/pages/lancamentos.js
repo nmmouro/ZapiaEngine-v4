@@ -708,7 +708,22 @@ function configurarConclusao(registro = {}) {
     setRequired("horario_final", true);
     setRequired("km_final", true);
 
-    CAMPOS_ABERTURA.forEach(n => setReadonly(n, true));
+    // ====================================================
+    // TODOS OS CAMPOS DA ABERTURA FICAM EDITÁVEIS
+    // PARA REVISÃO DURANTE A CONCLUSÃO
+    // ====================================================
+    [
+        "data",
+        "hora",
+        "id_empregado",
+        "id_veiculo",
+        "passageiro_setor_motivo",
+        "itinerario",
+        "horario_inicial",
+        "km_inicial"
+    ].forEach(n => setReadonly(n, false));
+
+    
     setReadonly("revisao", true);
     setReadonly("status", true);
     sincronizarRevisaoDoVeiculo(registro?.id_veiculo || getValor("id_veiculo"));
