@@ -300,9 +300,7 @@ export const SCHEMA_LANCAMENTOS = {
             type: "time",
             required: false,
             visible: true,
-            readonly: true
-        ,
-            visible: false
+            readonly: true        
         },
 
         // ========================================================
