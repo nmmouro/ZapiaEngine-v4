@@ -552,22 +552,79 @@ function instalarControlesDoCiclo() {
         }
     });
 
-    container.addEventListener("form:salvo", async evento => {
-        if (modo !== "abertura") return;
+    
 
-        const id =
-            extrairIdRegistro(evento.detail) ||
-            modulo?.engine?.state?.registros?.at(-1)?.id;
+    container.addEventListener("form:salvo", async evento => {
+
+    const id =
+        extrairIdRegistro(evento.detail) ||
+        modulo?.engine?.state?.registros?.at(-1)?.id;
+
+    // ========================================================
+    // ABERTURA SALVA
+    // ========================================================
+    if (modo === "abertura") {
 
         if (!id) {
-            console.warn("LANÇAMENTOS → não foi possível obter o ID da ocorrência aberta.");
+            console.warn(
+                "LANÇAMENTOS → não foi possível obter o ID da ocorrência aberta."
+            );
             return;
         }
 
-        console.log("LANÇAMENTOS → ABERTURA SALVA:", id);
+        console.log(
+            "LANÇAMENTOS → ABERTURA SALVA:",
+            id
+        );
+
         modo = "conclusao-pendente";
+
         await modulo.editar(id);
-    });
+
+        return;
+    }
+
+    // ========================================================
+    // CONCLUSÃO SALVA
+    // ========================================================
+    if (
+        modo === "conclusao" ||
+        modo === "conclusao-pendente"
+    ) {
+
+        console.log(
+            "LANÇAMENTOS → OCORRÊNCIA CONCLUÍDA:",
+            id
+        );
+
+        modo = "edicao";
+
+        // Agora que o registro foi efetivamente salvo como
+        // CONCLUÍDO, os campos calculados podem ser exibidos.
+        mostrarCampo(
+            "distancia_percorrida",
+            true
+        );
+
+        mostrarCampo(
+            "duracao_atendimento",
+            true
+        );
+
+        // O registro passa a ser tratado como uma ocorrência
+        // já concluída.
+        setValor(
+            "status",
+            "CONCLUÍDO"
+        );
+
+        setTextoBotaoSalvar(
+            "ATUALIZAR"
+        );
+
+        return;
+    }
+});
 
 
 
@@ -703,9 +760,10 @@ function configurarConclusao(registro = {}) {
     // Campos auxiliares de Checklist, Abastecimento, Avarias,
     // Lava-Car e Manutenção são acessados por seus botões nesta fase.
     ocultarCamposInformativos();
+    
     mostrarCampo("status", true);
-    mostrarCampo("distancia_percorrida", true);
-    mostrarCampo("duracao_atendimento", true);
+    mostrarCampo("distancia_percorrida", false);
+    mostrarCampo("duracao_atendimento", false);
 
     setRequired("horario_final", true);
     setRequired("km_final", true);
