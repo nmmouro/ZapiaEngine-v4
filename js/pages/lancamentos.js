@@ -668,7 +668,7 @@ function configurarAbertura() {
 
     setReadonly("data", true);
     setReadonly("hora", true);
-    setReadonly("horario_inicial", true);
+    setReadonly("horario_inicial", false);
     setReadonly("km_inicial", true);
     setReadonly("revisao", true);
 
