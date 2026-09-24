@@ -661,6 +661,8 @@ function configurarAbertura() {
     // anterior permaneça visível.
     ocultarCamposInformativos();
     ocultarDadosComplementares();
+    mostrarCampo("distancia_percorrida", false);
+    mostrarCampo("duracao_atendimento", false);
 
     // Status é informativo e calculado pelo sistema.
     mostrarCampo("status", true);
