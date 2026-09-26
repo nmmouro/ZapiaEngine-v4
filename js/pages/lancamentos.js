@@ -545,13 +545,19 @@ function instalarControlesDoCiclo() {
             modo = "conclusao";
             configurarConclusao(registro);
             adicionarBotoesAuxiliares();
+            // Durante o preenchimento da conclusão, o status visual
+            // permanece EM ANDAMENTO. A conclusão só é confirmada
+            // depois do clique em CONCLUIR OCORRÊNCIA e do salvamento.
             setValor("status", "EM ANDAMENTO");
             await atualizarIndicadoresRelacionados(registro.id);
             await capturarGPS("localizacao_final");
         } else {
             modo = "edicao";
             configurarEdicao(registro);
-            setValor("status", "CONCLUÍDO");
+            // Em edição, o status representa o último estado efetivamente
+            // salvo no banco, e não o que está sendo digitado na tela.
+            const statusPersistido = String(registro?.status || "CONCLUÍDO").trim().toUpperCase();
+            setValor("status", statusPersistido === "CONCLUÍDO" ? "CONCLUÍDO" : "EM ANDAMENTO");
             await atualizarIndicadoresRelacionados(registro.id);
         }
     });
@@ -1174,18 +1180,17 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
         const lavaCar = Array.isArray(lavaCars) ? lavaCars[0] : null;
         const manutencao = Array.isArray(manutencoes) ? manutencoes[0] : null;
 
-        const kmFinalIndicador = converterNumero(getValor("km_final"));
-        const kmInicialIndicador = converterNumero(getValor("km_inicial"));
-        const statusCalculado = Number.isFinite(kmFinalIndicador) &&
-            (!Number.isFinite(kmInicialIndicador) || kmFinalIndicador >= kmInicialIndicador)
-            ? "CONCLUÍDO"
-            : "EM ANDAMENTO";
-        setValor("status", statusCalculado);
+        // O status visual representa somente o último estado salvo.
+        // Não o recalculamos a partir do Km Final enquanto o usuário
+        // ainda estiver preenchendo/editando a ocorrência.
+        const statusAtual = String(getValor("status") || "EM ANDAMENTO").trim().toUpperCase();
+        const statusVisual = statusAtual === "CONCLUÍDO" ? "CONCLUÍDO" : "EM ANDAMENTO";
+        setValor("status", statusVisual);
         atualizarBotaoIndicador(
             botoes.status,
             true,
-            `Status: ${statusCalculado}`,
-            statusCalculado === "CONCLUÍDO"
+            `Status: ${statusVisual}`,
+            statusVisual === "CONCLUÍDO"
         );
         atualizarBotaoIndicador(botoes.checklist, Boolean(checklist), "Checklist", Boolean(checklist));
         atualizarBotaoIndicador(botoes.abastecimento, Boolean(abastecimento), "Abastecimento", Boolean(abastecimento));
@@ -1342,21 +1347,15 @@ function instalarControleStatusKmFinal(form) {
     campoKmFinal.dataset.statusKmFinalControlado = "true";
     let ultimoValorValido = String(campoKmFinal.value ?? "").trim();
 
-    const sincronizarStatusVisual = () => {
-        const kmFinalTexto = String(campoKmFinal.value ?? "").trim();
-        const kmFinal = converterNumero(kmFinalTexto);
-        const kmInicial = converterNumero(getValor("km_inicial"));
-        const valido = Number.isFinite(kmFinal) &&
-            (!Number.isFinite(kmInicial) || kmFinal >= kmInicial);
-
-        setValor("status", valido ? "CONCLUÍDO" : "EM ANDAMENTO");
-
+    const atualizarStatusPersistidoVisualmente = () => {
+        const statusAtual = String(getValor("status") || "EM ANDAMENTO").trim().toUpperCase();
+        const concluido = statusAtual === "CONCLUÍDO";
         const botaoStatus = form.querySelector('[data-lancamento-aux="Status"]');
         atualizarBotaoIndicador(
             botaoStatus,
             true,
-            `Status: ${valido ? "CONCLUÍDO" : "EM ANDAMENTO"}`,
-            valido
+            `Status: ${concluido ? "CONCLUÍDO" : "EM ANDAMENTO"}`,
+            concluido
         );
     };
 
@@ -1380,16 +1379,19 @@ function instalarControleStatusKmFinal(form) {
         }
 
         ultimoValorValido = novoValor;
-        sincronizarStatusVisual();
+        // O status não muda durante a digitação. Ele só será alterado
+        // depois que o usuário clicar em SALVAR/CONCLUIR e o salvamento
+        // for efetivamente realizado.
+        atualizarStatusPersistidoVisualmente();
     });
 
     campoKmFinal.addEventListener("input", () => {
         const valor = String(campoKmFinal.value ?? "").trim();
         if (valor) ultimoValorValido = valor;
-        sincronizarStatusVisual();
+        // Nenhuma alteração de status durante o preenchimento.
     });
 
-    sincronizarStatusVisual();
+    atualizarStatusPersistidoVisualmente();
 }
 
 function atualizarBotaoIndicador(botao, registrado, texto, concluido = registrado) {
