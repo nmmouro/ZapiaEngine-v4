@@ -616,6 +616,12 @@
             return { page: pagina, view: true };
         }
 
+        case "lancamentos_relatorio": {
+            const modulo = await import("./pages/lancamentos_relatorio.js");
+            await modulo.iniciar();
+            return { page: pagina, relatorio: true };
+        }
+
         case "dashboard": {
 
                 console.log(
