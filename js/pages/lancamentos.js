@@ -357,6 +357,7 @@ function abrirLavaCar() {
     window.lancamentos = modulo;
     await modulo.iniciar();
     instalarControlesDoCiclo();
+    instalarBotaoRelatorio();
 
     const idRetorno =
         new URLSearchParams(window.location.search).get("editar");
@@ -1460,6 +1461,23 @@ function formatarMoeda(valor) {
         style: "currency",
         currency: "BRL"
     });
+}
+
+function instalarBotaoRelatorio() {
+    const toolbar = document.querySelector("#app [data-engine-toolbar]");
+    if (!toolbar || toolbar.querySelector("[data-lancamentos-relatorio]")) return;
+
+    const botao = document.createElement("button");
+    botao.type = "button";
+    botao.className = "btn btn-secondary";
+    botao.dataset.lancamentosRelatorio = "true";
+    botao.textContent = "Relatório de Ocorrências";
+    botao.title = "Abrir relatório das ocorrências salvas em Lançamentos";
+    botao.addEventListener("click", () => {
+        window.location.href = "lancamentos_relatorio.html";
+    });
+
+    toolbar.appendChild(botao);
 }
 
 function removerBotaoConcluir() {
