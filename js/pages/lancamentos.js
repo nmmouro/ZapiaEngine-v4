@@ -433,6 +433,10 @@ function registrarBotoesRelacionados() {
 
             switch (acao) {
 
+                case "Status":
+                    break;
+
+
                 case "Checklist":
 
                     abrirChecklist();
@@ -684,13 +688,19 @@ function resetarIndicadoresAuxiliares() {
     const grupo = modulo?.form?.formulario?.querySelector("[data-lancamento-auxiliares]");
     if (!grupo) return;
 
-    definirIndicador(grupo.querySelector('[data-indicador="checklist"]'), "NÃO REGISTRADO");
-    definirIndicador(grupo.querySelector('[data-indicador="abastecimento-status"]'), "NÃO REGISTRADO");
+    atualizarBotaoIndicador(
+        grupo.querySelector('[data-lancamento-aux="Status"]'),
+        true,
+        "Status: EM ANDAMENTO",
+        false
+    );
+    atualizarBotaoIndicador(grupo.querySelector('[data-lancamento-aux="Checklist"]'), false, "Checklist", false);
+    atualizarBotaoIndicador(grupo.querySelector('[data-lancamento-aux="Abastecimento"]'), false, "Abastecimento", false);
+    atualizarBotaoIndicador(grupo.querySelector('[data-lancamento-aux="Avarias"]'), false, "Avarias", false);
+    atualizarBotaoIndicador(grupo.querySelector('[data-lancamento-aux="Lava-car"]'), false, "Lava-Car", false);
+    atualizarBotaoIndicador(grupo.querySelector('[data-lancamento-aux="Manutenção"]'), false, "Manutenção", false);
     definirIndicador(grupo.querySelector('[data-indicador="abastecimento-valor"]'), "Valor da nota: —");
-    definirIndicador(grupo.querySelector('[data-indicador="avarias"]'), "NÃO REGISTRADO");
-    definirIndicador(grupo.querySelector('[data-indicador="lava-car"]'), "NÃO REGISTRADO");
     definirIndicador(grupo.querySelector('[data-indicador="lava-car-valor"]'), "Valor: —");
-    definirIndicador(grupo.querySelector('[data-indicador="manutencao"]'), "NÃO REGISTRADA");
     definirIndicador(grupo.querySelector('[data-indicador="manutencao-valor"]'), "Valor da nota: —");
 }
 
@@ -1068,35 +1078,34 @@ function adicionarBotoesAuxiliares() {
             <div class="lancamento-auxiliares-titulo">Dados complementares</div>
             <div class="lancamento-auxiliares-lista">
                 <div class="lancamento-aux-item">
+                    <button type="button" class="btn btn-secondary" data-lancamento-aux="Status">Status: EM ANDAMENTO</button>
+                </div>
+
+                <div class="lancamento-aux-item">
                     <button
                         type="button"
                         class="btn btn-secondary"
                         data-lancamento-aux="Checklist"
                         data-checklist-registrado="false"
                     >Checklist</button>
-                    <div class="lancamento-aux-info" data-indicador="checklist">NÃO REGISTRADO</div>
                 </div>
 
                 <div class="lancamento-aux-item">
                     <button type="button" class="btn btn-secondary" data-lancamento-aux="Abastecimento">Abastecimento</button>
-                    <div class="lancamento-aux-info" data-indicador="abastecimento-status">NÃO REGISTRADO</div>
                     <div class="lancamento-aux-valor" data-indicador="abastecimento-valor">Valor da nota: —</div>
                 </div>
 
                 <div class="lancamento-aux-item">
                     <button type="button" class="btn btn-secondary" data-lancamento-aux="Avarias">Avarias</button>
-                    <div class="lancamento-aux-info" data-indicador="avarias">NÃO REGISTRADO</div>
                 </div>
 
                 <div class="lancamento-aux-item">
                     <button type="button" class="btn btn-secondary" data-lancamento-aux="Lava-car">Lava-Car</button>
-                    <div class="lancamento-aux-info" data-indicador="lava-car">NÃO REGISTRADO</div>
                     <div class="lancamento-aux-valor" data-indicador="lava-car-valor">Valor: —</div>
                 </div>
 
                 <div class="lancamento-aux-item">
                     <button type="button" class="btn btn-secondary" data-lancamento-aux="Manutenção">Manutenção</button>
-                    <div class="lancamento-aux-info" data-indicador="manutencao">NÃO REGISTRADO</div>
                     <div class="lancamento-aux-valor" data-indicador="manutencao-valor">Valor da nota: —</div>
                 </div>
             </div>
@@ -1130,27 +1139,22 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
     if (!grupo) return;
 
     const botoes = {
-        checklist: grupo.querySelector('[data-lancamento-aux="Checklist"]')
+        status: grupo.querySelector('[data-lancamento-aux="Status"]'),
+        checklist: grupo.querySelector('[data-lancamento-aux="Checklist"]'),
+        abastecimento: grupo.querySelector('[data-lancamento-aux="Abastecimento"]'),
+        avarias: grupo.querySelector('[data-lancamento-aux="Avarias"]'),
+        lavaCar: grupo.querySelector('[data-lancamento-aux="Lava-car"]'),
+        manutencao: grupo.querySelector('[data-lancamento-aux="Manutenção"]')
     };
 
     const indicadores = {
-        checklist: grupo.querySelector('[data-indicador="checklist"]'),
-        abastecimentoStatus: grupo.querySelector('[data-indicador="abastecimento-status"]'),
         abastecimentoValor: grupo.querySelector('[data-indicador="abastecimento-valor"]'),
-        avarias: grupo.querySelector('[data-indicador="avarias"]'),
-        lavaCar: grupo.querySelector('[data-indicador="lava-car"]'),
         lavaCarValor: grupo.querySelector('[data-indicador="lava-car-valor"]'),
-        manutencao: grupo.querySelector('[data-indicador="manutencao"]'),
         manutencaoValor: grupo.querySelector('[data-indicador="manutencao-valor"]')
     };
 
-    definirIndicador(indicadores.checklist, "CARREGANDO...");
-    definirIndicador(indicadores.abastecimentoStatus, "CARREGANDO...");
     definirIndicador(indicadores.abastecimentoValor, "Valor da nota: —");
-    definirIndicador(indicadores.avarias, "CARREGANDO...");
-    definirIndicador(indicadores.lavaCar, "CARREGANDO...");
     definirIndicador(indicadores.lavaCarValor, "Valor: —");
-    definirIndicador(indicadores.manutencao, "CARREGANDO...");
     definirIndicador(indicadores.manutencaoValor, "Valor da nota: —");
 
     try {
@@ -1168,44 +1172,12 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
         const lavaCar = Array.isArray(lavaCars) ? lavaCars[0] : null;
         const manutencao = Array.isArray(manutencoes) ? manutencoes[0] : null;
 
-        // O preenchimento do Checklist é comunicado diretamente pelo botão.
-        // O indicador textual permanece apenas para informar que ainda está pendente.
-        const botaoChecklist = botoes.checklist;
-
-        if (botaoChecklist) {
-            const registrado = Boolean(checklist);
-
-            botaoChecklist.dataset.checklistRegistrado =
-                registrado ? "true" : "false";
-
-            botaoChecklist.classList.toggle(
-                "btn-secondary",
-                !registrado
-            );
-
-            botaoChecklist.classList.toggle(
-                "btn-success",
-                registrado
-            );
-
-            botaoChecklist.textContent =
-                registrado ? "Checklist ✓" : "Checklist";
-
-            botaoChecklist.title =
-                registrado
-                    ? "Checklist preenchido — clique para visualizar ou editar"
-                    : "Preencher Checklist";
-        }
-
-        definirIndicador(
-            indicadores.checklist,
-            checklist ? "" : "NÃO REGISTRADO"
-        );
-
-        definirIndicador(
-            indicadores.abastecimentoStatus,
-            abastecimento ? "REGISTRADO" : "NÃO REGISTRADO"
-        );
+        atualizarBotaoIndicador(botoes.status, true, `Status: ${String(getValor("status") || "EM ANDAMENTO").toUpperCase()}`, String(getValor("status")).toUpperCase() === "CONCLUÍDO");
+        atualizarBotaoIndicador(botoes.checklist, Boolean(checklist), "Checklist", Boolean(checklist));
+        atualizarBotaoIndicador(botoes.abastecimento, Boolean(abastecimento), "Abastecimento", Boolean(abastecimento));
+        atualizarBotaoIndicador(botoes.avarias, Boolean(avaria), "Avarias", Boolean(avaria));
+        atualizarBotaoIndicador(botoes.lavaCar, Boolean(lavaCar), "Lava-Car", Boolean(lavaCar));
+        atualizarBotaoIndicador(botoes.manutencao, Boolean(manutencao), "Manutenção", Boolean(manutencao));
 
         definirIndicador(
             indicadores.abastecimentoValor,
@@ -1213,32 +1185,8 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
         );
 
         definirIndicador(
-            indicadores.avarias,
-            avaria
-                ? "REGISTRADO"
-                : "NÃO REGISTRADO"
-        );
-
-        definirIndicador(
-            indicadores.lavaCar,
-            lavaCar ? "REGISTRADO" : "NÃO REGISTRADO"
-        );
-
-        definirIndicador(
             indicadores.lavaCarValor,
             `Valor: ${lavaCar ? formatarMoeda(lavaCar.valor) : "—"}`
-        );
-
-        definirIndicador(
-            indicadores.manutencao,
-            manutencao ? "REGISTRADO" : "NÃO REGISTRADO"
-        );
-
-        const valorManutencao = manutencao ? Number(manutencao.valor_total_nota) : null;
-
-        definirIndicador(
-            indicadores.manutencaoValor,
-            `Valor da nota: ${Number.isFinite(valorManutencao) ? formatarMoeda(valorManutencao) : "—"}`
         );
 
         // Persiste somente valores compatíveis com os tipos das colunas.
@@ -1361,15 +1309,28 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
 
     } catch (erro) {
         console.error("LANÇAMENTOS → ERRO AO ATUALIZAR INDICADORES:", erro);
-        definirIndicador(indicadores.checklist, "NÃO REGISTRADO");
-        definirIndicador(indicadores.abastecimentoStatus, "NÃO DISPONÍVEL");
+        atualizarBotaoIndicador(botoes.status, true, "Status: NÃO DISPONÍVEL", false);
+        atualizarBotaoIndicador(botoes.checklist, false, "Checklist", false);
+        atualizarBotaoIndicador(botoes.abastecimento, false, "Abastecimento", false);
+        atualizarBotaoIndicador(botoes.avarias, false, "Avarias", false);
+        atualizarBotaoIndicador(botoes.lavaCar, false, "Lava-Car", false);
+        atualizarBotaoIndicador(botoes.manutencao, false, "Manutenção", false);
         definirIndicador(indicadores.abastecimentoValor, "Valor da nota: —");
-        definirIndicador(indicadores.avarias, "NÃO DISPONÍVEL");
-        definirIndicador(indicadores.lavaCar, "NÃO REALIZADO");
         definirIndicador(indicadores.lavaCarValor, "Valor: —");
-    definirIndicador(indicadores.manutencao, "CARREGANDO...");
-    definirIndicador(indicadores.manutencaoValor, "Valor da nota: —");
+        definirIndicador(indicadores.manutencaoValor, "Valor da nota: —");
     }
+}
+
+function atualizarBotaoIndicador(botao, registrado, texto, concluido = registrado) {
+    if (!botao) return;
+
+    botao.classList.toggle("btn-secondary", !registrado || !concluido);
+    botao.classList.toggle("btn-success", registrado && concluido);
+    botao.dataset.registrado = registrado ? "true" : "false";
+    botao.textContent = texto + (registrado && concluido ? " ✓" : "");
+    botao.title = registrado
+        ? "Preenchido — clique para visualizar ou editar"
+        : "Não preenchido — clique para registrar";
 }
 
 function definirIndicador(elemento, texto) {
