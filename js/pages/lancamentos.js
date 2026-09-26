@@ -1069,6 +1069,8 @@ function adicionarBotoesAuxiliares() {
     const form = modulo?.form?.formulario;
     if (!form) return;
 
+    instalarControleStatusKmFinal(form);
+
     let grupo = form.querySelector("[data-lancamento-auxiliares]");
     if (!grupo) {
         grupo = document.createElement("div");
@@ -1172,7 +1174,19 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
         const lavaCar = Array.isArray(lavaCars) ? lavaCars[0] : null;
         const manutencao = Array.isArray(manutencoes) ? manutencoes[0] : null;
 
-        atualizarBotaoIndicador(botoes.status, true, `Status: ${String(getValor("status") || "EM ANDAMENTO").toUpperCase()}`, String(getValor("status")).toUpperCase() === "CONCLUÍDO");
+        const kmFinalIndicador = converterNumero(getValor("km_final"));
+        const kmInicialIndicador = converterNumero(getValor("km_inicial"));
+        const statusCalculado = Number.isFinite(kmFinalIndicador) &&
+            (!Number.isFinite(kmInicialIndicador) || kmFinalIndicador >= kmInicialIndicador)
+            ? "CONCLUÍDO"
+            : "EM ANDAMENTO";
+        setValor("status", statusCalculado);
+        atualizarBotaoIndicador(
+            botoes.status,
+            true,
+            `Status: ${statusCalculado}`,
+            statusCalculado === "CONCLUÍDO"
+        );
         atualizarBotaoIndicador(botoes.checklist, Boolean(checklist), "Checklist", Boolean(checklist));
         atualizarBotaoIndicador(botoes.abastecimento, Boolean(abastecimento), "Abastecimento", Boolean(abastecimento));
         atualizarBotaoIndicador(botoes.avarias, Boolean(avaria), "Avarias", Boolean(avaria));
@@ -1319,6 +1333,63 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
         definirIndicador(indicadores.lavaCarValor, "Valor: —");
         definirIndicador(indicadores.manutencaoValor, "Valor da nota: —");
     }
+}
+
+function instalarControleStatusKmFinal(form) {
+    const campoKmFinal = form?.querySelector('[name="km_final"]');
+    if (!campoKmFinal || campoKmFinal.dataset.statusKmFinalControlado === "true") return;
+
+    campoKmFinal.dataset.statusKmFinalControlado = "true";
+    let ultimoValorValido = String(campoKmFinal.value ?? "").trim();
+
+    const sincronizarStatusVisual = () => {
+        const kmFinalTexto = String(campoKmFinal.value ?? "").trim();
+        const kmFinal = converterNumero(kmFinalTexto);
+        const kmInicial = converterNumero(getValor("km_inicial"));
+        const valido = Number.isFinite(kmFinal) &&
+            (!Number.isFinite(kmInicial) || kmFinal >= kmInicial);
+
+        setValor("status", valido ? "CONCLUÍDO" : "EM ANDAMENTO");
+
+        const botaoStatus = form.querySelector('[data-lancamento-aux="Status"]');
+        atualizarBotaoIndicador(
+            botaoStatus,
+            true,
+            `Status: ${valido ? "CONCLUÍDO" : "EM ANDAMENTO"}`,
+            valido
+        );
+    };
+
+    campoKmFinal.addEventListener("focus", () => {
+        ultimoValorValido = String(campoKmFinal.value ?? "").trim();
+    });
+
+    campoKmFinal.addEventListener("change", () => {
+        const novoValor = String(campoKmFinal.value ?? "").trim();
+
+        if (!novoValor && ultimoValorValido) {
+            const confirmar = window.confirm(
+                "Esta ocorrência está CONCLUÍDA.\n\nAo apagar o Km Final, ela voltará para EM ANDAMENTO.\n\nDeseja realmente apagar o Km Final?"
+            );
+
+            if (!confirmar) {
+                campoKmFinal.value = ultimoValorValido;
+                sincronizarStatusVisual();
+                return;
+            }
+        }
+
+        ultimoValorValido = novoValor;
+        sincronizarStatusVisual();
+    });
+
+    campoKmFinal.addEventListener("input", () => {
+        const valor = String(campoKmFinal.value ?? "").trim();
+        if (valor) ultimoValorValido = valor;
+        sincronizarStatusVisual();
+    });
+
+    sincronizarStatusVisual();
 }
 
 function atualizarBotaoIndicador(botao, registrado, texto, concluido = registrado) {
