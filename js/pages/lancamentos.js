@@ -1068,7 +1068,12 @@ function adicionarBotoesAuxiliares() {
             <div class="lancamento-auxiliares-titulo">Dados complementares</div>
             <div class="lancamento-auxiliares-lista">
                 <div class="lancamento-aux-item">
-                    <button type="button" class="btn btn-secondary" data-lancamento-aux="Checklist">Checklist</button>
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-lancamento-aux="Checklist"
+                        data-checklist-registrado="false"
+                    >Checklist</button>
                     <div class="lancamento-aux-info" data-indicador="checklist">NÃO REGISTRADO</div>
                 </div>
 
@@ -1124,6 +1129,10 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
     const grupo = modulo?.form?.formulario?.querySelector("[data-lancamento-auxiliares]");
     if (!grupo) return;
 
+    const botoes = {
+        checklist: grupo.querySelector('[data-lancamento-aux="Checklist"]')
+    };
+
     const indicadores = {
         checklist: grupo.querySelector('[data-indicador="checklist"]'),
         abastecimentoStatus: grupo.querySelector('[data-indicador="abastecimento-status"]'),
@@ -1159,9 +1168,38 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
         const lavaCar = Array.isArray(lavaCars) ? lavaCars[0] : null;
         const manutencao = Array.isArray(manutencoes) ? manutencoes[0] : null;
 
+        // O preenchimento do Checklist é comunicado diretamente pelo botão.
+        // O indicador textual permanece apenas para informar que ainda está pendente.
+        const botaoChecklist = botoes.checklist;
+
+        if (botaoChecklist) {
+            const registrado = Boolean(checklist);
+
+            botaoChecklist.dataset.checklistRegistrado =
+                registrado ? "true" : "false";
+
+            botaoChecklist.classList.toggle(
+                "btn-secondary",
+                !registrado
+            );
+
+            botaoChecklist.classList.toggle(
+                "btn-success",
+                registrado
+            );
+
+            botaoChecklist.textContent =
+                registrado ? "Checklist ✓" : "Checklist";
+
+            botaoChecklist.title =
+                registrado
+                    ? "Checklist preenchido — clique para visualizar ou editar"
+                    : "Preencher Checklist";
+        }
+
         definirIndicador(
             indicadores.checklist,
-            checklist ? "REGISTRADO" : "NÃO REGISTRADO"
+            checklist ? "" : "NÃO REGISTRADO"
         );
 
         definirIndicador(
