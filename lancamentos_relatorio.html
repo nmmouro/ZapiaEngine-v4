@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Painel Frota - Relatório de Ocorrências">
+    <title>Relatório de Ocorrências - Painel Frota</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/relatorio.css">
+</head>
+<body data-page="lancamentos_relatorio" data-page-title="Relatório de Ocorrências">
+    <header data-header class="app-header"></header>
+
+    <main class="app-container">
+        <section class="relatorio-page" id="relatorio-lancamentos">
+            <div class="relatorio-topo">
+                <div>
+                    <div class="relatorio-kicker">PAINEL FROTA</div>
+                    <h1>Relatório de Ocorrências</h1>
+                    <p>Dados registrados na tabela <strong>lancamentos</strong> do Supabase.</p>
+                </div>
+                <div class="relatorio-acoes">
+                    <button type="button" class="btn btn-secondary" id="btn-voltar-lancamentos">Voltar</button>
+                    <button type="button" class="btn btn-secondary" id="btn-imprimir-relatorio">Imprimir / PDF</button>
+                    <button type="button" class="btn btn-primary" id="btn-exportar-csv">Exportar CSV</button>
+                </div>
+            </div>
+
+            <section class="relatorio-filtros">
+                <div class="relatorio-section-title">Filtros</div>
+                <div class="relatorio-filtros-grid">
+                    <label>
+                        <span>Data inicial</span>
+                        <input type="date" id="filtro-data-inicial">
+                    </label>
+                    <label>
+                        <span>Data final</span>
+                        <input type="date" id="filtro-data-final">
+                    </label>
+                    <label>
+                        <span>Status</span>
+                        <select id="filtro-status">
+                            <option value="">Todos</option>
+                            <option value="EM ANDAMENTO">EM ANDAMENTO</option>
+                            <option value="CONCLUÍDO">CONCLUÍDO</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span>Veículo</span>
+                        <select id="filtro-veiculo">
+                            <option value="">Todos</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span>Empregado / Matrícula</span>
+                        <select id="filtro-empregado">
+                            <option value="">Todos</option>
+                        </select>
+                    </label>
+                    <label class="relatorio-filtro-busca">
+                        <span>Busca livre</span>
+                        <input type="search" id="filtro-busca" placeholder="Passageiro, setor, motivo, itinerário...">
+                    </label>
+                </div>
+                <div class="relatorio-filtros-acoes">
+                    <button type="button" class="btn btn-primary" id="btn-aplicar-filtros">Gerar relatório</button>
+                    <button type="button" class="btn btn-secondary" id="btn-limpar-filtros">Limpar filtros</button>
+                    <span class="relatorio-filtro-status" id="status-carregamento">Aguardando consulta...</span>
+                </div>
+            </section>
+
+            <section class="relatorio-resumo" aria-label="Resumo do relatório">
+                <article class="relatorio-card"><span>Total de ocorrências</span><strong id="resumo-total">0</strong></article>
+                <article class="relatorio-card"><span>Concluídas</span><strong id="resumo-concluidas">0</strong></article>
+                <article class="relatorio-card"><span>Em andamento</span><strong id="resumo-andamento">0</strong></article>
+                <article class="relatorio-card"><span>Distância total</span><strong id="resumo-distancia">0 km</strong></article>
+                <article class="relatorio-card"><span>Tempo de atendimento</span><strong id="resumo-duracao">0h 00min</strong></article>
+            </section>
+
+            <section class="relatorio-tabela-section">
+                <div class="relatorio-section-title linha-titulo">
+                    <span>Ocorrências</span>
+                    <span id="contador-registros">0 registros</span>
+                </div>
+                <div class="relatorio-tabela-wrap">
+                    <table class="relatorio-tabela" id="tabela-relatorio">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Hora</th>
+                                <th>Empregado / Matrícula</th>
+                                <th>Veículo / Modelo</th>
+                                <th>Passageiro / Setor / Motivo</th>
+                                <th>Itinerário</th>
+                                <th>Km Inicial</th>
+                                <th>Km Final</th>
+                                <th>Distância</th>
+                                <th>Duração</th>
+                                <th>Status</th>
+                                <th>Combustível</th>
+                                <th>Checklist</th>
+                                <th>Avaliação</th>
+                                <th>Avarias</th>
+                                <th>Lava-Car</th>
+                                <th>Manutenção</th>
+                                <th>Revisão</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpo-relatorio"></tbody>
+                    </table>
+                </div>
+                <div class="relatorio-vazio" id="relatorio-vazio" hidden>Nenhuma ocorrência corresponde aos filtros informados.</div>
+            </section>
+        </section>
+    </main>
+
+    <script type="module" src="./js/app.js"></script>
+    <script type="module">
+        import { iniciarHeader } from "./js/components/header.js";
+        iniciarHeader({ logo: "./assets/logo.png", tituloPadrao: "Painel Frota" });
+    </script>
+</body>
+</html>
