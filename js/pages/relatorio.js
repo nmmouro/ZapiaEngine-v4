@@ -114,7 +114,12 @@ function configurarEventos() {
     document.querySelector("#btnLimpar").addEventListener("click", limparFiltros);
     document.querySelector("#btnCSV").addEventListener("click", exportarCSV);
     document.querySelector("#btnImprimir").addEventListener("click", () => window.print());
-    document.querySelector("#filtroTexto").addEventListener("keydown", e => {
+    ["#filtroDataInicial", "#filtroDataFinal", "#filtroVeiculo", "#filtroEmpregado", "#filtroStatus"].forEach(selector => {
+        document.querySelector(selector).addEventListener("change", aplicarFiltros);
+    });
+    const campoTexto = document.querySelector("#filtroTexto");
+    campoTexto.addEventListener("input", aplicarFiltros);
+    campoTexto.addEventListener("keydown", e => {
         if (e.key === "Enter") aplicarFiltros();
     });
 }
@@ -136,7 +141,12 @@ async function carregarDados() {
         veiculos = normalizarLista(listaVeiculos.status === "fulfilled" ? listaVeiculos.value : []);
         empregados = normalizarLista(listaEmpregados.status === "fulfilled" ? listaEmpregados.value : []);
 
+        console.log(`RELATÓRIO → OCORRÊNCIAS CARREGADAS: ${registros.length}`);
+        console.log(`RELATÓRIO → VEÍCULOS CARREGADOS: ${veiculos.length}`);
+        console.log(`RELATÓRIO → EMPREGADOS CARREGADOS: ${empregados.length}`);
         preencherFiltros();
+        console.log(`RELATÓRIO → OPÇÕES DE VEÍCULOS: ${opcoesVeiculos.size}`);
+        console.log(`RELATÓRIO → OPÇÕES DE EMPREGADOS: ${opcoesEmpregados.size}`);
         aplicarFiltros();
         mensagem(`${registros.length} ocorrência(s) carregada(s).`, "sucesso");
     } catch (erro) {
@@ -251,16 +261,27 @@ function registroCorresponde(entidade, chaveSelecionada, registro) {
     if (!chaveSelecionada) return true;
     const mapa = entidade === "veiculo" ? opcoesVeiculos : opcoesEmpregados;
     const item = mapa.get(chaveSelecionada);
-    if (!item) return false;
+    if (!item) {
+        console.warn(`RELATÓRIO → OPÇÃO ${entidade} NÃO ENCONTRADA:`, chaveSelecionada);
+        return false;
+    }
     const candidatos = entidade === "veiculo" ? candidatosVeiculo(registro) : candidatosEmpregado(registro);
-    return candidatos.some(c => item.candidatos.has(normalizarTexto(c)));
+    const normalizados = candidatos.map(normalizarTexto).filter(Boolean);
+    const corresponde = normalizados.some(c => item.candidatos.has(c));
+    // Fallback: compara diretamente a opção selecionada com os valores da ocorrência.
+    const chaveTexto = normalizarTexto(item.label);
+    const direto = normalizados.some(c => c === chaveTexto || c.includes(chaveTexto) || chaveTexto.includes(c));
+    return corresponde || direto;
 }
 
 function textoDoRegistro(r) {
     const partes = [];
     for (const [campo] of CAMPOS) partes.push(r[campo]);
+    partes.push(r.id, r.id_lancamento, r.id_veiculo, r.id_empregado);
     partes.push(...candidatosVeiculo(r));
     partes.push(...candidatosEmpregado(r));
+    // Inclui qualquer campo adicional existente no registro, mesmo que não esteja na tabela.
+    try { partes.push(JSON.stringify(r)); } catch (_) {}
     return partes.map(normalizarTexto).filter(Boolean).join(" ");
 }
 
@@ -271,6 +292,8 @@ function aplicarFiltros() {
     const empregado = document.querySelector("#filtroEmpregado").value.trim();
     const status = document.querySelector("#filtroStatus").value.trim().toUpperCase();
     const texto = normalizarTexto(document.querySelector("#filtroTexto").value);
+
+    console.log("RELATÓRIO → FILTROS:", { inicio, fim, veiculo, empregado, status, texto });
 
     filtrados = registros.filter(r => {
         const data = String(r.data ?? "").slice(0, 10);
@@ -284,6 +307,7 @@ function aplicarFiltros() {
     }).sort((a,b) => `${b.data ?? ""} ${b.hora ?? ""}`.localeCompare(`${a.data ?? ""} ${a.hora ?? ""}`));
 
     renderizarTabela();
+    console.log(`RELATÓRIO → RESULTADO: ${filtrados.length} de ${registros.length}`);
     document.querySelector("#totalRegistros").textContent = filtrados.length;
     document.querySelector("#periodoResumo").textContent = inicio || fim ? `${formatarData(inicio) || "..."} até ${formatarData(fim) || "..."}` : "Todos";
 }
