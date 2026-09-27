@@ -33,6 +33,12 @@
     opacity: .7;
 }
 
+.relatorio-periodo {
+    margin-top: 4px !important;
+    font-weight: 700;
+    opacity: .9 !important;
+}
+
 .relatorio-acoes {
     display: flex;
     flex-wrap: wrap;
