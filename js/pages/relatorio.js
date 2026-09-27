@@ -8,6 +8,8 @@ let registros = [];
 let filtrados = [];
 let veiculos = [];
 let empregados = [];
+let opcoesVeiculos = new Map();
+let opcoesEmpregados = new Map();
 
 const CAMPOS = [
     ["data", "Data"],
@@ -153,53 +155,113 @@ function normalizarLista(valor) {
     return [];
 }
 
+function normalizarTexto(valor) {
+    return String(valor ?? "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim()
+        .toLowerCase();
+}
+
+function candidatosVeiculo(r) {
+    const v = veiculos.find(x =>
+        String(x.id ?? "").trim() === String(r.id_veiculo ?? "").trim()
+    );
+    return [
+        r.id_veiculo, r.veiculo,
+        v?.id, v?.placa, v?.modelo, v?.marca_modelo_versao,
+        v ? [v.placa, v.modelo || v.marca_modelo_versao].filter(Boolean).join(" - ") : ""
+    ].filter(x => String(x ?? "").trim() !== "");
+}
+
+function candidatosEmpregado(r) {
+    const e = empregados.find(x =>
+        String(x.id ?? "").trim() === String(r.id_empregado ?? "").trim()
+    );
+    return [
+        r.id_empregado, r.empregado_matricula,
+        e?.id, e?.nome, e?.empregado, e?.matricula,
+        e ? [e.nome || e.empregado, e.matricula].filter(Boolean).join(" / ") : ""
+    ].filter(x => String(x ?? "").trim() !== "");
+}
+
+function montarOpcoesEntidade(lista, registros, tipo) {
+    const mapa = new Map();
+    const adicionar = (chave, label, candidatos) => {
+        const k = String(chave ?? "").trim();
+        if (!k) return;
+        if (!mapa.has(k)) mapa.set(k, { label: String(label || k), candidatos: new Set() });
+        candidatos.forEach(c => {
+            const n = normalizarTexto(c);
+            if (n) mapa.get(k).candidatos.add(n);
+        });
+    };
+
+    if (tipo === "veiculo") {
+        registros.forEach(r => {
+            const label = String(r.veiculo ?? "").trim() || String(r.id_veiculo ?? "").trim();
+            adicionar(`reg:${label}`, label, candidatosVeiculo(r));
+        });
+        lista.forEach(v => {
+            const label = [v.placa, v.modelo || v.marca_modelo_versao].filter(Boolean).join(" - ") || String(v.id ?? "");
+            adicionar(`cad:${v.id ?? label}`, label, [v.id, v.placa, v.modelo, v.marca_modelo_versao, label]);
+        });
+    } else {
+        registros.forEach(r => {
+            const label = String(r.empregado_matricula ?? "").trim() || String(r.id_empregado ?? "").trim();
+            adicionar(`reg:${label}`, label, candidatosEmpregado(r));
+        });
+        lista.forEach(e => {
+            const nome = e.nome || e.empregado || e.nome_completo;
+            const label = [nome, e.matricula].filter(Boolean).join(" / ") || String(e.id ?? "");
+            adicionar(`cad:${e.id ?? label}`, label, [e.id, nome, e.matricula, label]);
+        });
+    }
+    return mapa;
+}
+
 function preencherFiltros() {
-    const veiculoMap = new Map();
-    registros.forEach(r => {
-        const id = String(r.id_veiculo ?? "").trim();
-        const nome = String(r.veiculo ?? "").trim();
-        if (id || nome) veiculoMap.set(id || nome, nome || id);
-    });
-    veiculos.forEach(v => {
-        const id = String(v.id ?? "").trim();
-        const nome = [v.placa, v.modelo || v.marca_modelo_versao].filter(Boolean).join(" - ");
-        if (id || nome) veiculoMap.set(id || nome, nome || id);
-    });
+    opcoesVeiculos = montarOpcoesEntidade(veiculos, registros, "veiculo");
+    opcoesEmpregados = montarOpcoesEntidade(empregados, registros, "empregado");
 
-    const empregadoMap = new Map();
-    registros.forEach(r => {
-        const id = String(r.id_empregado ?? "").trim();
-        const nome = String(r.empregado_matricula ?? "").trim();
-        if (id || nome) empregadoMap.set(id || nome, nome || id);
-    });
-    empregados.forEach(e => {
-        const id = String(e.id ?? "").trim();
-        const nome = [e.empregado, e.matricula].filter(Boolean).join(" / ");
-        if (id || nome) empregadoMap.set(id || nome, nome || id);
-    });
-
-    preencherSelect("#filtroVeiculo", veiculoMap, "Todos os veículos");
-    preencherSelect("#filtroEmpregado", empregadoMap, "Todos os empregados");
+    preencherSelectComMapa("#filtroVeiculo", opcoesVeiculos, "Todos os veículos");
+    preencherSelectComMapa("#filtroEmpregado", opcoesEmpregados, "Todos os empregados");
 
     const statuses = [...new Set(registros.map(r => String(r.status ?? "").trim()).filter(Boolean))]
         .sort((a,b) => a.localeCompare(b, "pt-BR"));
     const statusSelect = document.querySelector("#filtroStatus");
-    statusSelect.innerHTML = `<option value="">Todos</option>` + statuses.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
+    statusSelect.innerHTML = `<option value="">Todos</option>` + statuses
+        .map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
 }
 
-function preencherSelect(selector, map, primeiro) {
+function preencherSelectComMapa(selector, mapa, primeiro) {
     const select = document.querySelector(selector);
-    const anterior = select.value;
     select.innerHTML = `<option value="">${primeiro}</option>`;
-    [...map.entries()]
-        .sort((a,b) => a[1].localeCompare(b[1], "pt-BR"))
-        .forEach(([value,label]) => {
+    [...mapa.entries()]
+        .sort((a,b) => a[1].label.localeCompare(b[1].label, "pt-BR"))
+        .forEach(([value, item]) => {
             const opt = document.createElement("option");
             opt.value = value;
-            opt.textContent = label;
+            opt.textContent = item.label;
             select.appendChild(opt);
         });
-    if ([...select.options].some(o => o.value === anterior)) select.value = anterior;
+}
+
+function registroCorresponde(entidade, chaveSelecionada, registro) {
+    if (!chaveSelecionada) return true;
+    const mapa = entidade === "veiculo" ? opcoesVeiculos : opcoesEmpregados;
+    const item = mapa.get(chaveSelecionada);
+    if (!item) return false;
+    const candidatos = entidade === "veiculo" ? candidatosVeiculo(registro) : candidatosEmpregado(registro);
+    return candidatos.some(c => item.candidatos.has(normalizarTexto(c)));
+}
+
+function textoDoRegistro(r) {
+    const partes = [];
+    for (const [campo] of CAMPOS) partes.push(r[campo]);
+    partes.push(...candidatosVeiculo(r));
+    partes.push(...candidatosEmpregado(r));
+    return partes.map(normalizarTexto).filter(Boolean).join(" ");
 }
 
 function aplicarFiltros() {
@@ -208,32 +270,22 @@ function aplicarFiltros() {
     const veiculo = document.querySelector("#filtroVeiculo").value.trim();
     const empregado = document.querySelector("#filtroEmpregado").value.trim();
     const status = document.querySelector("#filtroStatus").value.trim().toUpperCase();
-    const texto = document.querySelector("#filtroTexto").value.trim().toLowerCase();
+    const texto = normalizarTexto(document.querySelector("#filtroTexto").value);
 
     filtrados = registros.filter(r => {
         const data = String(r.data ?? "").slice(0, 10);
         if (inicio && (!data || data < inicio)) return false;
         if (fim && (!data || data > fim)) return false;
-
-        if (veiculo && !correspondeFiltro(veiculo, r.id_veiculo, r.veiculo)) return false;
-        if (empregado && !correspondeFiltro(empregado, r.id_empregado, r.empregado_matricula)) return false;
+        if (veiculo && !registroCorresponde("veiculo", veiculo, r)) return false;
+        if (empregado && !registroCorresponde("empregado", empregado, r)) return false;
         if (status && String(r.status ?? "").trim().toUpperCase() !== status) return false;
-
-        if (texto) {
-            const haystack = CAMPOS.map(([campo]) => String(r[campo] ?? "")).join(" ").toLowerCase();
-            if (!haystack.includes(texto)) return false;
-        }
+        if (texto && !textoDoRegistro(r).includes(texto)) return false;
         return true;
     }).sort((a,b) => `${b.data ?? ""} ${b.hora ?? ""}`.localeCompare(`${a.data ?? ""} ${a.hora ?? ""}`));
 
     renderizarTabela();
     document.querySelector("#totalRegistros").textContent = filtrados.length;
     document.querySelector("#periodoResumo").textContent = inicio || fim ? `${formatarData(inicio) || "..."} até ${formatarData(fim) || "..."}` : "Todos";
-}
-
-function correspondeFiltro(valor, id, texto) {
-    const v = String(valor ?? "").trim();
-    return valor === v || v === String(id ?? "").trim() || v === String(texto ?? "").trim();
 }
 
 function renderizarTabela() {
