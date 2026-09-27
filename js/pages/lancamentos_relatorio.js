@@ -10,15 +10,20 @@
  * - Impressão do relatório / salvar como PDF pelo navegador
  * ============================================================
  */
-import { listar } from "../services/crudService.js";
+import { listarTodos } from "../services/crudService.js";
 
 let registrosOriginais = [];
 let registrosFiltrados = [];
+let veiculosDisponiveis = [];
+let empregadosDisponiveis = [];
+
 
 const CAMPOS_BUSCA = [
     "id",
     "empregado_matricula",
+    "id_empregado",
     "veiculo",
+    "id_veiculo",
     "passageiro_setor_motivo",
     "itinerario",
     "avaliacao_visual",
@@ -46,7 +51,7 @@ function registrarEventos() {
         window.location.href = "lancamentos.html";
     });
 
-    document.querySelector("#btn-aplicar-filtros")?.addEventListener("click", renderizarRelatorio);
+    document.querySelector("#btn-aplicar-filtros")?.addEventListener("click", gerarRelatorio);
     document.querySelector("#btn-limpar-filtros")?.addEventListener("click", limparFiltros);
     document.querySelector("#btn-exportar-csv")?.addEventListener("click", exportarCSV);
     document.querySelector("#btn-imprimir-relatorio")?.addEventListener("click", imprimirPDF);
@@ -63,12 +68,22 @@ async function carregarDados() {
     definirStatus("Consultando ocorrências no Supabase...");
 
     try {
-        const resposta = await listar("lancamentos");
-        registrosOriginais = Array.isArray(resposta) ? resposta : [];
-        registrosOriginais = ordenarRegistros(registrosOriginais);
-        preencherOpcoesFiltros(registrosOriginais);
+        const [resLancamentos, resVeiculos, resEmpregados] = await Promise.all([
+            listarTodos("lancamentos"),
+            listarTodos("veiculos"),
+            listarTodos("empregados")
+        ]);
+
+        registrosOriginais = ordenarRegistros(Array.isArray(resLancamentos) ? resLancamentos : []);
+        veiculosDisponiveis = Array.isArray(resVeiculos) ? resVeiculos : [];
+        empregadosDisponiveis = Array.isArray(resEmpregados) ? resEmpregados : [];
+
+        preencherOpcoesFiltros();
         renderizarRelatorio();
-        definirStatus(`${registrosOriginais.length} ocorrência(s) carregada(s).`);
+        definirStatus(
+            `${registrosOriginais.length} ocorrência(s) carregada(s) · ` +
+            `${veiculosDisponiveis.length} veículo(s) · ${empregadosDisponiveis.length} empregado(s).`
+        );
     } catch (erro) {
         console.error("RELATÓRIO LANÇAMENTOS → ERRO AO CARREGAR:", erro);
         registrosOriginais = [];
@@ -82,27 +97,95 @@ async function carregarDados() {
     }
 }
 
-function preencherOpcoesFiltros(registros) {
-    preencherSelect("filtro-veiculo", valoresUnicos(registros, "veiculo"));
-    preencherSelect("filtro-empregado", valoresUnicos(registros, "empregado_matricula"));
+function preencherOpcoesFiltros() {
+    const opcoesVeiculos = veiculosDisponiveis
+        .map(v => ({
+            value: String(v?.id ?? "").trim(),
+            label: montarLabelVeiculo(v)
+        }))
+        .filter(o => o.value && o.label)
+        .sort((a, b) => a.label.localeCompare(b.label, "pt-BR", { sensitivity: "base" }));
+
+    const opcoesEmpregados = empregadosDisponiveis
+        .map(e => ({
+            value: String(e?.id ?? "").trim(),
+            label: montarLabelEmpregado(e)
+        }))
+        .filter(o => o.value && o.label)
+        .sort((a, b) => a.label.localeCompare(b.label, "pt-BR", { sensitivity: "base" }));
+
+    preencherSelect("filtro-veiculo", opcoesVeiculos);
+    preencherSelect("filtro-empregado", opcoesEmpregados);
 }
 
-function preencherSelect(id, valores) {
+function preencherSelect(id, opcoes) {
     const select = document.getElementById(id);
     if (!select) return;
 
     const valorAtual = select.value;
-    const primeiraOpcao = select.options[0]?.outerHTML || "<option value=\"\">Todos</option>";
-    select.innerHTML = primeiraOpcao;
+    select.innerHTML = "";
 
-    valores.forEach(valor => {
+    const todos = document.createElement("option");
+    todos.value = "";
+    todos.textContent = "Todos";
+    select.appendChild(todos);
+
+    opcoes.forEach(opcao => {
         const option = document.createElement("option");
-        option.value = valor;
-        option.textContent = valor;
+        option.value = opcao.value;
+        option.textContent = opcao.label;
         select.appendChild(option);
     });
 
-    if (valores.includes(valorAtual)) select.value = valorAtual;
+    if ([...select.options].some(option => option.value === valorAtual)) {
+        select.value = valorAtual;
+    }
+}
+
+function montarLabelVeiculo(veiculo) {
+    const placa = String(veiculo?.placa ?? "").trim();
+    const modelo = String(
+        veiculo?.marca_modelo_versao ?? veiculo?.modelo ?? veiculo?.marca_modelo ?? ""
+    ).trim();
+    return [placa, modelo].filter(Boolean).join(" - ") || String(veiculo?.id ?? "");
+}
+
+function montarLabelEmpregado(empregado) {
+    const nome = String(empregado?.empregado ?? empregado?.nome ?? "").trim();
+    const matricula = String(empregado?.matricula ?? "").trim();
+    return [nome, matricula].filter(Boolean).join(" / ") || String(empregado?.id ?? "");
+}
+
+
+function gerarRelatorio() {
+    const dataInicial = document.getElementById("filtro-data-inicial")?.value || "";
+    const dataFinal = document.getElementById("filtro-data-final")?.value || "";
+
+    if (dataInicial && dataFinal && dataInicial > dataFinal) {
+        definirStatus("A data inicial não pode ser posterior à data final.", true);
+        alert("Informe um período válido: a data inicial deve ser anterior ou igual à data final.");
+        return;
+    }
+
+    renderizarRelatorio();
+
+    const quantidade = registrosFiltrados.length;
+    const periodo = dataInicial || dataFinal
+        ? ` · período ${dataInicial ? formatarData(dataInicial) : "início"} a ${dataFinal ? formatarData(dataFinal) : "fim"}`
+        : "";
+
+    definirStatus(`${quantidade} ocorrência(s) no relatório${periodo}.`);
+    setText(
+        "periodo-relatorio",
+        dataInicial || dataFinal
+            ? `Período do relatório: ${dataInicial ? formatarData(dataInicial) : "início"} a ${dataFinal ? formatarData(dataFinal) : "fim"}`
+            : "Todos os períodos"
+    );
+
+    document.querySelector(".relatorio-tabela-section")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
 }
 
 function renderizarRelatorio() {
@@ -115,19 +198,27 @@ function aplicarFiltros(registros) {
     const dataInicial = document.getElementById("filtro-data-inicial")?.value || "";
     const dataFinal = document.getElementById("filtro-data-final")?.value || "";
     const status = normalizar(document.getElementById("filtro-status")?.value);
-    const veiculo = normalizar(document.getElementById("filtro-veiculo")?.value);
-    const empregado = normalizar(document.getElementById("filtro-empregado")?.value);
+    const veiculo = String(document.getElementById("filtro-veiculo")?.value || "").trim();
+    const empregado = String(document.getElementById("filtro-empregado")?.value || "").trim();
     const busca = normalizar(document.getElementById("filtro-busca")?.value);
 
     return registros.filter(registro => {
-        const data = extrairDataISO(registro?.data);
+        const data = extrairDataISO(registro?.data || registro?.criado_em);
 
         if (dataInicial && (!data || data < dataInicial)) return false;
         if (dataFinal && (!data || data > dataFinal)) return false;
 
         if (status && normalizar(registro?.status) !== status) return false;
-        if (veiculo && normalizar(registro?.veiculo) !== veiculo) return false;
-        if (empregado && normalizar(registro?.empregado_matricula) !== empregado) return false;
+
+        if (veiculo) {
+            const idVeiculo = String(registro?.id_veiculo ?? "").trim();
+            if (idVeiculo !== veiculo) return false;
+        }
+
+        if (empregado) {
+            const idEmpregado = String(registro?.id_empregado ?? "").trim();
+            if (idEmpregado !== empregado) return false;
+        }
 
         if (busca) {
             const texto = CAMPOS_BUSCA.map(campo => registro?.[campo] ?? "").join(" ");
@@ -172,8 +263,8 @@ function renderizarTabela(registros) {
         const valores = [
             formatarData(registro?.data),
             formatarHora(registro?.hora),
-            registro?.empregado_matricula,
-            registro?.veiculo,
+            obterLabelEmpregado(registro),
+            obterLabelVeiculo(registro),
             registro?.passageiro_setor_motivo,
             registro?.itinerario,
             formatarNumeroOuTraco(registro?.km_inicial),
@@ -220,6 +311,7 @@ function limparFiltros() {
     });
 
     renderizarRelatorio();
+    setText("periodo-relatorio", "Todos os períodos");
     definirStatus(`${registrosOriginais.length} ocorrência(s) carregada(s).`);
 }
 
@@ -243,8 +335,8 @@ function exportarCSV() {
         r?.id,
         formatarData(r?.data),
         formatarHora(r?.hora),
-        r?.empregado_matricula,
-        r?.veiculo,
+        obterLabelEmpregado(r),
+        obterLabelVeiculo(r),
         r?.passageiro_setor_motivo,
         r?.itinerario,
         formatarHora(r?.horario_inicial),
@@ -326,6 +418,20 @@ function obterDuracaoMinutos(valor) {
     if (minutos) return Number(minutos[1]);
 
     return 0;
+}
+
+function obterLabelVeiculo(registro) {
+    const id = String(registro?.id_veiculo ?? "").trim();
+    const relacionado = veiculosDisponiveis.find(v => String(v?.id ?? "").trim() === id);
+    if (relacionado) return montarLabelVeiculo(relacionado);
+    return String(registro?.veiculo ?? "").trim();
+}
+
+function obterLabelEmpregado(registro) {
+    const id = String(registro?.id_empregado ?? "").trim();
+    const relacionado = empregadosDisponiveis.find(e => String(e?.id ?? "").trim() === id);
+    if (relacionado) return montarLabelEmpregado(relacionado);
+    return String(registro?.empregado_matricula ?? "").trim();
 }
 
 function ordenarRegistros(registros) {
