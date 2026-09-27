@@ -59,7 +59,7 @@ function registrarEventos() {
     ["filtro-data-inicial", "filtro-data-final", "filtro-status", "filtro-veiculo", "filtro-empregado", "filtro-busca"]
         .forEach(id => {
             document.getElementById(id)?.addEventListener("keydown", evento => {
-                if (evento.key === "Enter") renderizarRelatorio();
+                if (evento.key === "Enter") gerarRelatorio();
             });
         });
 }
@@ -67,33 +67,59 @@ function registrarEventos() {
 async function carregarDados() {
     definirStatus("Consultando ocorrências no Supabase...");
 
-    try {
-        const [resLancamentos, resVeiculos, resEmpregados] = await Promise.all([
-            listarTodos("lancamentos"),
-            listarTodos("veiculos"),
-            listarTodos("empregados")
-        ]);
+    // As três tabelas são independentes. Um problema em veículos ou
+    // empregados não pode apagar o resultado de lancamentos.
+    const resultados = await Promise.allSettled([
+        listarTodos("lancamentos"),
+        listarTodos("veiculos"),
+        listarTodos("empregados")
+    ]);
 
-        registrosOriginais = ordenarRegistros(Array.isArray(resLancamentos) ? resLancamentos : []);
-        veiculosDisponiveis = Array.isArray(resVeiculos) ? resVeiculos : [];
-        empregadosDisponiveis = Array.isArray(resEmpregados) ? resEmpregados : [];
+    const [lancamentosResult, veiculosResult, empregadosResult] = resultados;
 
+    if (lancamentosResult.status === "rejected") {
+        const erro = lancamentosResult.reason;
+        console.error("RELATÓRIO LANÇAMENTOS → ERRO AO CONSULTAR LANCAMENTOS:", erro);
+        registrosOriginais = [];
+        veiculosDisponiveis = veiculosResult.status === "fulfilled" && Array.isArray(veiculosResult.value)
+            ? veiculosResult.value : [];
+        empregadosDisponiveis = empregadosResult.status === "fulfilled" && Array.isArray(empregadosResult.value)
+            ? empregadosResult.value : [];
         preencherOpcoesFiltros();
         renderizarRelatorio();
-        definirStatus(
-            `${registrosOriginais.length} ocorrência(s) carregada(s) · ` +
-            `${veiculosDisponiveis.length} veículo(s) · ${empregadosDisponiveis.length} empregado(s).`
-        );
-    } catch (erro) {
-        console.error("RELATÓRIO LANÇAMENTOS → ERRO AO CARREGAR:", erro);
-        registrosOriginais = [];
-        renderizarRelatorio();
-        definirStatus("Não foi possível carregar as ocorrências.", true);
+        definirStatus(`Erro ao consultar public.lancamentos: ${erro?.message || "falha na API"}`, true);
+        mostrarErroTabela(erro?.message || "Erro ao consultar a tabela lancamentos.");
+        return;
+    }
 
-        const corpo = document.getElementById("corpo-relatorio");
-        if (corpo) {
-            corpo.innerHTML = `<tr><td colspan="18" class="relatorio-erro">${escapeHtml(erro?.message || "Erro ao consultar o Supabase.")}</td></tr>`;
-        }
+    registrosOriginais = ordenarRegistros(
+        Array.isArray(lancamentosResult.value) ? lancamentosResult.value : []
+    );
+    veiculosDisponiveis = veiculosResult.status === "fulfilled" && Array.isArray(veiculosResult.value)
+        ? veiculosResult.value : [];
+    empregadosDisponiveis = empregadosResult.status === "fulfilled" && Array.isArray(empregadosResult.value)
+        ? empregadosResult.value : [];
+
+    preencherOpcoesFiltros();
+    renderizarRelatorio();
+
+    const avisos = [];
+    if (veiculosResult.status === "rejected") avisos.push("veículos indisponíveis");
+    if (empregadosResult.status === "rejected") avisos.push("empregados indisponíveis");
+
+    definirStatus(
+        `${registrosOriginais.length} ocorrência(s) carregada(s) · ` +
+        `${veiculosDisponiveis.length} veículo(s) · ${empregadosDisponiveis.length} empregado(s)` +
+        (avisos.length ? ` · ${avisos.join("; ")}` : ".")
+    );
+}
+
+function mostrarErroTabela(mensagem) {
+    const corpo = document.getElementById("corpo-relatorio");
+    const vazio = document.getElementById("relatorio-vazio");
+    if (vazio) vazio.hidden = true;
+    if (corpo) {
+        corpo.innerHTML = `<tr><td colspan="18" class="relatorio-erro">${escapeHtml(mensagem)}</td></tr>`;
     }
 }
 
@@ -116,6 +142,27 @@ function preencherOpcoesFiltros() {
 
     preencherSelect("filtro-veiculo", opcoesVeiculos);
     preencherSelect("filtro-empregado", opcoesEmpregados);
+
+    // Mantém o filtro de status compatível com os valores realmente
+    // existentes em lancamentos, sem depender de uma lista fixa no HTML.
+    const statusExistentes = [...new Set(
+        registrosOriginais
+            .map(r => String(r?.status ?? "").trim())
+            .filter(Boolean)
+    )].sort((a, b) => a.localeCompare(b, "pt-BR", { sensitivity: "base" }));
+    const selectStatus = document.getElementById("filtro-status");
+    if (selectStatus) {
+        const atual = selectStatus.value;
+        const jaExistentes = new Set([...selectStatus.options].map(o => normalizar(o.value)));
+        statusExistentes.forEach(status => {
+            if (jaExistentes.has(normalizar(status))) return;
+            const option = document.createElement("option");
+            option.value = status;
+            option.textContent = status;
+            selectStatus.appendChild(option);
+        });
+        if ([...selectStatus.options].some(o => o.value === atual)) selectStatus.value = atual;
+    }
 }
 
 function preencherSelect(id, opcoes) {
@@ -210,15 +257,9 @@ function aplicarFiltros(registros) {
 
         if (status && normalizar(registro?.status) !== status) return false;
 
-        if (veiculo) {
-            const idVeiculo = String(registro?.id_veiculo ?? "").trim();
-            if (idVeiculo !== veiculo) return false;
-        }
+        if (veiculo && !registroCorrespondeVeiculo(registro, veiculo)) return false;
 
-        if (empregado) {
-            const idEmpregado = String(registro?.id_empregado ?? "").trim();
-            if (idEmpregado !== empregado) return false;
-        }
+        if (empregado && !registroCorrespondeEmpregado(registro, empregado)) return false;
 
         if (busca) {
             const texto = CAMPOS_BUSCA.map(campo => registro?.[campo] ?? "").join(" ");
@@ -420,16 +461,66 @@ function obterDuracaoMinutos(valor) {
     return 0;
 }
 
-function obterLabelVeiculo(registro) {
+function obterVeiculoRelacionado(registro) {
     const id = String(registro?.id_veiculo ?? "").trim();
-    const relacionado = veiculosDisponiveis.find(v => String(v?.id ?? "").trim() === id);
+    if (id) {
+        const porId = veiculosDisponiveis.find(v => String(v?.id ?? "").trim() === id);
+        if (porId) return porId;
+    }
+
+    const snapshot = normalizar(registro?.veiculo);
+    if (!snapshot) return null;
+
+    return veiculosDisponiveis.find(v => {
+        const placa = normalizar(v?.placa);
+        const label = normalizar(montarLabelVeiculo(v));
+        return snapshot === placa || snapshot === label || label.includes(snapshot) || (placa && snapshot.includes(placa));
+    }) || null;
+}
+
+function obterEmpregadoRelacionado(registro) {
+    const id = String(registro?.id_empregado ?? "").trim();
+    if (id) {
+        const porId = empregadosDisponiveis.find(e => String(e?.id ?? "").trim() === id);
+        if (porId) return porId;
+    }
+
+    const snapshot = normalizar(registro?.empregado_matricula);
+    if (!snapshot) return null;
+
+    return empregadosDisponiveis.find(e => {
+        const matricula = normalizar(e?.matricula);
+        const nome = normalizar(e?.empregado ?? e?.nome);
+        const label = normalizar(montarLabelEmpregado(e));
+        return snapshot === matricula || snapshot === nome || snapshot === label ||
+            label.includes(snapshot) || (matricula && snapshot.includes(matricula));
+    }) || null;
+}
+
+function registroCorrespondeVeiculo(registro, idSelecionado) {
+    const id = String(idSelecionado ?? "").trim();
+    if (!id) return true;
+    if (String(registro?.id_veiculo ?? "").trim() === id) return true;
+    const relacionado = obterVeiculoRelacionado(registro);
+    return String(relacionado?.id ?? "").trim() === id;
+}
+
+function registroCorrespondeEmpregado(registro, idSelecionado) {
+    const id = String(idSelecionado ?? "").trim();
+    if (!id) return true;
+    if (String(registro?.id_empregado ?? "").trim() === id) return true;
+    const relacionado = obterEmpregadoRelacionado(registro);
+    return String(relacionado?.id ?? "").trim() === id;
+}
+
+function obterLabelVeiculo(registro) {
+    const relacionado = obterVeiculoRelacionado(registro);
     if (relacionado) return montarLabelVeiculo(relacionado);
     return String(registro?.veiculo ?? "").trim();
 }
 
 function obterLabelEmpregado(registro) {
-    const id = String(registro?.id_empregado ?? "").trim();
-    const relacionado = empregadosDisponiveis.find(e => String(e?.id ?? "").trim() === id);
+    const relacionado = obterEmpregadoRelacionado(registro);
     if (relacionado) return montarLabelEmpregado(relacionado);
     return String(registro?.empregado_matricula ?? "").trim();
 }
@@ -452,8 +543,8 @@ function valoresUnicos(registros, campo) {
 
 function extrairDataISO(valor) {
     const texto = String(valor ?? "").trim();
-    const iso = texto.match(/^(\d{4}-\d{2}-\d{2})/);
-    if (iso) return iso[1];
+    const iso = texto.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
     const br = texto.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
     return br ? `${br[3]}-${br[2]}-${br[1]}` : "";
 }
