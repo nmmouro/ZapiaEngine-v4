@@ -316,17 +316,6 @@
 
         if (
             caminho.endsWith(
-                "/relatorio.html"
-            )
-        ) {
-
-            return "relatorio";
-
-        }
-
-
-        if (
-            caminho.endsWith(
                 "/dashboard.html"
             )
         ) {
@@ -599,30 +588,7 @@
 
 
             /* =================================================
-               RELATÓRIO DE OCORRÊNCIAS
-            ================================================= */
-
-            case "relatorio": {
-
-                console.log(
-                    "APP → CARREGANDO RELATÓRIO DE OCORRÊNCIAS"
-                );
-
-                const modulo =
-                    await import(
-                        "./pages/relatorio.js"
-                    );
-
-                return executarModulo(
-                    modulo,
-                    "RELATÓRIO DE OCORRÊNCIAS"
-                );
-
-            }
-
-
-            /* =================================================
-               VIEWS
+               DASHBOARD
             ================================================= */
 
     
@@ -648,6 +614,12 @@
             const modulo = await import("./views/lancamentos_view.js");
             await modulo.iniciar();
             return { page: pagina, view: true };
+        }
+
+        case "lancamentos_relatorio": {
+            const modulo = await import("./pages/lancamentos_relatorio.js");
+            await modulo.iniciar();
+            return { page: pagina, relatorio: true };
         }
 
         case "dashboard": {

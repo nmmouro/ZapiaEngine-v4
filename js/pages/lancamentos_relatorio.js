@@ -262,7 +262,23 @@ function aplicarFiltros(registros) {
         if (empregado && !registroCorrespondeEmpregado(registro, empregado)) return false;
 
         if (busca) {
-            const texto = CAMPOS_BUSCA.map(campo => registro?.[campo] ?? "").join(" ");
+            // A busca livre deve considerar também os dados relacionados
+            // (placa/modelo, nome/matrícula), além de todos os campos
+            // efetivamente armazenados na ocorrência.
+            const relacionadoVeiculo = obterVeiculoRelacionado(registro);
+            const relacionadoEmpregado = obterEmpregadoRelacionado(registro);
+            const valores = [
+                ...Object.values(registro || {}),
+                obterLabelVeiculo(registro),
+                obterLabelEmpregado(registro),
+                relacionadoVeiculo?.placa,
+                relacionadoVeiculo?.marca_modelo_versao,
+                relacionadoVeiculo?.modelo,
+                relacionadoEmpregado?.empregado,
+                relacionadoEmpregado?.nome,
+                relacionadoEmpregado?.matricula
+            ];
+            const texto = valores.filter(v => v !== null && v !== undefined).join(" ");
             if (!normalizar(texto).includes(busca)) return false;
         }
 
@@ -500,17 +516,70 @@ function obterEmpregadoRelacionado(registro) {
 function registroCorrespondeVeiculo(registro, idSelecionado) {
     const id = String(idSelecionado ?? "").trim();
     if (!id) return true;
+
+    // 1) Vínculo direto gravado na ocorrência.
     if (String(registro?.id_veiculo ?? "").trim() === id) return true;
-    const relacionado = obterVeiculoRelacionado(registro);
-    return String(relacionado?.id ?? "").trim() === id;
+
+    // 2) Cadastro atual relacionado pelo ID ou pela placa gravada como snapshot.
+    const selecionado = veiculosDisponiveis.find(v =>
+        String(v?.id ?? "").trim() === id
+    );
+    if (!selecionado) return false;
+
+    const placaSelecionada = normalizar(selecionado?.placa);
+    const modeloSelecionado = normalizar(
+        selecionado?.marca_modelo_versao ?? selecionado?.modelo ?? selecionado?.marca_modelo
+    );
+    const labelSelecionado = normalizar(montarLabelVeiculo(selecionado));
+
+    const valoresRegistro = [
+        registro?.veiculo,
+        registro?.placa,
+        registro?.marca_modelo_versao,
+        registro?.modelo,
+        registro?.id_veiculo
+    ].map(normalizar).filter(Boolean);
+
+    return valoresRegistro.some(valor =>
+        valor === placaSelecionada ||
+        valor === modeloSelecionado ||
+        valor === labelSelecionado ||
+        (placaSelecionada && (valor.includes(placaSelecionada) || placaSelecionada.includes(valor)))
+    );
 }
 
 function registroCorrespondeEmpregado(registro, idSelecionado) {
     const id = String(idSelecionado ?? "").trim();
     if (!id) return true;
+
+    // 1) Vínculo direto gravado na ocorrência.
     if (String(registro?.id_empregado ?? "").trim() === id) return true;
-    const relacionado = obterEmpregadoRelacionado(registro);
-    return String(relacionado?.id ?? "").trim() === id;
+
+    // 2) Cadastro atual relacionado pelo ID ou pelos dados do snapshot.
+    const selecionado = empregadosDisponiveis.find(e =>
+        String(e?.id ?? "").trim() === id
+    );
+    if (!selecionado) return false;
+
+    const matriculaSelecionada = normalizar(selecionado?.matricula);
+    const nomeSelecionado = normalizar(selecionado?.empregado ?? selecionado?.nome);
+    const labelSelecionado = normalizar(montarLabelEmpregado(selecionado));
+
+    const valoresRegistro = [
+        registro?.empregado_matricula,
+        registro?.empregado,
+        registro?.nome,
+        registro?.matricula,
+        registro?.id_empregado
+    ].map(normalizar).filter(Boolean);
+
+    return valoresRegistro.some(valor =>
+        valor === matriculaSelecionada ||
+        valor === nomeSelecionado ||
+        valor === labelSelecionado ||
+        (matriculaSelecionada && (valor.includes(matriculaSelecionada) || matriculaSelecionada.includes(valor))) ||
+        (nomeSelecionado && valor.includes(nomeSelecionado))
+    );
 }
 
 function obterLabelVeiculo(registro) {
