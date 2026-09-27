@@ -590,67 +590,6 @@ export async function listar(
 
 
 // ============================================================
-// LISTAR TODOS — PAGINADO
-// ============================================================
-//
-// O Supabase REST possui limite de linhas por resposta. Este
-// método percorre a tabela em lotes para relatórios e consultas
-// que realmente precisam de todos os registros.
-// ============================================================
-
-export async function listarTodos(
-    entity,
-    filtros = {},
-    tamanhoLote = 1000
-) {
-
-    const tabela = tabelaURL(entity);
-    const lote = Math.max(100, Number(tamanhoLote) || 1000);
-    const acumulado = [];
-    let offset = 0;
-
-    while (true) {
-
-        const parametros = new URLSearchParams();
-
-        Object.entries(filtros || {}).forEach(([campo, valor]) => {
-            if (valor === undefined || valor === null || valor === "") return;
-            parametros.set(campo, `eq.${valor}`);
-        });
-
-        parametros.set("limit", String(lote));
-        parametros.set("offset", String(offset));
-
-        const url = `${tabela}?${parametros.toString()}`;
-
-        console.log(
-            `CRUD SERVICE: LISTAR TODOS ${entity} → lote ${offset}..${offset + lote - 1}`
-        );
-
-        const resposta = await request(url, { method: "GET" });
-
-        let registros = [];
-
-        if (Array.isArray(resposta)) {
-            registros = resposta;
-        } else if (resposta && Array.isArray(resposta.data)) {
-            registros = resposta.data;
-        } else if (resposta && Array.isArray(resposta.dados)) {
-            registros = resposta.dados;
-        }
-
-        acumulado.push(...registros);
-
-        if (registros.length < lote) break;
-
-        offset += lote;
-    }
-
-    return acumulado;
-}
-
-
-// ============================================================
 // OBTER
 // ============================================================
 
@@ -1107,7 +1046,6 @@ function prepararDados(
 export default {
 
     listar,
-    listarTodos,
 
     obter,
 
