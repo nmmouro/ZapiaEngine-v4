@@ -109,7 +109,7 @@ export const SCHEMA_LANCAMENTOS = {
 
         {
             name: "id_veiculo",
-            label: "Veículo / Modelo",
+            label: "Placa / Modelo",
             type: "select",
             required: true,
             visible: true,
