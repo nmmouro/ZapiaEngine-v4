@@ -75,7 +75,7 @@ function montarInterface(app) {
                     <input id="filtroDataFinal" type="date">
                 </div>
                 <div class="campo-relatorio campo-largo">
-                    <label for="filtroVeiculo">Veículo</label>
+                    <label for="filtroVeiculo">Placa / Modelo</label>
                     <select id="filtroVeiculo"><option value="">Todos os veículos</option></select>
                 </div>
                 <div class="campo-relatorio campo-largo">
@@ -257,11 +257,14 @@ function montarOpcoesEntidade(lista, registros, tipo) {
         const chaveId = obterId(id);
         if (!chaveId) return;
 
-        const chave = `cad:${chaveId}`;
+        const chave = chaveId.startsWith("cad:") || chaveId.startsWith("reg:")
+            ? chaveId
+            : `cad:${chaveId}`;
+        const idInterno = chave.startsWith("cad:") ? chave.slice(4) : chave;
 
         if (!mapa.has(chave)) {
             mapa.set(chave, {
-                id: chaveId,
+                id: idInterno,
                 label: String(label || chaveId),
                 candidatos: new Set()
             });
@@ -304,22 +307,39 @@ function montarOpcoesEntidade(lista, registros, tipo) {
          */
         registros.forEach(r => {
             const id = obterId(r?.id_veiculo);
-            if (!id) return;
+            const placa = obterId(r?.veiculo) || obterId(r?.placa);
+            const cadastro = id ? obterVeiculoDoRegistro(r) : null;
 
-            if (!mapa.has(`cad:${id}`)) {
+            // Registros antigos podem não possuir id_veiculo, mas
+            // normalmente preservam a placa no campo snapshot "veiculo".
+            if (!id && !placa) return;
+
+            if (id) {
                 const label =
-                    obterId(r?.veiculo) ||
-                    obterId(r?.placa) ||
-                    id;
+                    (cadastro
+                        ? [cadastro?.placa, cadastro?.modelo || cadastro?.marca_modelo_versao]
+                        : [placa, r?.modelo])
+                        .filter(Boolean)
+                        .join(" - ") || placa || id;
 
-                adicionar(id, label, candidatosVeiculo(r));
-            } else {
-                const item = mapa.get(`cad:${id}`);
-                candidatosVeiculo(r).forEach(valor => {
-                    const normalizado = normalizarTexto(valor);
-                    if (normalizado) item.candidatos.add(normalizado);
-                });
+                if (!mapa.has(`cad:${id}`)) {
+                    adicionar(id, label, candidatosVeiculo(r));
+                } else {
+                    const item = mapa.get(`cad:${id}`);
+                    candidatosVeiculo(r).forEach(valor => {
+                        const normalizado = normalizarTexto(valor);
+                        if (normalizado) item.candidatos.add(normalizado);
+                    });
+                }
+                return;
             }
+
+            // Sem ID relacional: cria uma opção estável baseada na placa.
+            // Isso garante que lançamentos legados também apareçam no select.
+            const chave = `reg:${placa}`;
+            const modelo = obterId(r?.modelo) || obterId(r?.marca_modelo_versao);
+            const label = [placa, modelo].filter(Boolean).join(" - ") || placa;
+            adicionar(chave, label, candidatosVeiculo(r));
         });
     } else {
         lista.forEach(e => {
@@ -424,18 +444,23 @@ function registroCorresponde(entidade, chaveSelecionada, registro) {
      * campo relacional salvo no lançamento.
      */
     const idSelecionado = obterId(item.id);
+    const selecaoEhRegistro = chaveSelecionada.startsWith("reg:");
 
     const idRegistro =
         entidade === "veiculo"
             ? obterId(registro?.id_veiculo)
             : obterId(registro?.id_empregado);
 
-    if (
-        idSelecionado &&
-        idRegistro &&
-        mesmaChave(idSelecionado, idRegistro)
-    ) {
+    if (!selecaoEhRegistro && idSelecionado && idRegistro && mesmaChave(idSelecionado, idRegistro)) {
         return true;
+    }
+
+    // Seleções legadas "reg:<placa>" devem comparar a placa/snapshot.
+    if (selecaoEhRegistro && entidade === "veiculo") {
+        const placaSelecionada = normalizarTexto(chaveSelecionada.slice(4));
+        const placasRegistro = [registro?.veiculo, registro?.placa]
+            .map(normalizarTexto).filter(Boolean);
+        if (placaSelecionada && placasRegistro.includes(placaSelecionada)) return true;
     }
 
     /*
