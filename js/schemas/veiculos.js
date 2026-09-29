@@ -221,15 +221,59 @@ export const SCHEMA_VEICULOS = {
 
 
         // ----------------------------------------------------
-        // MARCA / Modelo / Versão
+        // MARCA
         // ----------------------------------------------------
 
         {
             name:
-                "marca_modelo_versao",
+                "marca",
 
             label:
-                "Marca / Modelo / Versão",
+                "Marca",
+
+            type:
+                "text",
+
+            required:
+                true,
+
+            visible:
+                true
+        },
+
+
+        // ----------------------------------------------------
+        // Modelo
+        // ----------------------------------------------------
+
+        {
+            name:
+                "modelo",
+
+            label:
+                "Modelo",
+
+            type:
+                "text",
+
+            required:
+                true,
+
+            visible:
+                true
+        },
+
+
+        // ----------------------------------------------------
+        // Versão
+        // ----------------------------------------------------
+
+        {
+            name:
+                "versao",
+
+            label:
+                "Marca",
 
             type:
                 "text",
