@@ -46,7 +46,7 @@ export const SCHEMA_LANCAMENTOS = {
         },        
 
         {
-            name: "placa_modelo",
+            name: "placa",
             label: "Placa / Modelo",
             type: "hidden",
             visible: false,
@@ -120,7 +120,7 @@ export const SCHEMA_LANCAMENTOS = {
             separator: " - ",
 
            
-            snapshotField: "placa_modelo"
+            snapshotField: "placa"
             
         },
 
