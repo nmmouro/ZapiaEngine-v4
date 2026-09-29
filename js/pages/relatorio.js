@@ -173,60 +173,203 @@ function normalizarTexto(valor) {
         .toLowerCase();
 }
 
+function obterId(valor) {
+    return String(valor ?? "").trim();
+}
+
+function mesmaChave(a, b) {
+    const x = obterId(a);
+    const y = obterId(b);
+    return !!x && !!y && x.toLowerCase() === y.toLowerCase();
+}
+
+/*
+ * Retorna o cadastro relacionado ao lançamento.
+ *
+ * IMPORTANTE:
+ * O filtro deve usar primeiro o ID salvo em lancamentos.
+ * Os campos "veiculo"/"empregado_matricula" são snapshots
+ * históricos e servem somente como fallback.
+ */
+function obterVeiculoDoRegistro(r) {
+    const idVeiculo = obterId(r?.id_veiculo);
+    if (!idVeiculo) return null;
+
+    return veiculos.find(v => mesmaChave(v?.id, idVeiculo)) || null;
+}
+
+function obterEmpregadoDoRegistro(r) {
+    const idEmpregado = obterId(r?.id_empregado);
+    if (!idEmpregado) return null;
+
+    return empregados.find(e => mesmaChave(e?.id, idEmpregado)) || null;
+}
+
 function candidatosVeiculo(r) {
-    const v = veiculos.find(x =>
-        String(x.id ?? "").trim() === String(r.id_veiculo ?? "").trim()
-    );
+    const v = obterVeiculoDoRegistro(r);
+
     return [
-        r.id_veiculo, r.veiculo,
-        v?.id, v?.placa, v?.modelo, v?.marca_modelo_versao,
-        v ? [v.placa, v.modelo || v.marca_modelo_versao].filter(Boolean).join(" - ") : ""
-    ].filter(x => String(x ?? "").trim() !== "");
+        r?.id_veiculo,
+        r?.veiculo,
+        r?.placa,
+        v?.id,
+        v?.placa,
+        v?.modelo,
+        v?.marca_modelo_versao,
+        v ? [v.placa, v.modelo || v.marca_modelo_versao]
+            .filter(Boolean).join(" - ") : ""
+    ].filter(x => obterId(x));
 }
 
 function candidatosEmpregado(r) {
-    const e = empregados.find(x =>
-        String(x.id ?? "").trim() === String(r.id_empregado ?? "").trim()
-    );
+    const e = obterEmpregadoDoRegistro(r);
+
     return [
-        r.id_empregado, r.empregado_matricula,
-        e?.id, e?.nome, e?.empregado, e?.matricula,
-        e ? [e.nome || e.empregado, e.matricula].filter(Boolean).join(" / ") : ""
-    ].filter(x => String(x ?? "").trim() !== "");
+        r?.id_empregado,
+        r?.empregado_matricula,
+        e?.id,
+        e?.empregado,
+        e?.nome,
+        e?.nome_completo,
+        e?.matricula,
+        e ? [e.empregado || e.nome || e.nome_completo, e.matricula]
+            .filter(Boolean).join(" / ") : ""
+    ].filter(x => obterId(x));
 }
 
+/*
+ * As opções do filtro representam CADASTROS, não snapshots
+ * individuais de lançamentos.
+ *
+ * Isso evita situações como:
+ *   reg:TXJ6F19
+ *   cad:VEI000001
+ *
+ * para o mesmo veículo aparecer como duas opções diferentes.
+ *
+ * O valor do select passa a ser sempre:
+ *   cad:<id do cadastro>
+ */
 function montarOpcoesEntidade(lista, registros, tipo) {
     const mapa = new Map();
-    const adicionar = (chave, label, candidatos) => {
-        const k = String(chave ?? "").trim();
-        if (!k) return;
-        if (!mapa.has(k)) mapa.set(k, { label: String(label || k), candidatos: new Set() });
-        candidatos.forEach(c => {
-            const n = normalizarTexto(c);
-            if (n) mapa.get(k).candidatos.add(n);
+
+    const adicionar = (id, label, candidatos = []) => {
+        const chaveId = obterId(id);
+        if (!chaveId) return;
+
+        const chave = `cad:${chaveId}`;
+
+        if (!mapa.has(chave)) {
+            mapa.set(chave, {
+                id: chaveId,
+                label: String(label || chaveId),
+                candidatos: new Set()
+            });
+        }
+
+        const item = mapa.get(chave);
+
+        [
+            chaveId,
+            label,
+            ...candidatos
+        ].forEach(valor => {
+            const normalizado = normalizarTexto(valor);
+            if (normalizado) item.candidatos.add(normalizado);
         });
     };
 
     if (tipo === "veiculo") {
-        registros.forEach(r => {
-            const label = String(r.veiculo ?? "").trim() || String(r.id_veiculo ?? "").trim();
-            adicionar(`reg:${label}`, label, candidatosVeiculo(r));
-        });
         lista.forEach(v => {
-            const label = [v.placa, v.modelo || v.marca_modelo_versao].filter(Boolean).join(" - ") || String(v.id ?? "");
-            adicionar(`cad:${v.id ?? label}`, label, [v.id, v.placa, v.modelo, v.marca_modelo_versao, label]);
+            const id = obterId(v?.id);
+            if (!id) return;
+
+            const label =
+                [v?.placa, v?.modelo || v?.marca_modelo_versao]
+                    .filter(Boolean)
+                    .join(" - ") || id;
+
+            adicionar(id, label, [
+                v?.placa,
+                v?.modelo,
+                v?.marca_modelo_versao,
+                label
+            ]);
+        });
+
+        /*
+         * Compatibilidade: se houver lançamento cujo veículo não
+         * exista mais no cadastro, ainda exibimos a opção do próprio
+         * lançamento para permitir localizar esse registro.
+         */
+        registros.forEach(r => {
+            const id = obterId(r?.id_veiculo);
+            if (!id) return;
+
+            if (!mapa.has(`cad:${id}`)) {
+                const label =
+                    obterId(r?.veiculo) ||
+                    obterId(r?.placa) ||
+                    id;
+
+                adicionar(id, label, candidatosVeiculo(r));
+            } else {
+                const item = mapa.get(`cad:${id}`);
+                candidatosVeiculo(r).forEach(valor => {
+                    const normalizado = normalizarTexto(valor);
+                    if (normalizado) item.candidatos.add(normalizado);
+                });
+            }
         });
     } else {
-        registros.forEach(r => {
-            const label = String(r.empregado_matricula ?? "").trim() || String(r.id_empregado ?? "").trim();
-            adicionar(`reg:${label}`, label, candidatosEmpregado(r));
-        });
         lista.forEach(e => {
-            const nome = e.nome || e.empregado || e.nome_completo;
-            const label = [nome, e.matricula].filter(Boolean).join(" / ") || String(e.id ?? "");
-            adicionar(`cad:${e.id ?? label}`, label, [e.id, nome, e.matricula, label]);
+            const id = obterId(e?.id);
+            if (!id) return;
+
+            const nome =
+                e?.empregado ||
+                e?.nome ||
+                e?.nome_completo ||
+                "";
+
+            const label =
+                [nome, e?.matricula]
+                    .filter(Boolean)
+                    .join(" / ") || id;
+
+            adicionar(id, label, [
+                e?.empregado,
+                e?.nome,
+                e?.nome_completo,
+                e?.matricula,
+                label
+            ]);
+        });
+
+        /*
+         * Mesmo tratamento para empregados: o ID é a referência
+         * principal; o snapshot empregado_matricula é complementar.
+         */
+        registros.forEach(r => {
+            const id = obterId(r?.id_empregado);
+            if (!id) return;
+
+            if (!mapa.has(`cad:${id}`)) {
+                const label =
+                    obterId(r?.empregado_matricula) ||
+                    id;
+
+                adicionar(id, label, candidatosEmpregado(r));
+            } else {
+                const item = mapa.get(`cad:${id}`);
+                candidatosEmpregado(r).forEach(valor => {
+                    const normalizado = normalizarTexto(valor);
+                    if (normalizado) item.candidatos.add(normalizado);
+                });
+            }
         });
     }
+
     return mapa;
 }
 
@@ -259,19 +402,73 @@ function preencherSelectComMapa(selector, mapa, primeiro) {
 
 function registroCorresponde(entidade, chaveSelecionada, registro) {
     if (!chaveSelecionada) return true;
-    const mapa = entidade === "veiculo" ? opcoesVeiculos : opcoesEmpregados;
+
+    const mapa =
+        entidade === "veiculo"
+            ? opcoesVeiculos
+            : opcoesEmpregados;
+
     const item = mapa.get(chaveSelecionada);
+
     if (!item) {
-        console.warn(`RELATÓRIO → OPÇÃO ${entidade} NÃO ENCONTRADA:`, chaveSelecionada);
+        console.warn(
+            `RELATÓRIO → OPÇÃO ${entidade} NÃO ENCONTRADA:`,
+            chaveSelecionada
+        );
         return false;
     }
-    const candidatos = entidade === "veiculo" ? candidatosVeiculo(registro) : candidatosEmpregado(registro);
-    const normalizados = candidatos.map(normalizarTexto).filter(Boolean);
-    const corresponde = normalizados.some(c => item.candidatos.has(c));
-    // Fallback: compara diretamente a opção selecionada com os valores da ocorrência.
-    const chaveTexto = normalizarTexto(item.label);
-    const direto = normalizados.some(c => c === chaveTexto || c.includes(chaveTexto) || chaveTexto.includes(c));
-    return corresponde || direto;
+
+    /*
+     * REGRA PRINCIPAL:
+     * seleção "cad:<id>" deve comparar diretamente com o
+     * campo relacional salvo no lançamento.
+     */
+    const idSelecionado = obterId(item.id);
+
+    const idRegistro =
+        entidade === "veiculo"
+            ? obterId(registro?.id_veiculo)
+            : obterId(registro?.id_empregado);
+
+    if (
+        idSelecionado &&
+        idRegistro &&
+        mesmaChave(idSelecionado, idRegistro)
+    ) {
+        return true;
+    }
+
+    /*
+     * Fallback para dados antigos/importados que possam não ter
+     * o ID relacional preenchido corretamente.
+     */
+    const candidatos =
+        entidade === "veiculo"
+            ? candidatosVeiculo(registro)
+            : candidatosEmpregado(registro);
+
+    const normalizados =
+        candidatos
+            .map(normalizarTexto)
+            .filter(Boolean);
+
+    const correspondePorCandidato =
+        normalizados.some(c => item.candidatos.has(c));
+
+    if (correspondePorCandidato) return true;
+
+    /*
+     * Último fallback: comparação textual controlada.
+     * Evita considerar qualquer substring curta como correspondência.
+     */
+    const labelNormalizado =
+        normalizarTexto(item.label);
+
+    if (!labelNormalizado) return false;
+
+    return normalizados.some(c =>
+        c === labelNormalizado
+    );
 }
 
 function textoDoRegistro(r) {
