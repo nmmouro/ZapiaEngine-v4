@@ -120,7 +120,7 @@ export const SCHEMA_LANCAMENTOS = {
             separator: " - ",
 
            
-            snapshotField: "veiculo"
+            snapshotField: "placa_modelo"
             
         },
 
