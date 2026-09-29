@@ -46,7 +46,7 @@ export const SCHEMA_LANCAMENTOS = {
         },        
 
         {
-            name: "placa_veiculo",
+            name: "placa_modelo",
             label: "Placa / Modelo",
             type: "hidden",
             visible: false,
