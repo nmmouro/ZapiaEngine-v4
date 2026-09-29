@@ -273,7 +273,7 @@ export const SCHEMA_VEICULOS = {
                 "versao",
 
             label:
-                "Marca",
+                "Versão",
 
             type:
                 "text",
