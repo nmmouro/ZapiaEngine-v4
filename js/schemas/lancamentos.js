@@ -114,7 +114,7 @@ export const SCHEMA_LANCAMENTOS = {
             required: true,
             visible: true,
 
-            source: "placa",
+            source: "veiculos",
             valueField: "id",
             labelFields: ["placa", "modelo"],
             separator: " - ",
