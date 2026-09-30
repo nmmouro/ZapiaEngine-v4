@@ -15,7 +15,7 @@ const CAMPOS = [
     ["data", "Data"],
     ["hora", "Hora"],
     ["empregado_matricula", "Empregado / Matrícula"],
-    ["veiculo", "Veículo / Modelo"],
+    ["veiculo", "placa / Modelo"],
     ["passageiro_setor_motivo", "Passageiro / Setor / Motivo"],
     ["itinerario", "Itinerário"],
     ["horario_inicial", "Horário Inicial"],
