@@ -77,7 +77,7 @@ async function iniciarLancamentos() {
             colunas: [
                 { name: "data", label: "Data", type: "date",
                   format: formatarData },
-                { name: "hora", label: "Hora", type: "time",
+                { name: "horario_inicial", label: "Horário Inicial", type: "time",
                   format: formatarHora },
                 { name: "empregado_matricula", label: "Empregado / Matrícula" },
                 { name: "placa_modelo", label: "Placa / Modelo" },
