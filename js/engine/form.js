@@ -3249,39 +3249,35 @@ function atualizarIdsRelacionados() {
         valor
     ) {
 
-        if (!valor) {
-
+        if (valor === null || valor === undefined || valor === "") {
             return "";
-
         }
 
+        const texto = String(valor).trim();
+        if (!texto) return "";
 
-        const texto =
-            String(valor);
-
-
-        /*
-         * 08:36:35
-         *
-         * vira:
-         *
-         * 08:36
-         */
-
-        const match =
-            texto.match(
-                /^(\d{2}):(\d{2})/
-            );
-
-
-        if (match) {
-
-            return `${match[1]}:${match[2]}`;
-
+        // Aceita HH:MM, H:MM e HH:MM:SS.
+        const hora = texto.match(/(?:^|T|\s)(\d{1,2}):(\d{2})(?::\d{2}(?:\.\d+)?)?/);
+        if (hora) {
+            const h = Number(hora[1]);
+            const m = Number(hora[2]);
+            if (h >= 0 && h <= 23 && m >= 0 && m <= 59) {
+                return `${String(h).padStart(2, "0")}:${hora[2]}`;
+            }
         }
 
+        // Caso o valor venha como um timestamp ISO, por exemplo:
+        // 2026-09-30T13:41:35 ou 2026-09-30 13:41:35.
+        const iso = texto.match(/T(\d{1,2}):(\d{2})(?::\d{2}(?:\.\d+)?)?/);
+        if (iso) {
+            const h = Number(iso[1]);
+            const m = Number(iso[2]);
+            if (h >= 0 && h <= 23 && m >= 0 && m <= 59) {
+                return `${String(h).padStart(2, "0")}:${iso[2]}`;
+            }
+        }
 
-        return texto;
+        return "";
 
     }
 

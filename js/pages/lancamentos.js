@@ -1485,7 +1485,34 @@ function getValor(nome) {
 
 function setValor(nome, valor) {
     const campo = getCampo(nome);
-    if (campo) campo.value = valor ?? "";
+    if (!campo) return;
+
+    // Campos HTML do tipo time devem permanecer sempre em HH:MM.
+    // Isso cobre preenchimentos automáticos, edição e valores vindos
+    // do Supabase antes que sejam atribuídos ao input.
+    if (campo.type === "time") {
+        campo.value = normalizarHoraHHMM(valor);
+        return;
+    }
+
+    campo.value = valor ?? "";
+}
+
+function normalizarHoraHHMM(valor) {
+    if (valor === null || valor === undefined || valor === "") return "";
+
+    const texto = String(valor).trim();
+    if (!texto) return "";
+
+    // Aceita HH:MM, H:MM e HH:MM:SS, inclusive dentro de timestamp ISO.
+    const match = texto.match(/(?:^|T|\s)(\d{1,2}):(\d{2})(?::\d{2}(?:\.\d+)?)?/);
+    if (!match) return "";
+
+    const hora = Number(match[1]);
+    const minuto = Number(match[2]);
+    if (hora < 0 || hora > 23 || minuto < 0 || minuto > 59) return "";
+
+    return `${String(hora).padStart(2, "0")}:${match[2]}`;
 }
 
 function mostrarCampo(nome, visivel) {
@@ -1536,9 +1563,7 @@ function formatarData(valor) {
 }
 
 function formatarHora(valor) {
-    const texto = String(valor ?? "").trim();
-    const m = texto.match(/^(\d{2}):(\d{2})/);
-    return m ? `${m[1]}:${m[2]}` : texto;
+    return normalizarHoraHHMM(valor);
 }
 
 export {

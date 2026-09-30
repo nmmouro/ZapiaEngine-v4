@@ -189,6 +189,7 @@ export const SCHEMA_LANCAMENTOS = {
             name: "horario_inicial",
             label: "Horário Inicial",
             type: "time",
+            step: 60,
             required: false,
             visible: true
         },
@@ -229,6 +230,7 @@ export const SCHEMA_LANCAMENTOS = {
             name: "horario_final",
             label: "Horário Final",
             type: "time",
+            step: 60,
             required: false,
             visible: true
         },
