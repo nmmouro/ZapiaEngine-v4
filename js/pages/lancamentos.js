@@ -80,7 +80,7 @@ async function iniciarLancamentos() {
                 { name: "hora", label: "Hora", type: "time",
                   format: formatarHora },
                 { name: "empregado_matricula", label: "Empregado / Matrícula" },
-                { name: "placa_modelo", label: "Placa / Modelo" },
+                { name: "veiculo", label: "Placa / Modelo" },
                 { name: "passageiro_setor_motivo", label: "Passageiro / Setor / Motivo" },
                 { name: "itinerario", label: "Itinerário" },
                 
