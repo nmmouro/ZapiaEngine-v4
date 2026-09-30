@@ -753,10 +753,21 @@ export async function criar(
      * ou trigger para gerar o ID.
      */
 
-    const payload =
+    let payload =
         prepararDados(
             dados
         );
+
+    payload =
+        normalizarPayloadEntidade(
+            entity,
+            payload
+        );
+
+    console.log(
+        "CRUD SERVICE → CRIAR → PAYLOAD FINAL:",
+        JSON.stringify(payload, null, 2)
+    );
 
 
     delete payload.ID;
@@ -841,9 +852,15 @@ export async function atualizar(
     );
 
 
-    const payload =
+    let payload =
         prepararDados(
             dados
+        );
+
+    payload =
+        normalizarPayloadEntidade(
+            entity,
+            payload
         );
 
 
@@ -1036,6 +1053,63 @@ function prepararDados(
 
     return resultado;
 
+}
+
+
+// ============================================================
+// NORMALIZAR PAYLOAD POR ENTIDADE
+// ============================================================
+
+function normalizarPayloadEntidade(entity, payload) {
+
+    if (String(entity || "").toLowerCase() !== "lancamentos") {
+        return payload;
+    }
+
+    // Colunas efetivamente existentes em public.lancamentos.
+    // Campos exclusivamente visuais/snapshot não entram no POST/PATCH.
+    const camposPermitidos = new Set([
+        "id",
+        "data",
+        "hora",
+        "id_empregado",
+        "id_veiculo",
+        "empregado_matricula",
+        "veiculo",
+        "passageiro_setor_motivo",
+        "itinerario",
+        "horario_inicial",
+        "horario_final",
+        "km_inicial",
+        "km_final",
+        "distancia_percorrida",
+        "combustivel",
+        "media_consumo_combustivel",
+        "checklist",
+        "avaliacao_visual",
+        "avarias_registradas",
+        "lava_car",
+        "valor_higienizacao",
+        "notas_abastecimento",
+        "notas_manutencao",
+        "status",
+        "horas_extras",
+        "revisao",
+        "usuario",
+        "classificacao",
+        "localizacao",
+        "duracao_atendimento"
+    ]);
+
+    const resultado = {};
+
+    Object.entries(payload || {}).forEach(([campo, valor]) => {
+        if (camposPermitidos.has(campo)) {
+            resultado[campo] = valor;
+        }
+    });
+
+    return resultado;
 }
 
 

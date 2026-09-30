@@ -45,15 +45,6 @@ export const SCHEMA_LANCAMENTOS = {
             required: false
         },        
 
-        {
-            name: "placa",
-            label: "Placa / Modelo",
-            type: "hidden",
-            visible: false,
-            hidden: true,
-            required: false
-        },
-
         // ========================================================
         // DATA
         // ========================================================
@@ -116,11 +107,11 @@ export const SCHEMA_LANCAMENTOS = {
 
             source: "veiculos",
             valueField: "id",
-            labelFields: ["placa", "modelo"],
+            labelFields: ["placa", "marca_modelo_versao"],
             separator: " - ",
 
            
-            snapshotField: "placa"
+            snapshotField: "veiculo"
             
         },
 
