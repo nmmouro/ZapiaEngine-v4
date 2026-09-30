@@ -1075,7 +1075,6 @@ function normalizarPayloadEntidade(entity, payload) {
         "id_empregado",
         "id_veiculo",
         "empregado_matricula",
-        "veiculo",
         "passageiro_setor_motivo",
         "itinerario",
         "horario_inicial",

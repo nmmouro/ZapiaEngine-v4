@@ -80,7 +80,7 @@ async function iniciarLancamentos() {
                 { name: "hora", label: "Hora", type: "time",
                   format: formatarHora },
                 { name: "empregado_matricula", label: "Empregado / Matrícula" },
-                { name: "veiculo", label: "Placa / Modelo" },
+                { name: "id_veiculo", label: "Veículo" },
                 { name: "passageiro_setor_motivo", label: "Passageiro / Setor / Motivo" },
                 { name: "itinerario", label: "Itinerário" },
                 
@@ -168,8 +168,6 @@ function obterContextoLancamento() {
         empregado_matricula:
             lancamento.empregado_matricula || "",
 
-        veiculo:
-            lancamento.veiculo || ""
 
     };
 

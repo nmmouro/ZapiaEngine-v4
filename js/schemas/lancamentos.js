@@ -111,8 +111,6 @@ export const SCHEMA_LANCAMENTOS = {
             separator: " - ",
 
            
-            snapshotField: "veiculo"
-            
         },
 
         // ========================================================
