@@ -107,8 +107,8 @@ export const SCHEMA_LANCAMENTOS = {
 
             source: "veiculos",
             valueField: "id",
-            labelFields: ["placa_modelo"],
-            separator: "",
+            labelFields: ["placa", "modelo"],
+            separator: " / ",
 
         },
 

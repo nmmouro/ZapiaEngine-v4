@@ -15,7 +15,7 @@ const CAMPOS = [
     ["data", "Data"],
     ["hora", "Hora"],
     ["empregado_matricula", "Empregado / Matrícula"],
-    ["veiculo", "Veículo / Modelo"],
+    ["placa_modelo", "Placa / Modelo"],
     ["passageiro_setor_motivo", "Passageiro / Setor / Motivo"],
     ["itinerario", "Itinerário"],
     ["horario_inicial", "Horário Inicial"],
@@ -178,9 +178,9 @@ function candidatosVeiculo(r) {
         String(x.id ?? "").trim() === String(r.id_veiculo ?? "").trim()
     );
     return [
-        r.id_veiculo, r.veiculo,
-        v?.id, v?.placa, v?.modelo, v?.marca_modelo_versao,
-        v ? [v.placa, v.modelo || v.marca_modelo_versao].filter(Boolean).join(" - ") : ""
+        r.id_veiculo, r.veiculo, r.placa_modelo,
+        v?.id, v?.placa, v?.modelo,
+        v ? [v.placa, v.modelo].filter(Boolean).join(" / ") : ""
     ].filter(x => String(x ?? "").trim() !== "");
 }
 
@@ -209,12 +209,12 @@ function montarOpcoesEntidade(lista, registros, tipo) {
 
     if (tipo === "veiculo") {
         registros.forEach(r => {
-            const label = String(r.veiculo ?? "").trim() || String(r.id_veiculo ?? "").trim();
+            const label = String(r.placa_modelo ?? r.veiculo ?? "").trim() || String(r.id_veiculo ?? "").trim();
             adicionar(`reg:${label}`, label, candidatosVeiculo(r));
         });
         lista.forEach(v => {
-            const label = [v.placa, v.modelo || v.marca_modelo_versao].filter(Boolean).join(" - ") || String(v.id ?? "");
-            adicionar(`cad:${v.id ?? label}`, label, [v.id, v.placa, v.modelo, v.marca_modelo_versao, label]);
+            const label = [v.placa, v.modelo].filter(Boolean).join(" / ") || String(v.id ?? "");
+            adicionar(`cad:${v.id ?? label}`, label, [v.id, v.placa, v.modelo, label]);
         });
     } else {
         registros.forEach(r => {
@@ -330,6 +330,10 @@ function renderizarTabela() {
 function formatarValor(campo, valor) {
     if (valor === null || valor === undefined || valor === "") return "—";
     if (campo === "data") return formatarData(String(valor).slice(0,10));
+    if (campo === "placa_modelo") {
+        const relacionado = veiculos.find(v => String(v?.id ?? "").trim() === String(valor ?? "").trim());
+        if (relacionado) return [relacionado.placa, relacionado.modelo].filter(Boolean).join(" / ");
+    }
     if (["km_inicial","km_final","distancia_percorrida","media_consumo_combustivel","valor_higienizacao"].includes(campo)) return String(valor);
     return String(valor);
 }

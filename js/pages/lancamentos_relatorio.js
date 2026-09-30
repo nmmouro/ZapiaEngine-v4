@@ -194,7 +194,7 @@ function montarLabelVeiculo(veiculo) {
     const modelo = String(
         veiculo?.marca_modelo_versao ?? veiculo?.modelo ?? veiculo?.marca_modelo ?? ""
     ).trim();
-    return [placa, modelo].filter(Boolean).join(" - ") || String(veiculo?.id ?? "");
+    return [placa, modelo].filter(Boolean).join(" / ") || String(veiculo?.id ?? "");
 }
 
 function montarLabelEmpregado(empregado) {
@@ -379,7 +379,7 @@ function exportarCSV() {
     }
 
     const cabecalho = [
-        "ID", "Data", "Hora", "Empregado / Matrícula", "Veículo / Modelo",
+        "ID", "Data", "Hora", "Empregado / Matrícula", "Placa / Modelo",
         "Passageiro / Setor / Motivo", "Itinerário", "Horário Inicial", "Horário Final",
         "Km Inicial", "Km Final", "Distância Percorrida", "Duração do Atendimento",
         "Status", "Combustível", "Média Consumo", "Checklist", "Avaliação Visual",

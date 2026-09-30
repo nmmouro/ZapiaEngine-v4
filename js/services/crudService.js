@@ -513,12 +513,12 @@ export async function listar(
     );
 
 
-    // Para LANÇAMENTOS, a exibição "Placa / Modelo" vem diretamente
-    // de public.veiculos.placa_modelo através da FK id_veiculo.
-    // O campo placa_modelo é apenas de leitura/apresentação em lancamentos;
-    // não é gravado na tabela lancamentos.
+    // Para LANÇAMENTOS, a exibição "Placa / Modelo" é composta
+    // pelas colunas reais de public.veiculos: placa + modelo.
+    // Não existe placa_modelo em veiculos. O valor placa_modelo
+    // usado pela interface é montado apenas para apresentação.
     if (String(entity || "").toLowerCase() === "lancamentos") {
-        parametros.set("select", "*,veiculos(placa_modelo)");
+        parametros.set("select", "*,veiculos(placa,modelo)");
     }
 
     const url =
@@ -561,7 +561,10 @@ export async function listar(
         if (String(entity || "").toLowerCase() === "lancamentos") {
             return resposta.map(registro => ({
                 ...registro,
-                placa_modelo: registro?.veiculos?.placa_modelo ?? ""
+                placa_modelo: [
+                    registro?.veiculos?.placa,
+                    registro?.veiculos?.modelo
+                ].filter(v => v !== undefined && v !== null && String(v).trim() !== "").map(v => String(v).trim()).join(" / ")
             }));
         }
 
@@ -585,7 +588,10 @@ export async function listar(
         if (String(entity || "").toLowerCase() === "lancamentos") {
             return resposta.data.map(registro => ({
                 ...registro,
-                placa_modelo: registro?.veiculos?.placa_modelo ?? ""
+                placa_modelo: [
+                    registro?.veiculos?.placa,
+                    registro?.veiculos?.modelo
+                ].filter(v => v !== undefined && v !== null && String(v).trim() !== "").map(v => String(v).trim()).join(" / ")
             }));
         }
 
