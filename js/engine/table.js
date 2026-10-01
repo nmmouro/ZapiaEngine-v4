@@ -1184,10 +1184,43 @@ export function createTable(config = {}) {
         }
 
 
-        const tipo =
+        // A coluna pode fornecer um formatador próprio.
+        // Isso precisa ser executado antes do fallback por tipo;
+        // anteriormente a tabela ignorava coluna.format e imprimia
+        // diretamente valores como HH:MM:SS.
+        if (typeof coluna?.format === "function") {
+            try {
+                return escaparHTML(
+                    String(coluna.format(valor) ?? "")
+                );
+            } catch (erro) {
+                console.warn("ENGINE TABLE → ERRO AO FORMATAR COLUNA:", erro);
+            }
+        }
+
+        const nomeCampo = String(
+            coluna?.name || coluna?.campo || coluna?.field || ""
+        ).toLowerCase();
+
+        const tipo = String(
             coluna?.type ||
             coluna?.tipo ||
-            "";
+            ""
+        ).toLowerCase();
+
+        // Inferência segura para colunas vindas de tabelas/objetos
+        // que não informam explicitamente o tipo.
+        const tipoEfetivo =
+            tipo ||
+            (/(^|_)(hora|horario)(_|$)/.test(nomeCampo) ||
+             nomeCampo.includes("duracao") ||
+             nomeCampo === "horas_extras"
+                ? "time"
+                : (/^data$/.test(nomeCampo) || /^data_/.test(nomeCampo)
+                    ? "date"
+                    : (/(^|_)(criado_em|atualizado_em)(_|$)/.test(nomeCampo)
+                        ? "datetime"
+                        : "")));
 
 
         // ----------------------------------------------------
@@ -1195,7 +1228,7 @@ export function createTable(config = {}) {
         // ----------------------------------------------------
 
         if (
-            tipo === "boolean"
+            tipoEfetivo === "boolean"
         ) {
 
             return valor
@@ -1210,7 +1243,7 @@ export function createTable(config = {}) {
         // ----------------------------------------------------
 
         if (
-            tipo === "status"
+            tipoEfetivo === "status"
         ) {
 
             const texto =
@@ -1238,22 +1271,27 @@ export function createTable(config = {}) {
         // DATA
         // ----------------------------------------------------
 
-        if (
-            tipo === "date"
-        ) {
-
-            return escaparHTML(
-                formatarData(
-                    valor
-                )
-            );
-
+        if (tipoEfetivo === "date") {
+            return escaparHTML(formatarData(valor));
         }
 
+        // ----------------------------------------------------
+        // HORA — sempre HH:MM
+        // ----------------------------------------------------
 
-        return escaparHTML(
-            String(valor)
-        );
+        if (tipoEfetivo === "time") {
+            return escaparHTML(formatarHoraHHMM(valor));
+        }
+
+        // ----------------------------------------------------
+        // DATA/HORA — DD/MM/AAAA HH:MM
+        // ----------------------------------------------------
+
+        if (tipoEfetivo === "datetime" || tipoEfetivo === "datetime-local") {
+            return escaparHTML(formatarDataHora(valor));
+        }
+
+        return escaparHTML(String(valor));
 
     }
 
@@ -1319,6 +1357,46 @@ export function createTable(config = {}) {
         );
 
     }
+
+// ========================================================
+// HORA
+// ========================================================
+
+function formatarHoraHHMM(valor) {
+    if (valor === null || valor === undefined || valor === "") return "";
+
+    const texto = String(valor).trim();
+
+    // HH:MM ou HH:MM:SS
+    const hora = texto.match(/^(\d{1,2}):(\d{2})(?::\d{2}(?:\.\d+)?)?/);
+    if (hora) {
+        return `${hora[1].padStart(2, "0")}:${hora[2]}`;
+    }
+
+    // Timestamp ISO: 2026-09-30T13:41:00...
+    const iso = texto.match(/T(\d{1,2}):(\d{2})/);
+    if (iso) {
+        return `${iso[1].padStart(2, "0")}:${iso[2]}`;
+    }
+
+    return texto;
+}
+
+// ========================================================
+// DATA/HORA
+// ========================================================
+
+function formatarDataHora(valor) {
+    if (valor === null || valor === undefined || valor === "") return "";
+
+    const texto = String(valor).trim();
+    const data = formatarData(texto);
+    const hora = formatarHoraHHMM(texto);
+
+    if (data && hora && hora !== texto) return `${data} ${hora}`;
+    return data || hora || texto;
+}
+
 
 /*
     // ========================================================

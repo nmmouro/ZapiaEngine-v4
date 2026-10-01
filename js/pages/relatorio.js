@@ -330,6 +330,9 @@ function renderizarTabela() {
 function formatarValor(campo, valor) {
     if (valor === null || valor === undefined || valor === "") return "—";
     if (campo === "data") return formatarData(String(valor).slice(0,10));
+    if (["hora", "horario_inicial", "horario_final", "duracao_atendimento", "horas_extras"].includes(campo)) {
+        return formatarHora(valor);
+    }
     if (campo === "placa_modelo") {
         const relacionado = veiculos.find(v => String(v?.id ?? "").trim() === String(valor ?? "").trim());
         if (relacionado) return [relacionado.placa, relacionado.modelo].filter(Boolean).join(" / ");
@@ -339,9 +342,16 @@ function formatarValor(campo, valor) {
 }
 
 function formatarData(valor) {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(valor || "")) return valor || "";
-    const [a,m,d] = valor.split("-");
-    return `${d}/${m}/${a}`;
+    const texto = String(valor ?? "").trim();
+    const match = texto.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!match) return texto;
+    return `${match[3]}/${match[2]}/${match[1]}`;
+}
+
+function formatarHora(valor) {
+    const texto = String(valor ?? "").trim();
+    const match = texto.match(/(?:^|T)(\d{1,2}):(\d{2})/);
+    return match ? `${match[1].padStart(2, "0")}:${match[2]}` : texto;
 }
 
 function limparFiltros() {

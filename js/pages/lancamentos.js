@@ -79,6 +79,8 @@ async function iniciarLancamentos() {
                   format: formatarData },
                 { name: "horario_inicial", label: "Horário Inicial", type: "time",
                   format: formatarHora },
+                { name: "horario_final", label: "Horário Final", type: "time",
+                  format: formatarHora },
                 { name: "empregado_matricula", label: "Empregado / Matrícula" },
                 { name: "placa_modelo", label: "Placa / Modelo" },
                 { name: "passageiro_setor_motivo", label: "Passageiro / Setor / Motivo" },

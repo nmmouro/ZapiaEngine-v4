@@ -327,7 +327,7 @@ function renderizarTabela(registros) {
             formatarNumeroOuTraco(registro?.km_inicial),
             formatarNumeroOuTraco(registro?.km_final),
             `${formatarNumero(obterDistancia(registro))} km`,
-            registro?.duracao_atendimento,
+            formatarHora(registro?.duracao_atendimento),
             registro?.status,
             registro?.combustivel,
             registro?.checklist,

@@ -48,9 +48,26 @@ export function escapar(valor) {
 
 export function formatarValor(valor, campo="") {
     if (valor === null || valor === undefined || valor === "") return "—";
-    if (/^\d{4}-\d{2}-\d{2}$/.test(String(valor))) {
-        const [y,m,d]=String(valor).split("-"); return `${d}/${m}/${y}`;
+
+    const texto = String(valor).trim();
+    const nome = String(campo || "").toLowerCase();
+
+    // Horários: nunca exibir segundos nas tabelas/visualizações.
+    if (
+        /(^|_)(hora|horario)(_|$)/.test(nome) ||
+        nome.includes("duracao") ||
+        nome === "horas_extras"
+    ) {
+        const hora = texto.match(/(?:^|T)(\d{1,2}):(\d{2})/);
+        if (hora) return `${hora[1].padStart(2, "0")}:${hora[2]}`;
     }
+
+    // Datas: DD/MM/AAAA. Também aceita timestamps ISO.
+    const data = texto.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (data && !/(^|_)(hora|horario)(_|$)/.test(nome)) {
+        return `${data[3]}/${data[2]}/${data[1]}`;
+    }
+
     if (campo.toLowerCase().includes("valor") || campo.toLowerCase().includes("preco")) {
         const n=Number(valor); if (Number.isFinite(n)) return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
     }
