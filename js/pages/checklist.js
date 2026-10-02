@@ -234,8 +234,8 @@ function preencherNovoChecklist() {
     );
 
     setValor(
-        "veiculo",
-        contextoLancamento.veiculo || ""
+        "placa_modelo",
+        contextoLancamento.placa_modelo || ""
     );
 
     console.log(

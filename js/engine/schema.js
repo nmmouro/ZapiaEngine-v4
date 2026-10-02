@@ -46,8 +46,8 @@ const SCHEMA_ABASTECIMENTOS = {
         { name: "data", label: "Data", type: "date", required: true, defaultValue: () => new Date().toISOString().slice(0,10) },
         { name: "hora", label: "Hora", type: "time", required: true },
         {
-            name: "veiculo", label: "Veículo", type: "select", required: true,
-            source: "veiculos", valueField: "id", labelFields: ["placa", "modelo"], idField: "id_veiculo", separator: " - "
+            name: "placa_modelo", label: "Placa / Modelo", type: "select", required: true,
+            source: "veiculos", valueField: "id", labelFields: ["placa", "marca_modelo_versao"], idField: "id_veiculo", separator: " / "
         },
         { name: "id_veiculo", label: "ID Veículo", type: "text", hidden: true },
         { name: "combustivel", label: "Combustível", type: "select", required: true, options: ["GASOLINA", "ETANOL", "FLEX", "DIESEL"] },
@@ -77,8 +77,8 @@ const SCHEMA_LANCAMENTOS = {
             source: "empregados", valueField: "id", labelFields: ["empregado", "matricula"], idField: "id_empregado", separator: " / "
         },
         {
-            name: "veiculo", label: "Veículo", type: "select", required: true,
-            source: "veiculos", valueField: "id", labelFields: ["placa", "modelo"], idField: "id_veiculo", separator: " - "
+            name: "placa_modelo", label: "Placa / Modelo", type: "select", required: true,
+            source: "veiculos", valueField: "id", labelFields: ["placa", "marca_modelo_versao"], idField: "id_veiculo", separator: " / "
         },
         { name: "passageiro_setor_motivo", label: "Passageiro / Setor / Motivo", type: "text", required: true },
         { name: "itinerario", label: "Itinerário", type: "text", required: true },

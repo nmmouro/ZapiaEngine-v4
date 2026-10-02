@@ -310,7 +310,7 @@ function renderizarPainel(ocorrencias) {
                 <td>${escaparHTML(formatarDataPainel(item.data) || "—")}</td>
                 <td>${escaparHTML(formatarHoraValor(item.hora) || "—")}</td>
                 <td>${escaparHTML(formatarEmpregadoLancamento(item))}</td>
-                <td>${escaparHTML(texto(item.veiculo) || "—")}</td>
+                <td>${escaparHTML(texto(item.placa_modelo) || "—")}</td>
                 <td>${escaparHTML(texto(item.passageiro_setor_motivo) || "—")}</td>
                 <td>${escaparHTML(texto(item.itinerario) || "—")}</td>
                 <td>${badgeStatus("ocupado", "EM ANDAMENTO")}</td>

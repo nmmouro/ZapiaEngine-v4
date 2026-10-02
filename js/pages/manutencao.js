@@ -57,7 +57,7 @@ export async function iniciarManutencao() {
                 { name: "data", label: "Data", format: formatarData },
                 { name: "hora", label: "Hora", format: formatarHora },
                 { name: "empregado_matricula", label: "Empregado / Matrícula" },
-                { name: "veiculo", label: "Veículo / Modelo" },
+                { name: "placa_modelo", label: "Placa / Modelo" },
                 { name: "odometro", label: "Odômetro" },
                 { name: "descricao_manutencao", label: "Descrição" },
                 { name: "valor_total_nota", label: "Total" }
@@ -106,7 +106,7 @@ function preencherContexto(registro = {}) {
     setValor("data", registro.data || contextoLancamento.data || dataAtual());
     setValor("hora", formatarHora(registro.hora) || formatarHora(contextoLancamento.hora) || horaAtual());
     setValor("empregado_matricula", registro.empregado_matricula || contextoLancamento.empregado_matricula || "");
-    setValor("veiculo", registro.veiculo || contextoLancamento.veiculo || "");
+    setValor("placa_modelo", registro.placa_modelo || contextoLancamento.placa_modelo || "");
     setValor("usuario", registro.usuario || contextoLancamento.usuario || "");
 }
 

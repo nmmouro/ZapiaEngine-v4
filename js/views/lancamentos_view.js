@@ -102,7 +102,7 @@ export async function iniciar() {
 
                         <strong>
                             ${escapar(
-                                r.veiculo ?? "—"
+                                r.placa_modelo ?? "—"
                             )}
                         </strong>
 
@@ -149,7 +149,7 @@ export async function iniciar() {
                                 "id_empregado",
                                 "id_veiculo",
                                 "empregado_matricula",
-                                "veiculo",
+                                "placa_modelo",
                                 
                                 "criado_em",
                                 "atualizado_em"
@@ -170,7 +170,7 @@ export async function iniciar() {
                         
                         "data",
                         "hora",
-                        "veiculo",
+                        "placa_modelo",
                         "odometro",
                         "tipo_combustivel",
                         "qtde_l",

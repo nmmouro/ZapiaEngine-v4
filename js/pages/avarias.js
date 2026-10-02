@@ -58,7 +58,7 @@ export async function iniciarAvarias() {
                 { name: "data", label: "Data", format: formatarData },
                 { name: "hora", label: "Hora", format: formatarHora },
                 { name: "empregado_matricula", label: "Empregado / Matrícula" },
-                { name: "veiculo", label: "Veículo / Modelo" },
+                { name: "placa_modelo", label: "Placa / Modelo" },
                 { name: "relato_avaria", label: "Relato da avaria" },
                 { name: "avarias_registradas", label: "Avarias registradas" }
             ]
@@ -101,7 +101,7 @@ function preencherContexto() {
     setValor("data", contextoLancamento.data || dataAtual());
     setValor("hora", formatarHora(contextoLancamento.hora) || horaAtual());
     setValor("empregado_matricula", contextoLancamento.empregado_matricula || "");
-    setValor("veiculo", contextoLancamento.veiculo || "");
+    setValor("placa_modelo", contextoLancamento.placa_modelo || "");
 }
 
 function instalarRetornoAposSalvar() {

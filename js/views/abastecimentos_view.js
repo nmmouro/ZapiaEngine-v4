@@ -110,7 +110,7 @@ export async function iniciar() {
                         
                         "data",
                         "hora",
-                        "veiculo",
+                        "placa_modelo",
                         "empregado_matricula",
                         "passageiro_setor_motivo",
                         "status"

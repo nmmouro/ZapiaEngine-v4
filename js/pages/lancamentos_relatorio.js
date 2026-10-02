@@ -22,7 +22,7 @@ const CAMPOS_BUSCA = [
     "id",
     "empregado_matricula",
     "id_empregado",
-    "veiculo",
+    "placa_modelo",
     "id_veiculo",
     "passageiro_setor_motivo",
     "itinerario",
@@ -484,7 +484,7 @@ function obterVeiculoRelacionado(registro) {
         if (porId) return porId;
     }
 
-    const snapshot = normalizar(registro?.veiculo);
+    const snapshot = normalizar(registro?.placa_modelo);
     if (!snapshot) return null;
 
     return veiculosDisponiveis.find(v => {
@@ -533,7 +533,7 @@ function registroCorrespondeVeiculo(registro, idSelecionado) {
     const labelSelecionado = normalizar(montarLabelVeiculo(selecionado));
 
     const valoresRegistro = [
-        registro?.veiculo,
+        registro?.placa_modelo,
         registro?.placa,
         registro?.marca_modelo_versao,
         registro?.modelo,
@@ -585,7 +585,7 @@ function registroCorrespondeEmpregado(registro, idSelecionado) {
 function obterLabelVeiculo(registro) {
     const relacionado = obterVeiculoRelacionado(registro);
     if (relacionado) return montarLabelVeiculo(relacionado);
-    return String(registro?.veiculo ?? "").trim();
+    return String(registro?.placa_modelo ?? "").trim();
 }
 
 function obterLabelEmpregado(registro) {

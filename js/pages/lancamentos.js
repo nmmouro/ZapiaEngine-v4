@@ -170,6 +170,8 @@ function obterContextoLancamento() {
         empregado_matricula:
             lancamento.empregado_matricula || "",
 
+        placa_modelo:
+            lancamento.placa_modelo || "",
 
     };
 

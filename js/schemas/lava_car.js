@@ -8,7 +8,7 @@ export const SCHEMA_LAVA_CAR = {
         { name: "hora", label: "Hora", type: "time", readonly: true },
 
         { name: "empregado_matricula", label: "Empregado / Matrícula", type: "text", readonly: true },
-        { name: "veiculo", label: "Veículo / Modelo", type: "text", readonly: true },
+        { name: "placa_modelo", label: "Placa / Modelo", type: "text", readonly: true },
 
         {
             name: "opcao",

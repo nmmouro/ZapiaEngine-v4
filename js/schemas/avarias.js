@@ -19,7 +19,7 @@ export const SCHEMA_AVARIAS = {
         { name: "data", label: "Data", type: "date", readonly: true },
         { name: "hora", label: "Hora", type: "time", readonly: true },
         { name: "empregado_matricula", label: "Empregado / Matrícula", type: "text", readonly: true },
-        { name: "veiculo", label: "Veículo / Modelo", type: "text", readonly: true },
+        { name: "placa_modelo", label: "Placa / Modelo", type: "text", readonly: true },
         { name: "vista_frontal", label: "Vista frontal", type: "file", accept: "image/*", capture: "environment" , maxSizeMB: 10, storageFolder: "vista_frontal", storageBucket: "veiculos"},
         { name: "vista_traseira", label: "Vista traseira", type: "file", accept: "image/*", capture: "environment" , maxSizeMB: 10, storageFolder: "vista_traseira", storageBucket: "veiculos"},
         { name: "vista_lateral_direita", label: "Vista lateral direita", type: "file", accept: "image/*", capture: "environment" , maxSizeMB: 10, storageFolder: "vista_lateral_direita", storageBucket: "veiculos"},
