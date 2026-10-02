@@ -45,8 +45,8 @@ export const SCHEMA_CHECKLIST = {
         },
 
         {
-            name: "veiculo",
-            label: "Veículo / Modelo",
+            name: "placa_modelo",
+            label: "Placa / Modelo",
             type: "text",
             readonly: true
         },
