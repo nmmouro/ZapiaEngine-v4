@@ -262,10 +262,10 @@ function preencherContextoSeNecessario(registro) {
         );
     }
 
-    if (!getValor("veiculo")) {
+    if (!getValor("placa_modelo")) {
         setValor(
-            "veiculo",
-            contextoLancamento.veiculo || ""
+            "placa_modelo",
+            contextoLancamento.placa_modelo || ""
         );
     }
 }
