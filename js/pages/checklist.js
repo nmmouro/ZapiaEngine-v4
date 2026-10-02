@@ -150,7 +150,7 @@ async function iniciarChecklistInterno() {
                 { name: "data", label: "Data" },
                 { name: "hora", label: "Hora" },
                 { name: "empregado_matricula", label: "Empregado / Matrícula" },
-                { name: "veiculo", label: "Veículo / Modelo" },
+                { name: "placa_modelo", label: "Placa / Modelo" },
                 { name: "observacoes", label: "Observações" }
             ]
         }
