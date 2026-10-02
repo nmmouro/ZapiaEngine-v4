@@ -107,7 +107,27 @@ function preencherContexto() {
     setValor("data", contextoLancamento.data || dataAtual());
     setValor("hora", formatarHora(contextoLancamento.hora) || horaAtual());
     setValor("empregado_matricula", contextoLancamento.empregado_matricula || "");
-    setValor("placa_modelo", contextoLancamento.placa_modelo || "");
+    setValor("id_veiculo", contextoLancamento.id_veiculo || "");
+
+    const selectVeiculo = getCampo("placa_modelo");
+    if (selectVeiculo) {
+        const idVeiculo = String(contextoLancamento.id_veiculo || "").trim();
+        const snapshot = String(contextoLancamento.placa_modelo || "").trim();
+
+        if (idVeiculo && Array.from(selectVeiculo.options).some(opcao => opcao.value === idVeiculo)) {
+            selectVeiculo.value = idVeiculo;
+            selectVeiculo.dispatchEvent(new Event("change", { bubbles: true }));
+        } else if (snapshot) {
+            const opcao = Array.from(selectVeiculo.options).find(opcao =>
+                opcao.textContent.trim() === snapshot
+            );
+            if (opcao) {
+                selectVeiculo.value = opcao.value;
+                selectVeiculo.dispatchEvent(new Event("change", { bubbles: true }));
+            }
+        }
+    }
+
     setValor("usuario", contextoLancamento.usuario || "");
 }
 

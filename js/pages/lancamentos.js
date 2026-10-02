@@ -1290,6 +1290,16 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
         }
 
         // Manutenção: o valor da nota permanece numérico para relatórios.
+        // O valor é derivado do registro relacionado, exatamente como no abastecimento.
+        const valorManutencao = manutencao
+            ? Number(manutencao.valor_total_nota)
+            : null;
+
+        definirIndicador(
+            indicadores.manutencaoValor,
+            `Valor da nota: ${manutencao ? formatarMoeda(valorManutencao) : "—"}`
+        );
+
         if (manutencao && Number.isFinite(valorManutencao)) {
             try {
                 await atualizar("lancamentos", {
@@ -1323,7 +1333,9 @@ async function atualizarIndicadoresRelacionados(idLancamento) {
             abastecimento: Boolean(abastecimento),
             avarias: Boolean(avaria),
             lavaCar: Boolean(lavaCar),
-            valorHigienizacao: lavaCar?.valor ?? null
+            manutencao: Boolean(manutencao),
+            valorHigienizacao: lavaCar?.valor ?? null,
+            valorManutencao: Number.isFinite(valorManutencao) ? valorManutencao : null
         });
 
     } catch (erro) {

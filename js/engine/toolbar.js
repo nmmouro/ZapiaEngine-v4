@@ -3,6 +3,7 @@
 // ============================================================
 
 if (
+    typeof toolbar !== "undefined" &&
     toolbar &&
     typeof toolbar.iniciar === "function"
 ) {
