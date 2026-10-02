@@ -234,8 +234,8 @@ function preencherNovoChecklist() {
     );
 
     setValor(
-        "veiculo",
-        contextoLancamento.veiculo || ""
+        "placa_modelo",
+        obterPlacaModelo(contextoLancamento)
     );
 
     console.log(
@@ -265,7 +265,7 @@ function preencherContextoSeNecessario(registro) {
     if (!getValor("placa_modelo")) {
         setValor(
             "placa_modelo",
-            contextoLancamento.placa_modelo || ""
+            obterPlacaModelo(contextoLancamento)
         );
     }
 }
@@ -586,3 +586,12 @@ export {
     iniciarChecklist,
     iniciarChecklist as iniciar
 };
+
+function obterPlacaModelo(lancamento = {}) {
+    const direto = String(lancamento.placa_modelo || lancamento.veiculo || "").trim();
+    if (direto) return direto;
+    const placa = String(lancamento.veiculos?.placa || lancamento.placa || "").trim();
+    const modelo = String(lancamento.veiculos?.modelo || lancamento.modelo || "").trim();
+    return [placa, modelo].filter(Boolean).join(" / ");
+}
+
