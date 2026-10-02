@@ -71,7 +71,7 @@ export async function iniciarAbastecimentos() {
                 { name: "data", label: "Data", format: formatarData },
                 { name: "hora", label: "Hora", format: formatarHora },
                 { name: "empregado_matricula", label: "Empregado / Matrícula" },
-                { name: "veiculo", label: "Veículo / Modelo" },
+                { name: "placa_modelo", label: "Placa / Modelo" },
                 { name: "odometro", label: "Odômetro" },
                 { name: "tipo_combustivel", label: "Combustível" },
                 { name: "qtde_l", label: "Litros" },
@@ -107,7 +107,7 @@ function preencherContexto() {
     setValor("data", contextoLancamento.data || dataAtual());
     setValor("hora", formatarHora(contextoLancamento.hora) || horaAtual());
     setValor("empregado_matricula", contextoLancamento.empregado_matricula || "");
-    setValor("veiculo", contextoLancamento.veiculo || "");
+    setValor("placa_modelo", contextoLancamento.placa_modelo || "");
     setValor("usuario", contextoLancamento.usuario || "");
 }
 
