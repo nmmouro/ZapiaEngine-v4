@@ -178,7 +178,7 @@ function candidatosVeiculo(r) {
         String(x.id ?? "").trim() === String(r.id_veiculo ?? "").trim()
     );
     return [
-        r.id_veiculo, r.placa_modelo,
+        r.id_veiculo, r.veiculo, r.placa_modelo,
         v?.id, v?.placa, v?.marca_modelo_versao,
         v ? [v.placa, v.marca_modelo_versao].filter(Boolean).join(" / ") : ""
     ].filter(x => String(x ?? "").trim() !== "");
@@ -209,7 +209,7 @@ function montarOpcoesEntidade(lista, registros, tipo) {
 
     if (tipo === "veiculo") {
         registros.forEach(r => {
-            const label = String(r.placa_modelo ?? "").trim() || String(r.id_veiculo ?? "").trim();
+            const label = String(r.placa_modelo ?? r.veiculo ?? "").trim() || String(r.id_veiculo ?? "").trim();
             adicionar(`reg:${label}`, label, candidatosVeiculo(r));
         });
         lista.forEach(v => {

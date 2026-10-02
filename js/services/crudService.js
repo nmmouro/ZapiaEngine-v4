@@ -458,37 +458,6 @@ function queryValue(
 
 
 // ============================================================
-// NORMALIZAR SNAPSHOT DO VEÍCULO
-// ============================================================
-// O valor gravado na ocorrência (placa_modelo) é a fonte principal.
-// Para registros antigos, usa a relação com public.veiculos como fallback.
-function normalizarLancamentoVeiculo(registro) {
-    const snapshot = String(registro?.placa_modelo ?? "").trim();
-
-    if (snapshot) {
-        return registro;
-    }
-
-    const placa = String(registro?.veiculos?.placa ?? "").trim();
-    const modelo = String(
-        registro?.veiculos?.marca_modelo_versao ?? ""
-    ).trim();
-
-    const placaModelo = [placa, modelo]
-        .filter(Boolean)
-        .join(" / ");
-
-    if (!placaModelo) {
-        return registro;
-    }
-
-    return {
-        ...registro,
-        placa_modelo: placaModelo
-    };
-}
-
-// ============================================================
 // LISTAR
 // ============================================================
 
@@ -544,9 +513,9 @@ export async function listar(
     );
 
 
-    // LANÇAMENTOS mantém placa_modelo como snapshot da ocorrência.
-    // A relação com public.veiculos é usada apenas como fallback para
-    // registros antigos que ainda não possuam o snapshot preenchido.
+    // Para LANÇAMENTOS, a exibição "Placa / Modelo" é composta
+    // pelas colunas reais de public.veiculos: placa + marca_modelo_versao.
+    // O snapshot placa_modelo pertence ao lançamento e deve ser preservado quando existir.
     if (String(entity || "").toLowerCase() === "lancamentos") {
         parametros.set("select", "*,veiculos(placa,marca_modelo_versao)");
     }
@@ -589,7 +558,13 @@ export async function listar(
     ) {
 
         if (String(entity || "").toLowerCase() === "lancamentos") {
-            return resposta.map(normalizarLancamentoVeiculo);
+            return resposta.map(registro => ({
+                ...registro,
+                placa_modelo: String(registro?.placa_modelo ?? "").trim() || [
+                    registro?.veiculos?.placa,
+                    registro?.veiculos?.marca_modelo_versao
+                ].filter(v => v !== undefined && v !== null && String(v).trim() !== "").map(v => String(v).trim()).join(" / ")
+            }));
         }
 
         return resposta;
@@ -610,7 +585,13 @@ export async function listar(
     ) {
 
         if (String(entity || "").toLowerCase() === "lancamentos") {
-            return resposta.data.map(normalizarLancamentoVeiculo);
+            return resposta.data.map(registro => ({
+                ...registro,
+                placa_modelo: String(registro?.placa_modelo ?? "").trim() || [
+                    registro?.veiculos?.placa,
+                    registro?.veiculos?.marca_modelo_versao
+                ].filter(v => v !== undefined && v !== null && String(v).trim() !== "").map(v => String(v).trim()).join(" / ")
+            }));
         }
 
         return resposta.data;

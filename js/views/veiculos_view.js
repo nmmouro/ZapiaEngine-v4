@@ -39,15 +39,10 @@ export async function iniciar() {
             r.id
         );
 
-        const placaModelo = [
-            r.placa,
-            r.marca_modelo_versao
-        ].filter(Boolean).join(" / ");
-
         const aba = await carregarRelacionados(
             "abastecimento",
-            "placa_modelo",
-            placaModelo
+            "veiculo",
+            r.placa
         );
 
         content.innerHTML = `

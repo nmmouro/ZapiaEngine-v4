@@ -109,8 +109,8 @@ export const SCHEMA_LANCAMENTOS = {
             valueField: "id",
             labelFields: ["placa", "marca_modelo_versao"],
             separator: " / ",
-            // Grava no lançamento exatamente o texto apresentado ao usuário.
-            // A origem é public.veiculos.placa + public.veiculos.marca_modelo_versao.
+            // Grava no lançamento o texto apresentado ao usuário.
+            // A origem continua sendo veiculos.placa + veiculos.marca_modelo_versao.
             snapshotField: "placa_modelo",
 
         },

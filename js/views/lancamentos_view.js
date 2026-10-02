@@ -102,7 +102,7 @@ export async function iniciar() {
 
                         <strong>
                             ${escapar(
-                                r.placa_modelo ?? "—"
+                                r.placa_modelo ?? r.veiculo ?? "—"
                             )}
                         </strong>
 
