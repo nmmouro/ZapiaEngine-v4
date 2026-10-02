@@ -1081,7 +1081,35 @@ function prepararDados(
 
 function normalizarPayloadEntidade(entity, payload) {
 
-    if (String(entity || "").toLowerCase() !== "lancamentos") {
+    const entidade = String(entity || "").toLowerCase();
+
+    if (entidade === "abastecimento") {
+        // public.abastecimento usa nomes próprios do formulário.
+        // id_veiculo e placa_modelo são campos auxiliares da UI e não
+        // existem nessa tabela; o snapshot selecionado fica em veiculo.
+        const camposPermitidos = new Set([
+            "id",
+            "id_lancamento",
+            "data",
+            "hora",
+            "empregado_matricula",
+            "veiculo",
+            "odometro",
+            "usuario",
+            "imagem",
+            "tipo_combustivel",
+            "qtde_l",
+            "preco_l",
+            "valor_total_nota",
+            "localizacao"
+        ]);
+
+        return Object.fromEntries(
+            Object.entries(payload).filter(([campo]) => camposPermitidos.has(campo))
+        );
+    }
+
+    if (entidade !== "lancamentos") {
         return payload;
     }
 

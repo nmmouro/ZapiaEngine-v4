@@ -25,6 +25,7 @@ const SCHEMA_ABASTECIMENTO = {
             separator: " - "
         },
         { name: "id_veiculo", label: "ID Veículo", type: "text", hidden: true },
+        { name: "veiculo", label: "Veículo", type: "text", hidden: true },
         { name: "odometro", label: "Odômetro", type: "number", required: true, min: 0, step: "0.1" },
         { name: "usuario", label: "Usuário", type: "text", readonly: true },
         { name: "imagem", label: "Imagem da Nota / Abastecimento", type: "file", accept: "image/*", capture: "environment" , maxSizeMB: 10, storageFolder: "imagem", storageBucket: "veiculos"},

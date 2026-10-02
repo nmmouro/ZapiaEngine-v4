@@ -111,21 +111,32 @@ function preencherContexto() {
 
     const selectVeiculo = getCampo("placa_modelo");
     if (selectVeiculo) {
+        const sincronizarVeiculo = () => {
+            const opcao = selectVeiculo.options[selectVeiculo.selectedIndex];
+            const idVeiculo = String(selectVeiculo.value || "").trim();
+            const descricao = String(opcao?.textContent || "").trim();
+            setValor("id_veiculo", idVeiculo);
+            setValor("veiculo", descricao);
+        };
+
+        if (!selectVeiculo.dataset.veiculoSnapshotListener) {
+            selectVeiculo.addEventListener("change", sincronizarVeiculo);
+            selectVeiculo.dataset.veiculoSnapshotListener = "true";
+        }
+
         const idVeiculo = String(contextoLancamento.id_veiculo || "").trim();
-        const snapshot = String(contextoLancamento.placa_modelo || "").trim();
+        const snapshot = String(contextoLancamento.placa_modelo || contextoLancamento.veiculo || "").trim();
 
         if (idVeiculo && Array.from(selectVeiculo.options).some(opcao => opcao.value === idVeiculo)) {
             selectVeiculo.value = idVeiculo;
-            selectVeiculo.dispatchEvent(new Event("change", { bubbles: true }));
         } else if (snapshot) {
             const opcao = Array.from(selectVeiculo.options).find(opcao =>
                 opcao.textContent.trim() === snapshot
             );
-            if (opcao) {
-                selectVeiculo.value = opcao.value;
-                selectVeiculo.dispatchEvent(new Event("change", { bubbles: true }));
-            }
+            if (opcao) selectVeiculo.value = opcao.value;
         }
+
+        sincronizarVeiculo();
     }
 
     setValor("usuario", contextoLancamento.usuario || "");
