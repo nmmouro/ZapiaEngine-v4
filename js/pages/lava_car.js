@@ -122,7 +122,7 @@ function preencherContexto(registro = {}) {
     setValor("empregado_matricula",
         registro.empregado_matricula || contextoLancamento.empregado_matricula || "");
     setValor("veiculo",
-        obterPlacaModelo(contextoLancamento) || registro.veiculo || "");
+        registro.veiculo || contextoLancamento.veiculo || "");
     setValor("usuario",
         registro.usuario || contextoLancamento.usuario || "");
 }
@@ -224,14 +224,6 @@ function getCampo(nome) {
 function setValor(nome, valor) {
     const campo = getCampo(nome);
     if (campo) campo.value = valor ?? "";
-}
-
-function obterPlacaModelo(lancamento = {}) {
-    const direto = String(lancamento.placa_modelo || lancamento.veiculo || "").trim();
-    if (direto) return direto;
-    const placa = String(lancamento.veiculos?.placa || lancamento.placa || "").trim();
-    const modelo = String(lancamento.veiculos?.modelo || lancamento.modelo || "").trim();
-    return [placa, modelo].filter(Boolean).join(" / ");
 }
 
 function formatarData(valor) {
