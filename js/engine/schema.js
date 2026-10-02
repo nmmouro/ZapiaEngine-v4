@@ -47,7 +47,7 @@ const SCHEMA_ABASTECIMENTOS = {
         { name: "hora", label: "Hora", type: "time", required: true },
         {
             name: "placa_modelo", label: "Placa / Modelo", type: "select", required: true,
-            source: "veiculos", valueField: "id", labelFields: ["placa", "marca_modelo_versao"], idField: "id_veiculo", separator: " - "
+            source: "veiculos", valueField: "id", labelFields: ["placa", "modelo"], idField: "id_veiculo", separator: " - "
         },
         { name: "id_veiculo", label: "ID Veículo", type: "text", hidden: true },
         { name: "combustivel", label: "Combustível", type: "select", required: true, options: ["GASOLINA", "ETANOL", "FLEX", "DIESEL"] },
@@ -78,7 +78,7 @@ const SCHEMA_LANCAMENTOS = {
         },
         {
             name: "placa_modelo", label: "Placa / Modelo", type: "select", required: true,
-            source: "veiculos", valueField: "id", labelFields: ["placa", "marca_modelo_versao"], idField: "id_veiculo", separator: " - "
+            source: "veiculos", valueField: "id", labelFields: ["placa", "modelo"], idField: "id_veiculo", separator: " - "
         },
         { name: "passageiro_setor_motivo", label: "Passageiro / Setor / Motivo", type: "text", required: true },
         { name: "itinerario", label: "Itinerário", type: "text", required: true },

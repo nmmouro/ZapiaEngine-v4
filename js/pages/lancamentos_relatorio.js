@@ -192,7 +192,7 @@ function preencherSelect(id, opcoes) {
 function montarLabelVeiculo(veiculo) {
     const placa = String(veiculo?.placa ?? "").trim();
     const modelo = String(
-        veiculo?.marca_modelo_versao ?? veiculo?.modelo ?? veiculo?.marca_modelo ?? ""
+        veiculo?.modelo ?? veiculo?.modelo ?? veiculo?.marca_modelo ?? ""
     ).trim();
     return [placa, modelo].filter(Boolean).join(" / ") || String(veiculo?.id ?? "");
 }
@@ -272,8 +272,8 @@ function aplicarFiltros(registros) {
                 obterLabelVeiculo(registro),
                 obterLabelEmpregado(registro),
                 relacionadoVeiculo?.placa,
-                relacionadoVeiculo?.marca_modelo_versao,
-                relacionadoVeiculo?.marca_modelo_versao,
+                relacionadoVeiculo?.modelo,
+                relacionadoVeiculo?.modelo,
                 relacionadoEmpregado?.empregado,
                 relacionadoEmpregado?.nome,
                 relacionadoEmpregado?.matricula
@@ -528,15 +528,15 @@ function registroCorrespondeVeiculo(registro, idSelecionado) {
 
     const placaSelecionada = normalizar(selecionado?.placa);
     const modeloSelecionado = normalizar(
-        selecionado?.marca_modelo_versao ?? selecionado?.modelo ?? selecionado?.marca_modelo
+        selecionado?.modelo ?? selecionado?.modelo ?? selecionado?.marca_modelo
     );
     const labelSelecionado = normalizar(montarLabelVeiculo(selecionado));
 
     const valoresRegistro = [
         registro?.placa_modelo,
         registro?.placa,
-        registro?.marca_modelo_versao,
-        registro?.marca_modelo_versao,
+        registro?.modelo,
+        registro?.modelo,
         registro?.id_veiculo
     ].map(normalizar).filter(Boolean);
 

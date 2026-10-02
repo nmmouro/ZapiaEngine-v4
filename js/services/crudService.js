@@ -513,12 +513,10 @@ export async function listar(
     );
 
 
-    // Para LANÇAMENTOS, a exibição "Placa / Modelo" é composta
-    // pelas colunas reais de public.veiculos: placa + marca_modelo_versao.
-    // O snapshot placa_modelo pertence ao lançamento e deve ser preservado quando existir.
-    if (String(entity || "").toLowerCase() === "lancamentos") {
-        parametros.set("select", "*,veiculos(placa,marca_modelo_versao)");
-    }
+    // LANÇAMENTOS já possui o snapshot placa_modelo.
+    // Não fazemos JOIN com veiculos aqui: além de ser desnecessário,
+    // isso fazia a consulta depender de colunas que podem não existir
+    // na estrutura atual de public.veiculos.
 
     const url =
         parametros.toString()
@@ -560,10 +558,7 @@ export async function listar(
         if (String(entity || "").toLowerCase() === "lancamentos") {
             return resposta.map(registro => ({
                 ...registro,
-                placa_modelo: String(registro?.placa_modelo ?? "").trim() || [
-                    registro?.veiculos?.placa,
-                    registro?.veiculos?.marca_modelo_versao
-                ].filter(v => v !== undefined && v !== null && String(v).trim() !== "").map(v => String(v).trim()).join(" / ")
+                placa_modelo: String(registro?.placa_modelo ?? "").trim()
             }));
         }
 
@@ -587,10 +582,7 @@ export async function listar(
         if (String(entity || "").toLowerCase() === "lancamentos") {
             return resposta.data.map(registro => ({
                 ...registro,
-                placa_modelo: String(registro?.placa_modelo ?? "").trim() || [
-                    registro?.veiculos?.placa,
-                    registro?.veiculos?.marca_modelo_versao
-                ].filter(v => v !== undefined && v !== null && String(v).trim() !== "").map(v => String(v).trim()).join(" / ")
+                placa_modelo: String(registro?.placa_modelo ?? "").trim()
             }));
         }
 
