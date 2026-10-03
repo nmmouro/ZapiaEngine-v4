@@ -565,8 +565,7 @@ export async function listar(
         if (String(entity || "").toLowerCase() === "abastecimento") {
             return resposta.map(registro => ({
                 ...registro,
-                // public.abastecimento guarda o snapshot em `veiculo`;
-                // a interface usa o nome `placa_modelo`.
+                // public.abastecimento possui o snapshot próprio em `placa_modelo`.
                 placa_modelo: String(registro?.placa_modelo ?? registro?.veiculo ?? "").trim()
             }));
         }
@@ -1100,15 +1099,16 @@ function normalizarPayloadEntidade(entity, payload) {
     const entidade = String(entity || "").toLowerCase();
 
     if (entidade === "abastecimento") {
-        // public.abastecimento usa nomes próprios do formulário.
-        // id_veiculo e placa_modelo são campos auxiliares da UI e não
-        // existem nessa tabela; o snapshot selecionado fica em veiculo.
+        // public.abastecimento usa os nomes próprios do formulário.
+        // id_veiculo continua sendo auxiliar da UI; placa_modelo é
+        // persistido como snapshot da ocorrência relacionada.
         const camposPermitidos = new Set([
             "id",
             "id_lancamento",
             "data",
             "hora",
             "empregado_matricula",
+            "placa_modelo",
             "veiculo",
             "odometro",
             "usuario",

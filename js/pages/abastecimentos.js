@@ -120,6 +120,8 @@ function preencherContexto() {
 
     setValor("placa_modelo", placaModelo);
     setValor("id_veiculo", contextoLancamento.id_veiculo || "");
+    // Compatibilidade com registros antigos: o novo contrato persiste
+    // placa_modelo, mas mantém veiculo como snapshot legado quando aplicável.
     setValor("veiculo", placaModelo);
 
     setValor("usuario", contextoLancamento.usuario || "");
