@@ -75,7 +75,7 @@ function montarInterface(app) {
                     <input id="filtroDataFinal" type="date">
                 </div>
                 <div class="campo-relatorio campo-largo">
-                    <label for="filtroVeiculo">Veículo</label>
+                    <label for="filtroVeiculo">Placa / Modelo</label>
                     <select id="filtroVeiculo"><option value="">Todos os veículos</option></select>
                 </div>
                 <div class="campo-relatorio campo-largo">
