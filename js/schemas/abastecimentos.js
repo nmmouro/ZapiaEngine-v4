@@ -13,17 +13,10 @@ const SCHEMA_ABASTECIMENTO = {
         { name: "data", label: "Data", type: "date", required: true, readonly: true },
         { name: "hora", label: "Hora", type: "time", required: true, readonly: true },
         { name: "empregado_matricula", label: "Empregado / Matrícula", type: "text", readonly: true },
-        {
-            name: "placa_modelo",
-            label: "Placa / Modelo",
-            type: "select",
-            required: true,
-            source: "veiculos",
-            valueField: "id",
-            labelFields: ["placa", "modelo"],
-            idField: "id_veiculo",
-            separator: " - "
-        },
+        // O abastecimento é um dado relacionado à ocorrência.
+        // Portanto, não permite escolher outro veículo aqui: o valor é
+        // herdado do lançamento que abriu este formulário.
+        { name: "placa_modelo", label: "Placa / Modelo", type: "text", required: true, readonly: true },
         { name: "id_veiculo", label: "ID Veículo", type: "text", hidden: true },
         { name: "veiculo", label: "Veículo", type: "text", hidden: true },
         { name: "odometro", label: "Odômetro", type: "number", required: true, min: 0, step: "0.1" },

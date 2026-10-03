@@ -587,6 +587,44 @@ function instalarControlesDoCiclo() {
             id
         );
 
+        // Mantém em public.veiculos o mesmo snapshot exibido no lançamento.
+        // Isso evita depender de JOIN ou de reconstrução do rótulo em telas relacionadas.
+        try {
+            const registroSalvo = Array.isArray(evento.detail)
+                ? evento.detail[0]
+                : (evento.detail?.data ?? evento.detail?.dados ?? evento.detail);
+            const idVeiculo = String(
+                registroSalvo?.id_veiculo ||
+                getValor("id_veiculo") ||
+                ""
+            ).trim();
+            const placaModelo = String(
+                registroSalvo?.placa_modelo ||
+                getValor("placa_modelo") ||
+                ""
+            ).trim();
+
+            if (idVeiculo && placaModelo) {
+                await atualizar("veiculos", {
+                    id: idVeiculo,
+                    placa_modelo: placaModelo
+                });
+                console.log("LANÇAMENTOS → VEÍCULO SINCRONIZADO:", {
+                    id: idVeiculo,
+                    placa_modelo: placaModelo
+                });
+            } else {
+                console.warn("LANÇAMENTOS → não foi possível sincronizar placa_modelo do veículo:", {
+                    idVeiculo,
+                    placaModelo
+                });
+            }
+        } catch (erroVeiculo) {
+            // O lançamento já foi salvo; a falha de sincronização é reportada
+            // sem transformar uma ocorrência válida em erro de gravação.
+            console.error("LANÇAMENTOS → ERRO AO SINCRONIZAR placa_modelo DO VEÍCULO:", erroVeiculo);
+        }
+
         modo = "conclusao-pendente";
 
         await modulo.editar(id);

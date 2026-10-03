@@ -562,6 +562,15 @@ export async function listar(
             }));
         }
 
+        if (String(entity || "").toLowerCase() === "abastecimento") {
+            return resposta.map(registro => ({
+                ...registro,
+                // public.abastecimento guarda o snapshot em `veiculo`;
+                // a interface usa o nome `placa_modelo`.
+                placa_modelo: String(registro?.placa_modelo ?? registro?.veiculo ?? "").trim()
+            }));
+        }
+
         return resposta;
 
     }
@@ -583,6 +592,13 @@ export async function listar(
             return resposta.data.map(registro => ({
                 ...registro,
                 placa_modelo: String(registro?.placa_modelo ?? "").trim()
+            }));
+        }
+
+        if (String(entity || "").toLowerCase() === "abastecimento") {
+            return resposta.data.map(registro => ({
+                ...registro,
+                placa_modelo: String(registro?.placa_modelo ?? registro?.veiculo ?? "").trim()
             }));
         }
 

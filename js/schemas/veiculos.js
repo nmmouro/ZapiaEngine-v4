@@ -128,6 +128,19 @@ export const SCHEMA_VEICULOS = {
         },
 
         // ----------------------------------------------------
+        // SNAPSHOT PLACA / MODELO
+        // ----------------------------------------------------
+        // Mantido pelo fluxo de Lançamentos para consultas e dados
+        // relacionados, sem exigir que o usuário o digite manualmente.
+        {
+            name: "placa_modelo",
+            label: "Placa / Modelo",
+            type: "text",
+            hidden: true,
+            readonly: true
+        },
+
+        // ----------------------------------------------------
         // RENAVAM
         // ----------------------------------------------------
 

@@ -109,35 +109,18 @@ function preencherContexto() {
     setValor("empregado_matricula", contextoLancamento.empregado_matricula || "");
     setValor("id_veiculo", contextoLancamento.id_veiculo || "");
 
-    const selectVeiculo = getCampo("placa_modelo");
-    if (selectVeiculo) {
-        const sincronizarVeiculo = () => {
-            const opcao = selectVeiculo.options[selectVeiculo.selectedIndex];
-            const idVeiculo = String(selectVeiculo.value || "").trim();
-            const descricao = String(opcao?.textContent || "").trim();
-            setValor("id_veiculo", idVeiculo);
-            setValor("veiculo", descricao);
-        };
+    // Placa / Modelo é um snapshot da ocorrência.
+    // Não deve abrir um novo select nem permitir trocar o veículo
+    // dentro do formulário de abastecimento.
+    const placaModelo = String(
+        contextoLancamento.placa_modelo ||
+        contextoLancamento.veiculo ||
+        ""
+    ).trim();
 
-        if (!selectVeiculo.dataset.veiculoSnapshotListener) {
-            selectVeiculo.addEventListener("change", sincronizarVeiculo);
-            selectVeiculo.dataset.veiculoSnapshotListener = "true";
-        }
-
-        const idVeiculo = String(contextoLancamento.id_veiculo || "").trim();
-        const snapshot = String(contextoLancamento.placa_modelo || contextoLancamento.veiculo || "").trim();
-
-        if (idVeiculo && Array.from(selectVeiculo.options).some(opcao => opcao.value === idVeiculo)) {
-            selectVeiculo.value = idVeiculo;
-        } else if (snapshot) {
-            const opcao = Array.from(selectVeiculo.options).find(opcao =>
-                opcao.textContent.trim() === snapshot
-            );
-            if (opcao) selectVeiculo.value = opcao.value;
-        }
-
-        sincronizarVeiculo();
-    }
+    setValor("placa_modelo", placaModelo);
+    setValor("id_veiculo", contextoLancamento.id_veiculo || "");
+    setValor("veiculo", placaModelo);
 
     setValor("usuario", contextoLancamento.usuario || "");
 }
