@@ -2,7 +2,7 @@
  * RELATÓRIO DE OCORRÊNCIAS — LANÇAMENTOS
  * Baseado diretamente no serviço CRUD já utilizado pelo módulo funcional.
  */
-import { listar } from "../services/crudService.js";
+import { listar, listarTodos } from "../services/crudService.js";
 
 let registros = [];
 let filtrados = [];
@@ -75,7 +75,7 @@ function montarInterface(app) {
                     <input id="filtroDataFinal" type="date">
                 </div>
                 <div class="campo-relatorio campo-largo">
-                    <label for="filtroVeiculo">Placa / Modelo</label>
+                    <label for="filtroVeiculo">Veículo</label>
                     <select id="filtroVeiculo"><option value="">Todos os veículos</option></select>
                 </div>
                 <div class="campo-relatorio campo-largo">
@@ -128,9 +128,9 @@ async function carregarDados() {
     mensagem("Carregando ocorrências...", "info");
     try {
         const [lancamentos, listaVeiculos, listaEmpregados] = await Promise.allSettled([
-            listar("lancamentos"),
-            listar("veiculos"),
-            listar("empregados")
+            listarTodos("lancamentos"),
+            listarTodos("veiculos"),
+            listarTodos("empregados")
         ]);
 
         if (lancamentos.status === "rejected") {
@@ -176,7 +176,11 @@ function normalizarTexto(valor) {
 function candidatosVeiculo(r) {
     const v = veiculos.find(x =>
         String(x.id ?? "").trim() === String(r.id_veiculo ?? "").trim()
-    );
+    ) || veiculos.find(x => {
+        const alvo = normalizarTexto(r.placa_modelo || r.veiculo);
+        const label = [x.placa, x.modelo].filter(Boolean).join(" / ");
+        return alvo && [x.placa, x.modelo, label].map(normalizarTexto).includes(alvo);
+    });
     return [
         r.id_veiculo, r.veiculo, r.placa_modelo,
         v?.id, v?.placa, v?.modelo,
@@ -187,7 +191,11 @@ function candidatosVeiculo(r) {
 function candidatosEmpregado(r) {
     const e = empregados.find(x =>
         String(x.id ?? "").trim() === String(r.id_empregado ?? "").trim()
-    );
+    ) || empregados.find(x => {
+        const alvo = normalizarTexto(r.empregado_matricula);
+        return alvo && [x.matricula, x.nome, x.empregado, [x.nome || x.empregado, x.matricula].filter(Boolean).join(" / ")]
+            .map(normalizarTexto).includes(alvo);
+    });
     return [
         r.id_empregado, r.empregado_matricula,
         e?.id, e?.nome, e?.empregado, e?.matricula,
@@ -261,17 +269,23 @@ function registroCorresponde(entidade, chaveSelecionada, registro) {
     if (!chaveSelecionada) return true;
     const mapa = entidade === "veiculo" ? opcoesVeiculos : opcoesEmpregados;
     const item = mapa.get(chaveSelecionada);
-    if (!item) {
-        console.warn(`RELATÓRIO → OPÇÃO ${entidade} NÃO ENCONTRADA:`, chaveSelecionada);
-        return false;
-    }
+    if (!item) return false;
+
     const candidatos = entidade === "veiculo" ? candidatosVeiculo(registro) : candidatosEmpregado(registro);
-    const normalizados = candidatos.map(normalizarTexto).filter(Boolean);
-    const corresponde = normalizados.some(c => item.candidatos.has(c));
-    // Fallback: compara diretamente a opção selecionada com os valores da ocorrência.
-    const chaveTexto = normalizarTexto(item.label);
-    const direto = normalizados.some(c => c === chaveTexto || c.includes(chaveTexto) || chaveTexto.includes(c));
-    return corresponde || direto;
+    const valores = candidatos.map(normalizarTexto).filter(Boolean);
+    if (!valores.length) return false;
+
+    // Primeiro tenta correspondência exata. Isso evita que, por exemplo,
+    // a matrícula 12 seja confundida com 112 ou 120.
+    if (valores.some(v => item.candidatos.has(v))) return true;
+
+    // Para snapshots "Nome / Matrícula" ou "Placa / Modelo", aceita
+    // equivalência por tokens completos, sem usar includes indiscriminado.
+    const alvo = normalizarTexto(item.label);
+    const tokensAlvo = alvo.split(/\s*\/\s*|\s+/).filter(Boolean);
+    return tokensAlvo.length > 0 && tokensAlvo.every(token =>
+        valores.some(valor => valor === token || valor.split(/\s*\/\s*|\s+/).includes(token))
+    );
 }
 
 function textoDoRegistro(r) {
@@ -286,30 +300,50 @@ function textoDoRegistro(r) {
 }
 
 function aplicarFiltros() {
-    const inicio = document.querySelector("#filtroDataInicial").value;
-    const fim = document.querySelector("#filtroDataFinal").value;
-    const veiculo = document.querySelector("#filtroVeiculo").value.trim();
-    const empregado = document.querySelector("#filtroEmpregado").value.trim();
-    const status = document.querySelector("#filtroStatus").value.trim().toUpperCase();
-    const texto = normalizarTexto(document.querySelector("#filtroTexto").value);
+    const inicio = document.querySelector("#filtroDataInicial")?.value || "";
+    const fim = document.querySelector("#filtroDataFinal")?.value || "";
+    const veiculo = document.querySelector("#filtroVeiculo")?.value.trim() || "";
+    const empregado = document.querySelector("#filtroEmpregado")?.value.trim() || "";
+    const status = normalizarTexto(document.querySelector("#filtroStatus")?.value || "");
+    const texto = normalizarTexto(document.querySelector("#filtroTexto")?.value || "");
 
-    console.log("RELATÓRIO → FILTROS:", { inicio, fim, veiculo, empregado, status, texto });
+    if (inicio && fim && inicio > fim) {
+        filtrados = [];
+        renderizarTabela();
+        document.querySelector("#totalRegistros").textContent = "0";
+        document.querySelector("#periodoResumo").textContent = "Período inválido";
+        mensagem("A data inicial não pode ser posterior à data final.", "erro");
+        return;
+    }
 
     filtrados = registros.filter(r => {
-        const data = String(r.data ?? "").slice(0, 10);
+        const data = extrairDataISO(r?.data ?? r?.created_at);
         if (inicio && (!data || data < inicio)) return false;
         if (fim && (!data || data > fim)) return false;
         if (veiculo && !registroCorresponde("veiculo", veiculo, r)) return false;
         if (empregado && !registroCorresponde("empregado", empregado, r)) return false;
-        if (status && String(r.status ?? "").trim().toUpperCase() !== status) return false;
+        if (status && normalizarTexto(r?.status) !== status) return false;
         if (texto && !textoDoRegistro(r).includes(texto)) return false;
         return true;
-    }).sort((a,b) => `${b.data ?? ""} ${b.hora ?? ""}`.localeCompare(`${a.data ?? ""} ${a.hora ?? ""}`));
+    }).sort((a, b) => {
+        const da = `${extrairDataISO(a?.data ?? a?.created_at) || "0000-00-00"} ${String(a?.hora ?? "00:00")}`;
+        const db = `${extrairDataISO(b?.data ?? b?.created_at) || "0000-00-00"} ${String(b?.hora ?? "00:00")}`;
+        return db.localeCompare(da);
+    });
 
     renderizarTabela();
-    console.log(`RELATÓRIO → RESULTADO: ${filtrados.length} de ${registros.length}`);
     document.querySelector("#totalRegistros").textContent = filtrados.length;
-    document.querySelector("#periodoResumo").textContent = inicio || fim ? `${formatarData(inicio) || "..."} até ${formatarData(fim) || "..."}` : "Todos";
+    document.querySelector("#periodoResumo").textContent = inicio || fim
+        ? `${formatarData(inicio) || "..."} até ${formatarData(fim) || "..."}`
+        : "Todos";
+}
+
+function extrairDataISO(valor) {
+    const texto = String(valor ?? "").trim();
+    const iso = texto.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
+    const br = texto.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+    return br ? `${br[3]}-${br[2]}-${br[1]}` : "";
 }
 
 function renderizarTabela() {
@@ -334,8 +368,8 @@ function formatarValor(campo, valor) {
         return formatarHora(valor);
     }
     if (campo === "placa_modelo") {
-        const relacionado = veiculos.find(v => String(v?.id ?? "").trim() === String(valor ?? "").trim());
-        if (relacionado) return [relacionado.placa, relacionado.modelo].filter(Boolean).join(" / ");
+        const texto = String(valor ?? "").trim();
+        if (texto) return texto;
     }
     if (["km_inicial","km_final","distancia_percorrida","media_consumo_combustivel","valor_higienizacao"].includes(campo)) return String(valor);
     return String(valor);
