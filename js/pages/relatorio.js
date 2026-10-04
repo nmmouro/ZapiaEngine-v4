@@ -204,37 +204,58 @@ function candidatosEmpregado(r) {
 }
 
 function montarOpcoesEntidade(lista, registros, tipo) {
+    // Os filtros representam entidades que realmente aparecem no relatório.
+    // A tabela cadastral é usada somente para enriquecer/relacionar o registro,
+    // nunca para acrescentar opções que não possuem ocorrência no relatório.
     const mapa = new Map();
+
     const adicionar = (chave, label, candidatos) => {
         const k = String(chave ?? "").trim();
         if (!k) return;
-        if (!mapa.has(k)) mapa.set(k, { label: String(label || k), candidatos: new Set() });
+
+        if (!mapa.has(k)) {
+            mapa.set(k, {
+                label: String(label || k).trim(),
+                candidatos: new Set()
+            });
+        } else if (!mapa.get(k).label && label) {
+            mapa.get(k).label = String(label).trim();
+        }
+
         candidatos.forEach(c => {
             const n = normalizarTexto(c);
             if (n) mapa.get(k).candidatos.add(n);
         });
     };
 
-    if (tipo === "veiculo") {
-        registros.forEach(r => {
-            const label = String(r.placa_modelo ?? r.veiculo ?? "").trim() || String(r.id_veiculo ?? "").trim();
-            adicionar(`reg:${label}`, label, candidatosVeiculo(r));
-        });
-        lista.forEach(v => {
-            const label = [v.placa, v.modelo].filter(Boolean).join(" / ") || String(v.id ?? "");
-            adicionar(`cad:${v.id ?? label}`, label, [v.id, v.placa, v.modelo, label]);
-        });
-    } else {
-        registros.forEach(r => {
-            const label = String(r.empregado_matricula ?? "").trim() || String(r.id_empregado ?? "").trim();
-            adicionar(`reg:${label}`, label, candidatosEmpregado(r));
-        });
-        lista.forEach(e => {
-            const nome = e.nome || e.empregado || e.nome_completo;
-            const label = [nome, e.matricula].filter(Boolean).join(" / ") || String(e.id ?? "");
-            adicionar(`cad:${e.id ?? label}`, label, [e.id, nome, e.matricula, label]);
-        });
-    }
+    registros.forEach(r => {
+        if (tipo === "veiculo") {
+            const id = String(r.id_veiculo ?? "").trim();
+            const snapshot = String(r.placa_modelo ?? r.veiculo ?? "").trim();
+            const label = snapshot || id;
+            if (!label) return;
+
+            // Um mesmo veículo pode aparecer em várias ocorrências.
+            // Quando há ID, ele é a chave canônica; sem ID, usa-se o snapshot normalizado.
+            const chave = id
+                ? `id:${id}`
+                : `valor:${normalizarTexto(label)}`;
+
+            adicionar(chave, label, candidatosVeiculo(r));
+        } else {
+            const id = String(r.id_empregado ?? "").trim();
+            const snapshot = String(r.empregado_matricula ?? "").trim();
+            const label = snapshot || id;
+            if (!label) return;
+
+            const chave = id
+                ? `id:${id}`
+                : `valor:${normalizarTexto(label)}`;
+
+            adicionar(chave, label, candidatosEmpregado(r));
+        }
+    });
+
     return mapa;
 }
 
