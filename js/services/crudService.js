@@ -624,6 +624,59 @@ export async function listar(
 
 
 // ============================================================
+// LISTAR TODOS
+// ============================================================
+
+/**
+ * Percorre a tabela em páginas para não depender do limite padrão do
+ * PostgREST/Supabase (frequentemente 1.000 registros).
+ */
+export async function listarTodos(entity, filtros = {}, tamanhoPagina = 1000) {
+    const tabela = tabelaURL(entity);
+    const tamanho = Math.max(1, Math.min(1000, Number(tamanhoPagina) || 1000));
+    const todos = [];
+    let inicio = 0;
+
+    while (true) {
+        const parametros = new URLSearchParams();
+        Object.entries(filtros || {}).forEach(([campo, valor]) => {
+            if (valor !== undefined && valor !== null && valor !== "") {
+                parametros.set(campo, `eq.${valor}`);
+            }
+        });
+        parametros.set("offset", String(inicio));
+        parametros.set("limit", String(tamanho));
+
+        const resposta = await request(`${tabela}?${parametros.toString()}`, {
+            method: "GET",
+            headers: { "Prefer": "count=exact" }
+        });
+
+        const pagina = Array.isArray(resposta)
+            ? resposta
+            : Array.isArray(resposta?.data)
+                ? resposta.data
+                : Array.isArray(resposta?.dados)
+                    ? resposta.dados
+                    : [];
+
+        todos.push(...pagina);
+        if (pagina.length < tamanho) break;
+        inicio += tamanho;
+    }
+
+    if (String(entity || "").toLowerCase() === "lancamentos") {
+        return todos.map(registro => ({
+            ...registro,
+            placa_modelo: String(registro?.placa_modelo ?? "").trim()
+        }));
+    }
+
+    return todos;
+}
+
+
+// ============================================================
 // OBTER
 // ============================================================
 
