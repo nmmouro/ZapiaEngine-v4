@@ -288,25 +288,51 @@ function preencherSelectComMapa(selector, mapa, primeiro) {
 
 function registroCorresponde(entidade, chaveSelecionada, registro) {
     if (!chaveSelecionada) return true;
+
     const mapa = entidade === "veiculo" ? opcoesVeiculos : opcoesEmpregados;
     const item = mapa.get(chaveSelecionada);
     if (!item) return false;
 
-    const candidatos = entidade === "veiculo" ? candidatosVeiculo(registro) : candidatosEmpregado(registro);
-    const valores = candidatos.map(normalizarTexto).filter(Boolean);
-    if (!valores.length) return false;
+    if (entidade === "veiculo") {
+        // Quando a opção foi criada com ID, o ID é a identidade do veículo.
+        // Não comparar modelo isoladamente: vários veículos podem ter o mesmo modelo.
+        if (chaveSelecionada.startsWith("id:")) {
+            const idSelecionado = normalizarTexto(chaveSelecionada.slice(3));
+            const idRegistro = normalizarTexto(registro?.id_veiculo);
+            if (idRegistro) return idRegistro === idSelecionado;
 
-    // Primeiro tenta correspondência exata. Isso evita que, por exemplo,
-    // a matrícula 12 seja confundida com 112 ou 120.
-    if (valores.some(v => item.candidatos.has(v))) return true;
+            // Registros antigos podem não ter id_veiculo. Nesse caso, compara-se
+            // o snapshot completo placa + modelo, nunca somente o modelo.
+            const alvo = normalizarTexto(item.label);
+            const snapshots = [registro?.placa_modelo, registro?.veiculo]
+                .map(normalizarTexto)
+                .filter(Boolean);
+            return !!alvo && snapshots.some(v => v === alvo);
+        }
 
-    // Para snapshots "Nome / Matrícula" ou "Placa / Modelo", aceita
-    // equivalência por tokens completos, sem usar includes indiscriminado.
+        // Sem ID, a chave é o snapshot completo normalizado.
+        const alvo = normalizarTexto(item.label);
+        const snapshots = [registro?.placa_modelo, registro?.veiculo]
+            .map(normalizarTexto)
+            .filter(Boolean);
+        return !!alvo && snapshots.some(v => v === alvo);
+    }
+
+    // Empregado: ID também é a identidade principal.
+    if (chaveSelecionada.startsWith("id:")) {
+        const idSelecionado = normalizarTexto(chaveSelecionada.slice(3));
+        const idRegistro = normalizarTexto(registro?.id_empregado);
+        if (idRegistro) return idRegistro === idSelecionado;
+
+        const alvo = normalizarTexto(item.label);
+        const snapshots = [registro?.empregado_matricula]
+            .map(normalizarTexto)
+            .filter(Boolean);
+        return !!alvo && snapshots.some(v => v === alvo);
+    }
+
     const alvo = normalizarTexto(item.label);
-    const tokensAlvo = alvo.split(/\s*\/\s*|\s+/).filter(Boolean);
-    return tokensAlvo.length > 0 && tokensAlvo.every(token =>
-        valores.some(valor => valor === token || valor.split(/\s*\/\s*|\s+/).includes(token))
-    );
+    return normalizarTexto(registro?.empregado_matricula) === alvo;
 }
 
 function textoDoRegistro(r) {
