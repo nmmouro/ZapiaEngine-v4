@@ -30,6 +30,12 @@ export const SCHEMA_LANCAMENTOS = {
 
     title: "Lançamentos",
 
+    // Ordenação global consumida pelo Engine/Table.
+    orderBy: [
+        { field: "id", direction: "desc" },
+        { field: "horario_inicial", direction: "desc" }
+    ],
+
     fields: [
 
         // ========================================================

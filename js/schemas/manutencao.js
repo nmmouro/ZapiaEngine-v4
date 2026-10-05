@@ -5,6 +5,10 @@
 
 const SCHEMA_MANUTENCAO = {
     entity: "manutencao",
+    orderBy: [
+        { field: "id", direction: "desc" },
+        { field: "hora", direction: "desc" }
+    ],
     table: "manutencao",
     title: "Manutenção",
     fields: [

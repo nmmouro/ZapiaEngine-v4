@@ -1,3 +1,5 @@
+import { ordenarRegistros } from "./order.js";
+
 /**
  * ============================================================
  * TABLE
@@ -868,40 +870,23 @@ export function createTable(config = {}) {
 
     function obterRegistrosFiltrados() {
 
-        const registros =
-            obterRegistros();
+        const registros = obterRegistros();
 
-
-        if (!filtro) {
-
-            return registros;
-
-        }
-
-
-        return registros.filter(
-            registro => {
-
-                return Object.values(
-                    registro || {}
+        const resultado = !filtro
+            ? [...registros]
+            : registros.filter(registro =>
+                Object.values(registro || {}).some(valor =>
+                    String(valor ?? "").toLowerCase().includes(filtro)
                 )
-                .some(
-                    valor => {
+            );
 
-                        return String(
-                            valor ?? ""
-                        )
-                        .toLowerCase()
-                        .includes(
-                            filtro
-                        );
+        const orderBy = Array.isArray(schema?.orderBy) && schema.orderBy.length
+            ? schema.orderBy
+            : options.ordenacao;
 
-                    }
-                );
-
-            }
-        );
-
+        return typeof engine.ordenarRegistros === "function"
+            ? engine.ordenarRegistros(resultado, orderBy)
+            : ordenarRegistros(resultado, orderBy);
     }
 
 

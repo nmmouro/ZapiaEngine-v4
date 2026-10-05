@@ -7,6 +7,10 @@
 
 const SCHEMA_ABASTECIMENTO = {
     entity: "abastecimento",
+    orderBy: [
+        { field: "id", direction: "desc" },
+        { field: "hora", direction: "desc" }
+    ],
     fields: [
         { name: "id", hidden: true },
         { name: "id_lancamento", hidden: true },

@@ -1,3 +1,5 @@
+import { ordenarRegistros } from "./order.js";
+
 /**
  * ============================================================
  * ENGINE
@@ -154,6 +156,14 @@ export function createEngine(config = {}) {
         container,
 
         state,
+
+        // ====================================================
+        // ORDENAÇÃO GLOBAL
+        // ====================================================
+
+        ordenarRegistros(registros = state.registros, orderBy = schema?.orderBy) {
+            return ordenarRegistros(registros, orderBy);
+        },
 
 
         // ====================================================

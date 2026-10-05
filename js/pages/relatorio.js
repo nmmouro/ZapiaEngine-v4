@@ -3,6 +3,8 @@
  * Baseado diretamente no serviço CRUD já utilizado pelo módulo funcional.
  */
 import { listar, listarTodos } from "../services/crudService.js";
+import { SCHEMA_RELATORIO_OCORRENCIAS } from "../schemas/relatorio.js";
+import { ordenarRegistros } from "../engine/order.js";
 
 let registros = [];
 let filtrados = [];
@@ -266,8 +268,11 @@ function preencherFiltros() {
     preencherSelectComMapa("#filtroVeiculo", opcoesVeiculos, "Todos os veículos");
     preencherSelectComMapa("#filtroEmpregado", opcoesEmpregados, "Todos os empregados");
 
-    const statuses = [...new Set(registros.map(r => String(r.status ?? "").trim()).filter(Boolean))]
-        .sort((a,b) => a.localeCompare(b, "pt-BR"));
+    const statuses = ordenarRegistros(
+        [...new Set(registros.map(r => String(r.status ?? "").trim()).filter(Boolean))]
+            .map(value => ({ value })),
+        [{ field: "value", direction: "asc" }]
+    ).map(item => item.value);
     const statusSelect = document.querySelector("#filtroStatus");
     statusSelect.innerHTML = `<option value="">Todos</option>` + statuses
         .map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
@@ -276,9 +281,11 @@ function preencherFiltros() {
 function preencherSelectComMapa(selector, mapa, primeiro) {
     const select = document.querySelector(selector);
     select.innerHTML = `<option value="">${primeiro}</option>`;
-    [...mapa.entries()]
-        .sort((a,b) => a[1].label.localeCompare(b[1].label, "pt-BR"))
-        .forEach(([value, item]) => {
+    ordenarRegistros(
+        [...mapa.entries()].map(([value, item]) => ({ value, item, _label: item.label })),
+        [{ field: "_label", direction: "asc" }]
+    )
+        .forEach(({ value, item }) => {
             const opt = document.createElement("option");
             opt.value = value;
             opt.textContent = item.label;
@@ -363,7 +370,7 @@ function aplicarFiltros() {
         return;
     }
 
-    filtrados = registros.filter(r => {
+    const filtradosBase = registros.filter(r => {
         const data = extrairDataISO(r?.data ?? r?.created_at);
         if (inicio && (!data || data < inicio)) return false;
         if (fim && (!data || data > fim)) return false;
@@ -372,17 +379,60 @@ function aplicarFiltros() {
         if (status && normalizarTexto(r?.status) !== status) return false;
         if (texto && !textoDoRegistro(r).includes(texto)) return false;
         return true;
-    }).sort((a, b) => {
-        const da = `${extrairDataISO(a?.data ?? a?.created_at) || "0000-00-00"} ${String(a?.hora ?? "00:00")}`;
-        const db = `${extrairDataISO(b?.data ?? b?.created_at) || "0000-00-00"} ${String(b?.hora ?? "00:00")}`;
-        return db.localeCompare(da);
     });
+
+    // A ordenação é responsabilidade global do Engine e declarada no schema.
+    // O relatório não implementa mais uma regra local de sort().
+    filtrados = ordenarRegistros(
+        filtradosBase,
+        SCHEMA_RELATORIO_OCORRENCIAS.orderBy
+    );
 
     renderizarTabela();
     document.querySelector("#totalRegistros").textContent = filtrados.length;
     document.querySelector("#periodoResumo").textContent = inicio || fim
         ? `${formatarData(inicio) || "..."} até ${formatarData(fim) || "..."}`
         : "Todos";
+}
+
+
+function compararOcorrencias(a, b) {
+    // Regra oficial da listagem: data descendente e, dentro da mesma data,
+    // ID da ocorrência descendente (mais recente primeiro). A hora é usada
+    // apenas como critério terciário quando disponível.
+    const dataA = extrairDataISO(a?.data ?? a?.created_at) || "0000-00-00";
+    const dataB = extrairDataISO(b?.data ?? b?.created_at) || "0000-00-00";
+    if (dataA !== dataB) return dataB.localeCompare(dataA);
+
+    const idComparacao = compararIdsOcorrencia(a?.id, b?.id);
+    if (idComparacao !== 0) return -idComparacao;
+
+    const horaA = normalizarHoraOrdenacao(a?.hora);
+    const horaB = normalizarHoraOrdenacao(b?.hora);
+    return horaB.localeCompare(horaA);
+}
+
+function compararIdsOcorrencia(a, b) {
+    const sa = String(a ?? "").trim();
+    const sb = String(b ?? "").trim();
+    if (sa === sb) return 0;
+
+    // IDs numéricos devem respeitar ordem numérica, inclusive quando vêm
+    // do Supabase como texto.
+    if (/^\d+$/.test(sa) && /^\d+$/.test(sb)) {
+        const na = BigInt(sa);
+        const nb = BigInt(sb);
+        return na < nb ? -1 : 1;
+    }
+
+    return sa.localeCompare(sb, "pt-BR", { numeric: true, sensitivity: "base" });
+}
+
+function normalizarHoraOrdenacao(valor) {
+    const texto = String(valor ?? "").trim();
+    const m = texto.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+    if (!m) return "00:00:00";
+    return `${m[1].padStart(2, "0")}:${m[2]}:${m[3] || "00"}`;
 }
 
 function extrairDataISO(valor) {
