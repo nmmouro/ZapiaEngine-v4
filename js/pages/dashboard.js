@@ -174,9 +174,9 @@ function renderizarMotoristas(empregados, ocorrenciasAndamento, ocorrenciasHoje)
     // Um quarto condutor é incluído somente quando aparecer no Painel do dia
     // (ocorrência EM ANDAMENTO) e não fizer parte da lista fixa.
     const motoristasFixos = [
-        { nome: "CACIO", matricula: "5000230" },
+        { nome: "CACIO", matricula: "5000366" },
         { nome: "CELSO", matricula: "5000205" },
-        { nome: "NEI", matricula: "5000199" }
+        { nome: "NEIDIVAL", matricula: "5000199" }
     ];
 
     const porId = new Map(empregados.map((item) => [texto(item.id), item]));

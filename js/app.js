@@ -327,6 +327,17 @@
 
         if (
             caminho.endsWith(
+                "/ruv.html"
+            )
+        ) {
+
+            return "ruv";
+
+        }
+
+
+        if (
+            caminho.endsWith(
                 "/dashboard.html"
             )
         ) {
@@ -616,6 +627,29 @@
                 return executarModulo(
                     modulo,
                     "RELATÓRIO DE OCORRÊNCIAS"
+                );
+
+            }
+
+
+            /* =================================================
+               RUV — RELATÓRIO DE UTILIZAÇÃO DE VEÍCULO
+            ================================================= */
+
+            case "ruv": {
+
+                console.log(
+                    "APP → CARREGANDO RUV"
+                );
+
+                const modulo =
+                    await import(
+                        "./pages/ruv.js"
+                    );
+
+                return executarModulo(
+                    modulo,
+                    "RUV"
                 );
 
             }
