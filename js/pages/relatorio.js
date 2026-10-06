@@ -12,7 +12,6 @@ let veiculos = [];
 let empregados = [];
 let opcoesVeiculos = new Map();
 let opcoesEmpregados = new Map();
-
 const CAMPOS = [
     ["data", "Data"],
     ["hora", "Hora"],
@@ -41,6 +40,16 @@ const CAMPOS = [
     ["status", "Status"]
 ];
 
+let colunasSelecionadas = CAMPOS.map(([campo]) => campo);
+
+const CAMPOS_TOTAIS = new Set([
+    "distancia_percorrida",
+    "media_consumo_combustivel",
+    "valor_higienizacao",
+    "notas_abastecimento",
+    "notas_manutencao"
+]);
+
 export async function iniciar() {
     console.log("RELATÓRIO → INICIANDO");
     const app = document.querySelector("#app");
@@ -48,15 +57,26 @@ export async function iniciar() {
 
     montarInterface(app);
     configurarEventos();
+    renderizarSeletorColunas();
     await carregarDados();
 }
 
 function montarInterface(app) {
     app.innerHTML = `
         <section class="relatorio-page">
+            <section class="relatorio-documento-cabecalho" aria-label="Cabeçalho do relatório">
+                <div class="relatorio-documento-marca">
+                    <img src="./assets/logo.png" alt="Painel Frota" class="relatorio-documento-logo">
+                </div>
+                <div class="relatorio-documento-titulo">
+                    <span class="relatorio-documento-kicker">PAINEL FROTA</span>
+                    <h1>Relatório de Ocorrências</h1>
+                    <div id="relatorioCabecalhoMetadados" class="relatorio-documento-metadados" aria-live="polite"></div>
+                </div>
+            </section>
+
             <div class="relatorio-cabecalho">
                 <div>
-                    <h1>Relatório de Ocorrências</h1>
                     <p>Relatório baseado nos registros salvos em <strong>lancamentos</strong>.</p>
                 </div>
                 <div class="relatorio-acoes">
@@ -94,6 +114,20 @@ function montarInterface(app) {
                 </div>
             </section>
 
+            <section class="relatorio-colunas" aria-label="Colunas do relatório">
+                <div class="relatorio-colunas-cabecalho">
+                    <div>
+                        <div class="relatorio-section-title">Colunas do relatório</div>
+                        <div class="relatorio-colunas-ajuda">Selecione as colunas que deverão constar no relatório. Todas vêm selecionadas inicialmente.</div>
+                    </div>
+                    <div class="relatorio-colunas-acoes">
+                        <button type="button" id="btnSelecionarTodasColunas" class="btn-secondary">Selecionar todas</button>
+                        <button type="button" id="btnLimparColunas" class="btn-secondary">Limpar seleção</button>
+                    </div>
+                </div>
+                <div id="seletorColunas" class="relatorio-colunas-grid"></div>
+            </section>
+
             <div id="relatorioMensagem" class="relatorio-mensagem" role="status"></div>
 
             <section class="relatorio-resumo" aria-label="Resumo">
@@ -116,6 +150,13 @@ function configurarEventos() {
     document.querySelector("#btnLimpar").addEventListener("click", limparFiltros);
     document.querySelector("#btnCSV").addEventListener("click", exportarCSV);
     document.querySelector("#btnImprimir").addEventListener("click", () => window.print());
+    document.querySelector("#btnSelecionarTodasColunas").addEventListener("click", selecionarTodasColunas);
+    document.querySelector("#btnLimparColunas").addEventListener("click", limparSelecaoColunas);
+    document.querySelector("#seletorColunas").addEventListener("change", evento => {
+        if (!evento.target.matches("input[data-coluna]")) return;
+        atualizarColunasSelecionadas();
+        renderizarTabela();
+    });
     ["#filtroDataInicial", "#filtroDataFinal", "#filtroVeiculo", "#filtroEmpregado", "#filtroStatus"].forEach(selector => {
         document.querySelector(selector).addEventListener("change", aplicarFiltros);
     });
@@ -124,6 +165,68 @@ function configurarEventos() {
     campoTexto.addEventListener("keydown", e => {
         if (e.key === "Enter") aplicarFiltros();
     });
+}
+
+function renderizarSeletorColunas() {
+    const container = document.querySelector("#seletorColunas");
+    if (!container) return;
+
+    container.innerHTML = CAMPOS.map(([campo, label]) => `
+        <label class="relatorio-coluna-opcao">
+            <input type="checkbox" data-coluna="${escapeHtml(campo)}" ${colunasSelecionadas.includes(campo) ? "checked" : ""}>
+            <span>${escapeHtml(label)}</span>
+        </label>
+    `).join("");
+}
+
+function atualizarColunasSelecionadas() {
+    colunasSelecionadas = [...document.querySelectorAll("#seletorColunas input[data-coluna]:checked")]
+        .map(input => input.dataset.coluna)
+        .filter(Boolean);
+}
+
+function selecionarTodasColunas() {
+    colunasSelecionadas = CAMPOS.map(([campo]) => campo);
+    renderizarSeletorColunas();
+    renderizarTabela();
+}
+
+function limparSelecaoColunas() {
+    colunasSelecionadas = [];
+    renderizarSeletorColunas();
+    renderizarTabela();
+}
+
+function camposAtivos() {
+    return CAMPOS.filter(([campo]) => colunasSelecionadas.includes(campo));
+}
+
+function obterTotais() {
+    const totais = {};
+    CAMPOS_TOTAIS.forEach(campo => {
+        totais[campo] = filtrados.reduce((total, registro) => total + numeroRelatorio(registro?.[campo]), 0);
+    });
+    return totais;
+}
+
+function numeroRelatorio(valor) {
+    if (valor === null || valor === undefined || valor === "") return 0;
+    if (typeof valor === "number") return Number.isFinite(valor) ? valor : 0;
+    const texto = String(valor).trim().replace(/\s/g, "");
+    if (!texto) return 0;
+    const normalizado = texto.includes(",")
+        ? texto.replace(/\./g, "").replace(",", ".")
+        : texto;
+    const numero = Number(normalizado);
+    return Number.isFinite(numero) ? numero : 0;
+}
+
+function formatarTotal(campo, valor) {
+    const numero = Number(valor || 0);
+    if (campo === "valor_higienizacao") {
+        return numero.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    }
+    return numero.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 async function carregarDados() {
@@ -366,6 +469,7 @@ function aplicarFiltros() {
         renderizarTabela();
         document.querySelector("#totalRegistros").textContent = "0";
         document.querySelector("#periodoResumo").textContent = "Período inválido";
+        atualizarCabecalhoRelatorio(inicio, fim, veiculo);
         mensagem("A data inicial não pode ser posterior à data final.", "erro");
         return;
     }
@@ -390,9 +494,11 @@ function aplicarFiltros() {
 
     renderizarTabela();
     document.querySelector("#totalRegistros").textContent = filtrados.length;
-    document.querySelector("#periodoResumo").textContent = inicio || fim
+    const periodo = inicio || fim
         ? `${formatarData(inicio) || "..."} até ${formatarData(fim) || "..."}`
         : "Todos";
+    document.querySelector("#periodoResumo").textContent = periodo;
+    atualizarCabecalhoRelatorio(inicio, fim, veiculo);
 }
 
 
@@ -448,14 +554,39 @@ function renderizarTabela() {
     const tbody = document.querySelector("#tabelaRelatorio tbody");
     if (!thead || !tbody) return;
 
-    thead.innerHTML = `<tr>${CAMPOS.map(([,label]) => `<th>${escapeHtml(label)}</th>`).join("")}</tr>`;
+    const campos = camposAtivos();
 
-    if (!filtrados.length) {
-        tbody.innerHTML = `<tr><td colspan="${CAMPOS.length}" class="relatorio-vazio">Nenhuma ocorrência encontrada com os filtros informados.</td></tr>`;
+    if (!campos.length) {
+        thead.innerHTML = "";
+        tbody.innerHTML = `<tr><td class="relatorio-vazio" colspan="1">Nenhuma coluna selecionada. Use “Selecionar todas” ou marque as colunas desejadas.</td></tr>`;
         return;
     }
 
-    tbody.innerHTML = filtrados.map(r => `<tr>${CAMPOS.map(([campo]) => `<td>${escapeHtml(formatarValor(campo, r[campo]))}</td>`).join("")}</tr>`).join("");
+    thead.innerHTML = `<tr>${campos.map(([, label]) => `<th>${escapeHtml(label)}</th>`).join("")}</tr>`;
+
+    if (!filtrados.length) {
+        tbody.innerHTML = `<tr><td colspan="${campos.length}" class="relatorio-vazio">Nenhuma ocorrência encontrada com os filtros informados.</td></tr>`;
+        return;
+    }
+
+    const linhas = filtrados.map(r =>
+        `<tr>${campos.map(([campo]) => `<td>${escapeHtml(formatarValor(campo, r[campo]))}</td>`).join("")}</tr>`
+    );
+
+    const totais = obterTotais();
+    const indicePrimeiraColuna = 0;
+    const linhaTotal = campos.map(([campo], indice) => {
+        if (indice === indicePrimeiraColuna) {
+            const primeiroTemTotal = CAMPOS_TOTAIS.has(campo);
+            return `<td class="relatorio-total-label">TOTAL${primeiroTemTotal ? " / " + escapeHtml(formatarTotal(campo, totais[campo])) : ""}</td>`;
+        }
+        if (CAMPOS_TOTAIS.has(campo)) {
+            return `<td class="relatorio-total-valor">${escapeHtml(formatarTotal(campo, totais[campo]))}</td>`;
+        }
+        return `<td class="relatorio-total-vazio">—</td>`;
+    }).join("");
+
+    tbody.innerHTML = linhas.join("") + `<tr class="relatorio-linha-total">${linhaTotal}</tr>`;
 }
 
 function formatarValor(campo, valor) {
@@ -485,6 +616,26 @@ function formatarHora(valor) {
     return match ? `${match[1].padStart(2, "0")}:${match[2]}` : texto;
 }
 
+function atualizarCabecalhoRelatorio(inicio = "", fim = "", chaveVeiculo = "") {
+    const container = document.querySelector("#relatorioCabecalhoMetadados");
+    if (!container) return;
+
+    const itens = [];
+    if (inicio || fim) {
+        const periodo = `${formatarData(inicio) || "..."} até ${formatarData(fim) || "..."}`;
+        itens.push(`<span><strong>Período:</strong> ${escapeHtml(periodo)}</span>`);
+    }
+
+    if (chaveVeiculo) {
+        const item = opcoesVeiculos.get(chaveVeiculo);
+        const label = item?.label || chaveVeiculo.replace(/^id:/, "");
+        itens.push(`<span><strong>Veículo:</strong> ${escapeHtml(label)}</span>`);
+    }
+
+    container.innerHTML = itens.join(`<span class="relatorio-documento-separador">•</span>`);
+    container.hidden = itens.length === 0;
+}
+
 function limparFiltros() {
     ["#filtroDataInicial","#filtroDataFinal","#filtroVeiculo","#filtroEmpregado","#filtroStatus","#filtroTexto"].forEach(s => {
         const el = document.querySelector(s);
@@ -498,8 +649,25 @@ function exportarCSV() {
         alert("Não há registros para exportar.");
         return;
     }
-    const linhas = [CAMPOS.map(([,label]) => csv(label))];
-    filtrados.forEach(r => linhas.push(CAMPOS.map(([campo]) => csv(formatarValor(campo, r[campo])))));
+    const campos = camposAtivos();
+    if (!campos.length) {
+        alert("Selecione pelo menos uma coluna para exportar.");
+        return;
+    }
+
+    const linhas = [campos.map(([, label]) => csv(label))];
+    filtrados.forEach(r => linhas.push(campos.map(([campo]) => csv(formatarValor(campo, r[campo])))));
+
+    const totais = obterTotais();
+    linhas.push(campos.map(([campo], indice) => {
+        if (indice === 0) {
+            return csv(CAMPOS_TOTAIS.has(campo)
+                ? `TOTAL / ${formatarTotal(campo, totais[campo])}`
+                : "TOTAL");
+        }
+        return csv(CAMPOS_TOTAIS.has(campo) ? formatarTotal(campo, totais[campo]) : "");
+    }));
+
     const blob = new Blob(["\ufeff" + linhas.map(l => l.join(";")).join("\r\n")], {type:"text/csv;charset=utf-8;"});
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
