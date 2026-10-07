@@ -79,10 +79,6 @@ function montarInterface(app) {
                             <option value="">Todos os veículos</option>
                         </select>
                     </label>
-                    <label class="ruv-km-atual">
-                        <span>Km Atual</span>
-                        <input id="ruvKmAtual" type="text" readonly value="">
-                    </label>
                 </div>
                 <div id="ruvStatus" class="ruv-status" role="status"></div>
             </section>
@@ -190,7 +186,6 @@ function aplicarFiltros() {
     const dataFinal = document.querySelector("#ruvDataFinal").value;
     const veiculo = document.querySelector("#ruvVeiculo").value;
     atualizarVeiculoSelecionado();
-    atualizarKmAtual();
 
     if (dataInicial && dataFinal && dataInicial > dataFinal) {
         status("A data inicial não pode ser posterior à data final.", "erro");
@@ -219,34 +214,6 @@ function atualizarVeiculoSelecionado() {
 
     const opcao = select.options[select.selectedIndex];
     campo.textContent = opcao?.textContent?.trim() || "Todos os veículos";
-}
-
-function atualizarKmAtual() {
-    const select = document.querySelector("#ruvVeiculo");
-    const campo = document.querySelector("#ruvKmAtual");
-    if (!select || !campo) return;
-
-    // "Todos os veículos" não possui um KM Atual único.
-    if (!select.value) {
-        campo.value = "";
-        return;
-    }
-
-    const filtro = valorTexto(select.value);
-    const veiculo = veiculos.find(item => {
-        const id = valorTexto(item.id);
-        if (id && id === filtro) return true;
-
-        const placaModelo = `${valorTexto(item.placa)} / ${valorTexto(item.modelo)}`
-            .replace(/^\s*\/\s*|\s*\/\s*$/g, "")
-            .trim();
-        return normalizarTexto(placaModelo) === normalizarTexto(filtro);
-    });
-
-    const kmAtual = veiculo?.km_atual;
-    campo.value = kmAtual === undefined || kmAtual === null || kmAtual === ""
-        ? ""
-        : Number(kmAtual).toLocaleString("pt-BR", { maximumFractionDigits: 0 });
 }
 
 function correspondeVeiculo(registro, filtro) {
