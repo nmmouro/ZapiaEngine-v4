@@ -15,7 +15,7 @@ let filtrados = [];
 
 const COLUNAS = [
     ["data", "Data"],
-    
+    ["empregado_matricula", "Empregado / Matrícula"],
     ["placa_modelo", "Placa / Modelo"],
     ["horario_inicial", "Horário Inicial"],
     ["horario_final", "Horário Final"],
