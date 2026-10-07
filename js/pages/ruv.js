@@ -89,7 +89,7 @@ function montarInterface(app) {
 
             <section class="ruv-resumo" aria-label="Resumo do relatório">
                 <div class="ruv-card"><span>Ocorrências</span><strong id="ruvTotalRegistros">0</strong></div>
-                <div class="ruv-card"><span>Distância total</span><strong id="ruvTotalDistancia">0,00 km</strong></div>
+                <div class="ruv-card"><span>Distância total</span><strong id="ruvTotalDistancia">0 km</strong></div>
                 <div class="ruv-card"><span>Valor total</span><strong id="ruvTotalValor">R$ 0,00</strong></div>
                 <div class="ruv-card"><span>Média geral de consumo</span><strong id="ruvMediaConsumo">—</strong></div>
             </section>
@@ -248,7 +248,7 @@ function atualizarVeiculoSelecionado() {
 
     const numeroKm = Number(String(kmAtual).replace(",", "."));
     campoKm.textContent = Number.isFinite(numeroKm)
-        ? `${formatarNumero(numeroKm)} km`
+        ? `${formatarQuilometragem(numeroKm)} km`
         : String(kmAtual).trim();
 }
 
@@ -306,7 +306,7 @@ function calcularTotais(lista) {
 function montarRodape(totais) {
     return `<tr class="ruv-total">
         <th colspan="7">TOTAL / MÉDIA GERAL</th>
-        <th>${formatarNumero(totais.distancia_percorrida)} km</th>
+        <th>${formatarQuilometragem(totais.distancia_percorrida)} km</th>
         <th>${totais.media_consumo_combustivel == null ? "—" : `${formatarNumero(totais.media_consumo_combustivel)} km/L`}</th>
         <th>${formatarMoeda(totais.valor_higienizacao)}</th>
         <th>${formatarMoeda(totais.notas_abastecimento)}</th>
@@ -319,7 +319,7 @@ function atualizarResumo(dataInicial, dataFinal) {
     const valorTotal = totais.total_valores || 0;
 
     document.querySelector("#ruvTotalRegistros").textContent = filtrados.length.toLocaleString("pt-BR");
-    document.querySelector("#ruvTotalDistancia").textContent = `${formatarNumero(totais.distancia_percorrida)} km`;
+    document.querySelector("#ruvTotalDistancia").textContent = `${formatarQuilometragem(totais.distancia_percorrida)} km`;
     document.querySelector("#ruvTotalValor").textContent = formatarMoeda(valorTotal);
     document.querySelector("#ruvMediaConsumo").textContent = totais.media_consumo_combustivel == null
         ? "—"
@@ -365,7 +365,7 @@ function exportarCSV() {
 
 function formatarCampo(campo, valor, registro) {
     if (campo === "data") return formatarData(valor);
-    if (["km_inicial", "km_final", "distancia_percorrida"].includes(campo)) return valor == null || valor === "" ? "—" : formatarNumero(numero(valor));
+    if (["km_inicial", "km_final", "distancia_percorrida"].includes(campo)) return valor == null || valor === "" ? "—" : formatarQuilometragem(numero(valor));
     if (campo === "media_consumo_combustivel") return valor == null || valor === "" ? "—" : `${formatarNumero(numero(valor))} km/L`;
     if (["valor_higienizacao", "notas_abastecimento", "notas_manutencao"].includes(campo)) return formatarMoeda(numero(valor));
     if (campo === "placa_modelo") return escaparHTML(obterPlacaModelo(registro) || "—");
@@ -398,6 +398,10 @@ function numero(valor) {
 
 function formatarNumero(valor) {
     return Number(valor || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function formatarQuilometragem(valor) {
+    return Number(valor || 0).toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
 function formatarMoeda(valor) {
