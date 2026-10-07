@@ -43,10 +43,17 @@ function montarInterface(app) {
     app.innerHTML = `
         <section class="ruv-page">
             <div class="ruv-topo">
-                <div>
-                    <div class="ruv-kicker">RUV</div>
-                    <h1>Relatório de Utilização de Veículo</h1>
-                    <p>Utilização, distância, consumo e valores vinculados às ocorrências.</p>
+                <div class="ruv-identificacao">
+                    <img class="ruv-logo" src="./assets/logo.png" alt="Logo" onerror="this.style.display='none'">
+                    <div class="ruv-titulo">
+                        <div class="ruv-kicker">RUV</div>
+                        <h1>Relatório de Utilização de Veículo</h1>
+                        <p>Utilização, distância, consumo e valores vinculados às ocorrências.</p>
+                    </div>
+                    <div class="ruv-veiculo-selecionado">
+                        <span>Veículo selecionado</span>
+                        <strong id="ruvVeiculoSelecionado">Todos os veículos</strong>
+                    </div>
                 </div>
                 <div class="ruv-acoes">
                     <button type="button" id="ruvAplicar" class="btn-primary">Aplicar filtros</button>
@@ -171,12 +178,14 @@ function preencherVeiculos() {
     select.innerHTML = `<option value="">Todos os veículos</option>` + opcoes.map(opcao =>
         `<option value="${escaparAtributo(opcao.value)}">${escaparHTML(opcao.label)}</option>`
     ).join("");
+    atualizarVeiculoSelecionado();
 }
 
 function aplicarFiltros() {
     const dataInicial = document.querySelector("#ruvDataInicial").value;
     const dataFinal = document.querySelector("#ruvDataFinal").value;
     const veiculo = document.querySelector("#ruvVeiculo").value;
+    atualizarVeiculoSelecionado();
 
     if (dataInicial && dataFinal && dataInicial > dataFinal) {
         status("A data inicial não pode ser posterior à data final.", "erro");
@@ -196,6 +205,15 @@ function aplicarFiltros() {
     filtrados = ordenarRegistros(filtrados, SCHEMA_RUV.orderBy);
     renderizar(filtrados);
     atualizarResumo(dataInicial, dataFinal);
+}
+
+function atualizarVeiculoSelecionado() {
+    const select = document.querySelector("#ruvVeiculo");
+    const campo = document.querySelector("#ruvVeiculoSelecionado");
+    if (!select || !campo) return;
+
+    const opcao = select.options[select.selectedIndex];
+    campo.textContent = opcao?.textContent?.trim() || "Todos os veículos";
 }
 
 function correspondeVeiculo(registro, filtro) {
