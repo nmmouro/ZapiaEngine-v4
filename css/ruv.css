@@ -3,7 +3,7 @@
    ============================================================ */
 .ruv-page{width:100%;max-width:1800px;margin:0 auto}
 .ruv-topo{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:20px}
-.ruv-identificacao{display:flex;align-items:center;gap:16px;min-width:0;flex-wrap:wrap}.ruv-logo{width:58px;height:58px;object-fit:contain;flex:0 0 58px}.ruv-titulo{min-width:280px}.ruv-kicker{font-size:12px;font-weight:800;letter-spacing:.14em;opacity:.6}
+.ruv-identificacao{display:flex;align-items:center;gap:16px;min-width:0;flex-wrap:wrap}.ruv-logo{width:60px;height:60px;object-fit:contain;flex:0 0 58px}.ruv-titulo{min-width:280px}.ruv-kicker{font-size:12px;font-weight:800;letter-spacing:.14em;opacity:.6}
 .ruv-topo h1{margin:4px 0;font-size:28px}.ruv-topo p{margin:0;opacity:.7}.ruv-veiculo-selecionado{display:flex;flex-direction:column;gap:4px;min-width:210px;padding:10px 14px;border:1px solid #dfe4e8;border-radius:10px;background:#f8fafb}.ruv-veiculo-selecionado span{font-size:11px;font-weight:700;opacity:.65;text-transform:uppercase;letter-spacing:.04em}.ruv-veiculo-selecionado strong{font-size:16px;color:#1f2937}
 .ruv-acoes{display:flex;flex-wrap:wrap;gap:8px}
 .ruv-filtros,.ruv-tabela-section{background:#fff;border:1px solid #e1e5e9;border-radius:12px;padding:18px;margin-bottom:18px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
