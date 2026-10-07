@@ -54,6 +54,10 @@ function montarInterface(app) {
                         <span>Veículo selecionado</span>
                         <strong id="ruvVeiculoSelecionado">Todos os veículos</strong>
                     </div>
+                    <div class="ruv-km-atual">
+                        <span>Km Atual</span>
+                        <strong id="ruvKmAtual"></strong>
+                    </div>
                 </div>
                 <div class="ruv-acoes">
                     <button type="button" id="ruvAplicar" class="btn-primary">Aplicar filtros</button>
@@ -210,10 +214,42 @@ function aplicarFiltros() {
 function atualizarVeiculoSelecionado() {
     const select = document.querySelector("#ruvVeiculo");
     const campo = document.querySelector("#ruvVeiculoSelecionado");
-    if (!select || !campo) return;
+    const campoKm = document.querySelector("#ruvKmAtual");
+    if (!select || !campo || !campoKm) return;
 
     const opcao = select.options[select.selectedIndex];
-    campo.textContent = opcao?.textContent?.trim() || "Todos os veículos";
+    const valorSelecionado = valorTexto(select.value);
+    const textoSelecionado = valorTexto(opcao?.textContent);
+
+    // Sem veículo selecionado: mantém o Km Atual completamente limpo.
+    if (!valorSelecionado) {
+        campo.textContent = "Todos os veículos";
+        campoKm.textContent = "";
+        return;
+    }
+
+    campo.textContent = textoSelecionado || valorSelecionado;
+
+    // O select normalmente usa o ID do veículo. O fallback por
+    // Placa / Modelo mantém o funcionamento mesmo quando não houver ID.
+    const veiculo = veiculos.find(item => {
+        const id = valorTexto(item.id);
+        const placaModelo = obterPlacaModelo(item);
+        return (id && id === valorSelecionado) ||
+            (normalizarTexto(placaModelo) === normalizarTexto(textoSelecionado));
+    });
+
+    const kmAtual = veiculo?.km_atual;
+
+    if (kmAtual === null || kmAtual === undefined || String(kmAtual).trim() === "") {
+        campoKm.textContent = "";
+        return;
+    }
+
+    const numeroKm = Number(String(kmAtual).replace(",", "."));
+    campoKm.textContent = Number.isFinite(numeroKm)
+        ? `${formatarNumero(numeroKm)} km`
+        : String(kmAtual).trim();
 }
 
 function correspondeVeiculo(registro, filtro) {
