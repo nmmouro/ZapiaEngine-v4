@@ -123,7 +123,7 @@ async function atualizarDashboard() {
 
     renderizarVeiculos(veiculos, lancamentos);
     renderizarMotoristas(empregados, ocorrenciasAndamento, ocorrenciasHoje);
-    renderizarPainel(ocorrenciasHoje);
+    renderizarPainel(ocorrenciasHoje, veiculos);
 
     const atualizacao = document.querySelector("[data-dashboard-atualizacao]");
     if (atualizacao) {
@@ -176,7 +176,7 @@ function renderizarMotoristas(empregados, ocorrenciasAndamento, ocorrenciasHoje)
     const motoristasFixos = [
         { nome: "CACIO", matricula: "5000366" },
         { nome: "CELSO", matricula: "5000205" },
-        { nome: "NEI", matricula: "5000199" }
+        { nome: "NEIDIVAL", matricula: "5000199" }
     ];
 
     const porId = new Map(empregados.map((item) => [texto(item.id), item]));
@@ -299,7 +299,7 @@ function formatarMotorista(motorista) {
     return nome || matricula || "—";
 }
 
-function renderizarPainel(ocorrencias) {
+function renderizarPainel(ocorrencias, veiculos = []) {
     const tbody = document.querySelector('[data-dashboard-table="painel"]');
     const count = document.querySelector('[data-dashboard-count="painel"]');
     if (!tbody) return;
@@ -310,7 +310,7 @@ function renderizarPainel(ocorrencias) {
                 <td>${escaparHTML(formatarDataPainel(item.data) || "—")}</td>
                 <td>${escaparHTML(formatarHoraValor(item.hora) || "—")}</td>
                 <td>${escaparHTML(formatarEmpregadoLancamento(item))}</td>
-                <td>${escaparHTML(texto(item.veiculo) || "—")}</td>
+                <td>${escaparHTML(formatarVeiculoLancamento(item, veiculos))}</td>
                 <td>${escaparHTML(texto(item.passageiro_setor_motivo) || "—")}</td>
                 <td>${escaparHTML(texto(item.itinerario) || "—")}</td>
                 <td>${badgeStatus("ocupado", "EM ANDAMENTO")}</td>
@@ -321,20 +321,42 @@ function renderizarPainel(ocorrencias) {
     if (count) count.textContent = String(ocorrencias.length);
 }
 
-function obterMaiorOdometro(veiculo, lancamentos) {
-    // O odômetro do Dashboard deve refletir o maior Km Final já lançado
-    // para aquele veículo. Km Inicial não deve sobrescrever esse valor e
-    // km_atual só é usado como alternativa quando ainda não há Km Final.
-    const kmsFinais = lancamentos
-        .map((item) => numero(item.km_final))
-        .filter((valor) => valor !== null && valor >= 0);
+function formatarVeiculoLancamento(item, veiculos = []) {
+    // Primeiro aproveita o snapshot salvo no lançamento; se estiver vazio,
+    // resolve o veículo pelo id_veiculo para evitar células em branco.
+    const snapshot = texto(item?.placa_modelo) || texto(item?.veiculo);
+    if (snapshot) return snapshot;
 
-    if (kmsFinais.length) {
-        return Math.max(...kmsFinais);
+    const idVeiculo = texto(item?.id_veiculo);
+    const veiculo = veiculos.find((registro) => texto(registro?.id) === idVeiculo);
+    if (veiculo) {
+        const placa = texto(veiculo.placa);
+        const modelo = texto(veiculo.modelo) || texto(veiculo.marca_modelo_versao);
+        if (placa && modelo) return `${placa} / ${modelo}`;
+        if (placa || modelo) return placa || modelo;
+    }
+
+    // Compatibilidade com registros antigos que guardavam a placa separada.
+    const placa = texto(item?.placa);
+    const modelo = texto(item?.modelo);
+    if (placa && modelo) return `${placa} / ${modelo}`;
+    return placa || modelo || "—";
+}
+
+function obterMaiorOdometro(veiculo, lancamentos) {
+    const valores = [];
+
+    for (const item of lancamentos) {
+        const inicial = numero(item.km_inicial);
+        const final = numero(item.km_final);
+        if (inicial !== null) valores.push(inicial);
+        if (final !== null) valores.push(final);
     }
 
     const atual = numero(veiculo.km_atual);
-    return atual !== null && atual >= 0 ? atual : null;
+    if (atual !== null) valores.push(atual);
+
+    return valores.length ? Math.max(...valores) : null;
 }
 
 function obterUltimoCombustivel(veiculo, lancamentos) {
