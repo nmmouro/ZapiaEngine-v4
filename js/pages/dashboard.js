@@ -322,19 +322,19 @@ function renderizarPainel(ocorrencias) {
 }
 
 function obterMaiorOdometro(veiculo, lancamentos) {
-    const valores = [];
+    // O odômetro do Dashboard deve refletir o maior Km Final já lançado
+    // para aquele veículo. Km Inicial não deve sobrescrever esse valor e
+    // km_atual só é usado como alternativa quando ainda não há Km Final.
+    const kmsFinais = lancamentos
+        .map((item) => numero(item.km_final))
+        .filter((valor) => valor !== null && valor >= 0);
 
-    for (const item of lancamentos) {
-        const inicial = numero(item.km_inicial);
-        const final = numero(item.km_final);
-        if (inicial !== null) valores.push(inicial);
-        if (final !== null) valores.push(final);
+    if (kmsFinais.length) {
+        return Math.max(...kmsFinais);
     }
 
     const atual = numero(veiculo.km_atual);
-    if (atual !== null) valores.push(atual);
-
-    return valores.length ? Math.max(...valores) : null;
+    return atual !== null && atual >= 0 ? atual : null;
 }
 
 function obterUltimoCombustivel(veiculo, lancamentos) {
