@@ -176,7 +176,7 @@ function renderizarMotoristas(empregados, ocorrenciasAndamento, ocorrenciasHoje)
     const motoristasFixos = [
         { nome: "CACIO", matricula: "5000366" },
         { nome: "CELSO", matricula: "5000205" },
-        { nome: "NEIDIVAL", matricula: "5000199" }
+        { nome: "NEI", matricula: "5000199" }
     ];
 
     const porId = new Map(empregados.map((item) => [texto(item.id), item]));
