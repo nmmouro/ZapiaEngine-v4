@@ -99,3 +99,37 @@ body[data-page="dashboard"] #app.dashboard-container {
         grid-template-columns: 1fr;
     }
 }
+
+
+/* Atalho para Agenda no Dashboard */
+.dashboard-quick-actions {
+    display: flex;
+    justify-content: flex-start;
+    margin: 0 0 12px;
+}
+.dashboard-agenda-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: min(100%, 360px);
+    padding: 11px 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,.18);
+    background: #0c1d40;
+    color: #fff;
+    text-decoration: none;
+    transition: background .15s ease, transform .15s ease;
+}
+.dashboard-agenda-link:hover,
+.dashboard-agenda-link:focus-visible {
+    background: #18335f;
+    transform: translateY(-1px);
+    outline: 2px solid #79b7ff;
+    outline-offset: 2px;
+}
+.dashboard-agenda-icon { font-size: 1.6rem; line-height: 1; }
+.dashboard-agenda-copy { display: flex; flex: 1; flex-direction: column; gap: 3px; }
+.dashboard-agenda-copy strong { font-size: .88rem; letter-spacing: .03em; }
+.dashboard-agenda-copy small { color: #d5deef; font-size: .76rem; }
+.dashboard-agenda-arrow { font-size: 1.6rem; line-height: 1; }
+@media (max-width: 600px) { .dashboard-agenda-link { width: 100%; } }
