@@ -13,7 +13,7 @@
  */
 import { createModule } from "../engine/module.js";
 import { SCHEMA_LANCAMENTOS } from "../schemas/lancamentos.js";
-import { listar, atualizar } from "../services/crudService.js";
+import { listar, atualizar, obter } from "../services/crudService.js";
 import { obterLocalizacao } from "../utils/geolocalizacao.js";
 import {
     obterUltimoKmVeiculo,
@@ -26,6 +26,7 @@ let modulo = null;
 let modo = "abertura";
 let preparando = false;
 let vehicleListenerRegistrado = false;
+let agendamentoPendente = null;
 
 const CAMPOS_ABERTURA = [
     "data", "hora", "id_empregado", "id_veiculo",
@@ -358,6 +359,32 @@ function abrirLavaCar() {
     await modulo.iniciar();
     instalarControlesDoCiclo();
 
+    const paramsIniciais = new URLSearchParams(window.location.search);
+    const idAgendamento = paramsIniciais.get("agenda");
+    if (idAgendamento) {
+        try {
+            const resultado = await obter("agenda", idAgendamento);
+            agendamentoPendente = Array.isArray(resultado)
+                ? resultado[0]
+                : (resultado?.data && typeof resultado.data === "object"
+                    ? (Array.isArray(resultado.data) ? resultado.data[0] : resultado.data)
+                    : resultado);
+            if (agendamentoPendente && typeof agendamentoPendente === "object") {
+                const botaoNovo = [...document.querySelectorAll("button")].find(b => /novo/i.test((b.textContent || "").trim()));
+                if (botaoNovo) {
+                    botaoNovo.click();
+                } else {
+                    console.warn("LANÇAMENTOS → botão Novo não localizado para carregar o agendamento.");
+                }
+            } else {
+                console.warn("LANÇAMENTOS → agendamento não encontrado:", idAgendamento);
+            }
+        } catch (erroAgenda) {
+            console.error("LANÇAMENTOS → erro ao carregar agendamento:", erroAgenda);
+            alert("Não foi possível carregar os dados do agendamento. Verifique se ele ainda existe.");
+        }
+    }
+
     const idRetorno =
         new URLSearchParams(window.location.search).get("editar");
 
@@ -527,6 +554,10 @@ function instalarControlesDoCiclo() {
         adicionarBotoesAuxiliares();
         resetarIndicadoresAuxiliares();
         setValor("status", "EM ANDAMENTO");
+        if (agendamentoPendente) {
+            aplicarDadosAgendamento(agendamentoPendente);
+            agendamentoPendente = null;
+        }
         await capturarGPS("localizacao");
         instalarListenerVeiculo();
     });
@@ -681,6 +712,31 @@ function instalarControlesDoCiclo() {
 
     
 }
+
+function aplicarDadosAgendamento(agendamento) {
+    const valor = nome => {
+        const campo = modulo?.form?.formulario?.querySelector(`[name="${nome}"]`);
+        if (!campo) return;
+        const v = agendamento?.[nome];
+        if (v !== undefined && v !== null) campo.value = String(v);
+        campo.dispatchEvent(new Event("input", { bubbles: true }));
+        campo.dispatchEvent(new Event("change", { bubbles: true }));
+    };
+
+    valor("data");
+    valor("hora");
+    valor("itinerario");
+    const partes = [agendamento?.passageiro, agendamento?.setor, agendamento?.motivo]
+        .map(v => String(v ?? "").trim()).filter(Boolean);
+    const combinado = modulo?.form?.formulario?.querySelector('[name="passageiro_setor_motivo"]');
+    if (combinado) {
+        combinado.value = partes.join(" / ");
+        combinado.dispatchEvent(new Event("input", { bubbles: true }));
+        combinado.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+    console.log("LANÇAMENTOS → DADOS DO AGENDAMENTO APLICADOS; selecionar empregado e veículo.", agendamento?.id);
+}
+
 
 function limparDadosParaNovaOcorrencia() {
     const form = modulo?.form?.formulario;

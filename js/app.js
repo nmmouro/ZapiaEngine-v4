@@ -610,6 +610,19 @@
 
 
             /* =================================================
+               AGENDA
+            ================================================= */
+
+            case "agenda": {
+
+                console.log("APP → CARREGANDO AGENDA");
+                const modulo = await import("./pages/agenda.js");
+                return executarModulo(modulo, "AGENDA");
+
+            }
+
+
+            /* =================================================
                RELATÓRIO DE OCORRÊNCIAS
             ================================================= */
 
