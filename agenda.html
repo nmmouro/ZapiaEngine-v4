@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Agenda de utilização da frota - Painel Frota">
+  <title>Agenda - Painel Frota</title>
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/agenda.css">
+</head>
+<body data-page="agenda" data-page-title="Agenda">
+  <header data-header class="app-header"></header>
+  <main id="app" class="app-container">
+    <section class="agenda-page">
+      <div class="agenda-heading">
+        <div><h2>Agenda</h2><p>Cadastre e gerencie os agendamentos. Clique em uma linha para iniciar uma nova ocorrência com os dados do agendamento.</p></div>
+        <button type="button" id="agenda-novo" class="btn btn-primary">Novo agendamento</button>
+      </div>
+      <div id="agenda-mensagem" class="agenda-message" role="status" aria-live="polite"></div>
+      <form id="agenda-form" class="agenda-form" hidden>
+        <input type="hidden" name="id">
+        <div class="agenda-fields">
+          <label>Data<input name="data" type="date" required></label>
+          <label>Hora<input name="hora" type="time" required></label>
+          <label>Passageiro<input name="passageiro" type="text" maxlength="180" required></label>
+          <label>Setor<input name="setor" type="text" maxlength="120" required></label>
+          <label>Motivo<input name="motivo" type="text" maxlength="240" required></label>
+          <label class="agenda-wide">Itinerário<input name="itinerario" type="text" maxlength="500" required></label>
+          <label>Status<select name="status" required><option value="AGENDADO">AGENDADO</option><option value="CONFIRMADO">CONFIRMADO</option><option value="CANCELADO">CANCELADO</option><option value="REALIZADO">REALIZADO</option></select></label>
+        </div>
+        <div class="agenda-form-actions"><button type="submit" class="btn btn-primary" id="agenda-salvar">Salvar agendamento</button><button type="button" class="btn" id="agenda-cancelar">Cancelar</button></div>
+      </form>
+      <div class="agenda-table-wrap">
+        <table class="agenda-table">
+          <thead><tr><th>Data</th><th>Hora</th><th>Passageiro</th><th>Setor</th><th>Motivo</th><th>Itinerário</th><th>Status</th><th>Ações</th></tr></thead>
+          <tbody id="agenda-lista"><tr><td colspan="8">Carregando agendamentos...</td></tr></tbody>
+        </table>
+      </div>
+      <p class="agenda-hint">Para abrir uma nova ocorrência, clique em qualquer parte da linha do agendamento. Os botões Editar e Excluir não abrem a ocorrência.</p>
+    </section>
+  </main>
+  <script type="module" src="./js/app.js"></script>
+  <script type="module">import { iniciarHeader } from "./js/components/header.js"; iniciarHeader({ logo: "./assets/logo.png", tituloPadrao: "Painel Frota" });</script>
+</body>
+</html>
