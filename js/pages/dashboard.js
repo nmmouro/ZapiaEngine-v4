@@ -25,6 +25,7 @@ async function iniciarDashboard() {
 
     limparTimer();
     renderizarEstrutura(container);
+    instalarCliqueAgendamentos();
     await atualizarDashboard();
 
     timerAtualizacao = window.setInterval(() => {
@@ -41,16 +42,6 @@ async function iniciarDashboard() {
 function renderizarEstrutura(container) {
     container.innerHTML = `
         <section class="dashboard" aria-label="Visão geral da frota">
-            <nav class="dashboard-quick-actions" aria-label="Ações rápidas">
-                <a class="dashboard-agenda-link" href="./agenda.html" title="Abrir Agenda de agendamentos">
-                    <span class="dashboard-agenda-icon" aria-hidden="true">🗓️</span>
-                    <span class="dashboard-agenda-copy">
-                        <strong>AGENDA</strong>
-                        <small>Consultar e cadastrar agendamentos</small>
-                    </span>
-                    <span class="dashboard-agenda-arrow" aria-hidden="true">›</span>
-                </a>
-            </nav>
             <div class="dashboard-top-row">
                 <section class="card dashboard-card">
                     <div class="dashboard-card-header card-title">
@@ -90,9 +81,34 @@ function renderizarEstrutura(container) {
                 </section>
             </div>
 
-            <section class="dashboard-card dashboard-panel-card">
+            <section class="dashboard-card dashboard-panel-card dashboard-agendamentos-card">
+                <div class="dashboard-card-header card-title dashboard-agendamentos-header">
+                    <h2>AGENDAMENTOS DO DIA</h2>
+                    <a href="./agenda.html" class="dashboard-ver-agenda">Abrir Agenda completa</a>
+                </div>
+                <div class="engine-table-container dashboard-table-container">
+                    <table class="engine-table dashboard-table dashboard-table-agendamentos">
+                        <thead>
+                            <tr>
+                                <th>HORA</th>
+                                <th>PASSAGEIRO</th>
+                                <th>SETOR</th>
+                                <th>MOTIVO</th>
+                                <th>ITINERÁRIO</th>
+                                <th>STATUS</th>
+                            </tr>
+                        </thead>
+                        <tbody data-dashboard-table="agendamentos">
+                            <tr><td colspan="6" class="dashboard-empty">Carregando agendamentos do dia...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="dashboard-agendamentos-hint">Clique em qualquer parte de uma linha para iniciar uma nova ocorrência com os dados do agendamento.</p>
+            </section>
+
+            <section class="dashboard-card dashboard-panel-card dashboard-ocorrencias-card">
                 <div class="dashboard-card-header card-title">
-                    <h2>PAINEL</h2>
+                    <h2>OCORRÊNCIAS EM ANDAMENTO HOJE</h2>
                 </div>
                 <div class="engine-table-container dashboard-table-container">
                     <table class="engine-table dashboard-table dashboard-table-panel">
@@ -122,6 +138,24 @@ async function atualizarDashboard() {
         listar("lancamentos")
     ]);
 
+    // A Agenda é carregada separadamente para que uma falha nessa tabela
+    // não impeça a atualização dos demais painéis do Dashboard.
+    let agendamentos = [];
+    let erroAgenda = null;
+    try {
+        const resultadoAgenda = await listar("agenda");
+        agendamentos = Array.isArray(resultadoAgenda)
+            ? resultadoAgenda
+            : Array.isArray(resultadoAgenda?.data)
+                ? resultadoAgenda.data
+                : Array.isArray(resultadoAgenda?.dados)
+                    ? resultadoAgenda.dados
+                    : [];
+    } catch (erro) {
+        erroAgenda = erro;
+        console.error("DASHBOARD → ERRO AO CARREGAR AGENDA:", erro);
+    }
+
     const ocorrenciasAndamento = lancamentos.filter((item) =>
         normalizarStatus(item.status) === "EM ANDAMENTO"
     );
@@ -133,6 +167,7 @@ async function atualizarDashboard() {
 
     renderizarVeiculos(veiculos, lancamentos);
     renderizarMotoristas(empregados, ocorrenciasAndamento, ocorrenciasHoje);
+    renderizarAgendamentosHoje(agendamentos, erroAgenda);
     renderizarPainel(ocorrenciasHoje, veiculos);
 
     const atualizacao = document.querySelector("[data-dashboard-atualizacao]");
@@ -307,6 +342,59 @@ function formatarMotorista(motorista) {
     const matricula = texto(motorista?.matricula);
     if (nome && matricula) return `${nome} / ${matricula}`;
     return nome || matricula || "—";
+}
+
+function renderizarAgendamentosHoje(agendamentos, erro = null) {
+    const tbody = document.querySelector('[data-dashboard-table="agendamentos"]');
+    if (!tbody) return;
+
+    if (erro) {
+        tbody.innerHTML = linhaVazia(6, "Não foi possível carregar a Agenda. Confira se a tabela public.agenda existe no Supabase.");
+        return;
+    }
+
+    const hoje = obterDataHoje();
+    const doDia = [...agendamentos]
+        .filter((item) => normalizarData(item.data) === hoje)
+        .sort((a, b) => texto(a.hora).localeCompare(texto(b.hora), "pt-BR"));
+
+    tbody.innerHTML = doDia.length
+        ? doDia.map((item) => `
+            <tr class="dashboard-agendamento-row" data-dashboard-agenda="${escaparHTML(texto(item.id))}"
+                tabindex="0" role="link" aria-label="Abrir nova ocorrência a partir do agendamento de ${escaparHTML(texto(item.passageiro) || "passageiro")}">
+                <td class="dashboard-primary">${escaparHTML(formatarHoraValor(item.hora) || "—")}</td>
+                <td>${escaparHTML(texto(item.passageiro) || "—")}</td>
+                <td>${escaparHTML(texto(item.setor) || "—")}</td>
+                <td>${escaparHTML(texto(item.motivo) || "—")}</td>
+                <td>${escaparHTML(texto(item.itinerario) || "—")}</td>
+                <td><span class="dashboard-agenda-status">${escaparHTML(texto(item.status) || "AGENDADO")}</span></td>
+            </tr>
+        `).join("")
+        : linhaVazia(6, "Nenhum agendamento para hoje.");
+}
+
+function abrirOcorrenciaDoAgendamento(id) {
+    if (!texto(id)) return;
+    const url = new URL("./lancamentos.html", window.location.href);
+    url.searchParams.set("agenda", id);
+    window.location.href = url.href;
+}
+
+function instalarCliqueAgendamentos() {
+    const tbody = document.querySelector('[data-dashboard-table="agendamentos"]');
+    if (!tbody || tbody.dataset.clickInstalado === "true") return;
+    tbody.dataset.clickInstalado = "true";
+    tbody.addEventListener("click", (evento) => {
+        const linha = evento.target.closest("tr[data-dashboard-agenda]");
+        if (linha) abrirOcorrenciaDoAgendamento(linha.dataset.dashboardAgenda);
+    });
+    tbody.addEventListener("keydown", (evento) => {
+        const linha = evento.target.closest("tr[data-dashboard-agenda]");
+        if (linha && (evento.key === "Enter" || evento.key === " ")) {
+            evento.preventDefault();
+            abrirOcorrenciaDoAgendamento(linha.dataset.dashboardAgenda);
+        }
+    });
 }
 
 function renderizarPainel(ocorrencias, veiculos = []) {
