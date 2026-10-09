@@ -41,6 +41,16 @@ async function iniciarDashboard() {
 function renderizarEstrutura(container) {
     container.innerHTML = `
         <section class="dashboard" aria-label="Visão geral da frota">
+            <nav class="dashboard-quick-actions" aria-label="Ações rápidas">
+                <a class="dashboard-agenda-link" href="./agenda.html" title="Abrir Agenda de agendamentos">
+                    <span class="dashboard-agenda-icon" aria-hidden="true">🗓️</span>
+                    <span class="dashboard-agenda-copy">
+                        <strong>AGENDA</strong>
+                        <small>Consultar e cadastrar agendamentos</small>
+                    </span>
+                    <span class="dashboard-agenda-arrow" aria-hidden="true">›</span>
+                </a>
+            </nav>
             <div class="dashboard-top-row">
                 <section class="card dashboard-card">
                     <div class="dashboard-card-header card-title">
