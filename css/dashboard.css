@@ -101,35 +101,44 @@ body[data-page="dashboard"] #app.dashboard-container {
 }
 
 
-/* Atalho para Agenda no Dashboard */
-.dashboard-quick-actions {
-    display: flex;
-    justify-content: flex-start;
-    margin: 0 0 12px;
-}
-.dashboard-agenda-link {
+/* Painel de agendamentos do dia no Dashboard */
+.dashboard-agendamentos-card { margin-bottom: 2px; }
+.dashboard-agendamentos-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 12px;
-    width: min(100%, 360px);
-    padding: 11px 15px;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,.18);
-    background: #0c1d40;
-    color: #fff;
-    text-decoration: none;
-    transition: background .15s ease, transform .15s ease;
 }
-.dashboard-agenda-link:hover,
-.dashboard-agenda-link:focus-visible {
-    background: #18335f;
-    transform: translateY(-1px);
-    outline: 2px solid #79b7ff;
-    outline-offset: 2px;
+.dashboard-ver-agenda {
+    color: inherit;
+    font-size: .78rem;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    white-space: nowrap;
 }
-.dashboard-agenda-icon { font-size: 1.6rem; line-height: 1; }
-.dashboard-agenda-copy { display: flex; flex: 1; flex-direction: column; gap: 3px; }
-.dashboard-agenda-copy strong { font-size: .88rem; letter-spacing: .03em; }
-.dashboard-agenda-copy small { color: #d5deef; font-size: .76rem; }
-.dashboard-agenda-arrow { font-size: 1.6rem; line-height: 1; }
-@media (max-width: 600px) { .dashboard-agenda-link { width: 100%; } }
+.dashboard-table-agendamentos { min-width: 760px; }
+.dashboard-agendamento-row { cursor: pointer; transition: background-color .12s ease; }
+.dashboard-agendamento-row:hover,
+.dashboard-agendamento-row:focus-visible {
+    background: rgba(85, 155, 235, .14);
+    outline: 2px solid rgba(85, 155, 235, .8);
+    outline-offset: -2px;
+}
+.dashboard-agenda-status {
+    display: inline-block;
+    border-radius: 999px;
+    padding: 4px 9px;
+    font-size: .76rem;
+    font-weight: 700;
+    white-space: nowrap;
+    background: rgba(85, 155, 235, .16);
+}
+.dashboard-agendamentos-hint {
+    margin: 8px 0 0;
+    font-size: .75rem;
+    opacity: .75;
+}
+@media (max-width: 600px) {
+    .dashboard-agendamentos-header { align-items: flex-start; }
+    .dashboard-ver-agenda { white-space: normal; text-align: right; }
+}
