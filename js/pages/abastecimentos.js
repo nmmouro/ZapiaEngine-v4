@@ -29,9 +29,11 @@ export async function iniciarAbastecimentos() {
     const params = new URLSearchParams(window.location.search);
     idLancamento = String(params.get("lancamento") || "").trim();
 
-    // Fallback: quando o navegador/servidor perde a query string,
-    // recupera o último lançamento aberto pelo módulo de Lançamentos.
-    if (!idLancamento) {
+    // Fallback apenas quando a navegação veio da página Lançamentos.
+    // Ao abrir Abastecimentos pelo menu, exibe a listagem em vez de reutilizar
+    // por engano um lançamento antigo guardado no navegador.
+    const veioDeLancamentos = /lancamentos\.html/i.test(document.referrer || "");
+    if (!idLancamento && veioDeLancamentos) {
         idLancamento = String(
             sessionStorage.getItem("painelFrota:lancamentoAtual") ||
             localStorage.getItem("painelFrota:lancamentoAtual") ||
@@ -43,7 +45,7 @@ export async function iniciarAbastecimentos() {
     }
 
     if (!idLancamento) {
-        throw new Error("Nenhum lançamento foi informado para o Abastecimento. Abra o Abastecimento pelo lançamento que deseja registrar.");
+        return iniciarListaAbastecimentos(container);
     }
 
     const lancamentos = await listar("lancamentos", { id: idLancamento });
@@ -96,6 +98,128 @@ export async function iniciarAbastecimentos() {
 
     console.log("PÁGINA ABASTECIMENTO → INICIADO");
     return modulo;
+}
+
+async function iniciarListaAbastecimentos(container) {
+    console.log("PÁGINA ABASTECIMENTOS → MODO LISTAGEM");
+
+    modulo = createModule({
+        entity: "abastecimento",
+        schema: SCHEMA_ABASTECIMENTO,
+        container: "#app",
+        stateName: "abastecimento",
+        options: {
+            titulo: "Abastecimentos",
+            tabela: "Abastecimentos Registrados",
+            permitirNovo: false,
+            permitirEditar: true,
+            permitirExcluir: true,
+            pageSize: 10,
+            visualizarAoClicarNaLinha: true,
+            visualizarUrl: "abastecimentos_view.html",
+            colunas: [
+                { name: "data", label: "Data", format: formatarData },
+                { name: "hora", label: "Hora", format: formatarHora },
+                { name: "empregado_matricula", label: "Empregado / Matrícula" },
+                { name: "placa_modelo", label: "Placa / Modelo" },
+                { name: "odometro", label: "Odômetro" },
+                { name: "tipo_combustivel", label: "Combustível" },
+                { name: "qtde_l", label: "Litros" },
+                { name: "preco_l", label: "Preço/L" },
+                { name: "valor_total_nota", label: "Total" }
+            ],
+            actions: {
+                visualizar(registro) {
+                    if (!registro?.id) return;
+                    window.location.href = "abastecimentos_view.html?id=" + encodeURIComponent(registro.id);
+                }
+            }
+        }
+    });
+
+    window.abastecimento = modulo;
+    window.abastecimentos = modulo;
+    await modulo.iniciar();
+
+    const toolbar = container.querySelector("[data-engine-toolbar]");
+    if (toolbar && !toolbar.querySelector("[data-abastecimento-novo-lista]")) {
+        const botao = document.createElement("button");
+        botao.type = "button";
+        botao.className = "btn btn-primary";
+        botao.dataset.abastecimentoNovoLista = "true";
+        botao.textContent = "+ Novo Abastecimento";
+        botao.addEventListener("click", abrirSeletorLancamento);
+        toolbar.appendChild(botao);
+    }
+
+    return modulo;
+}
+
+async function abrirSeletorLancamento() {
+    const container = document.querySelector("#app");
+    if (!container) return;
+
+    let painel = container.querySelector("[data-abastecimento-seletor]");
+    if (painel) {
+        painel.hidden = !painel.hidden;
+        return;
+    }
+
+    painel = document.createElement("section");
+    painel.dataset.abastecimentoSeletor = "true";
+    painel.className = "abastecimento-seletor view-section";
+    painel.innerHTML = `
+        <h2>Novo abastecimento</h2>
+        <p>Selecione a ocorrência à qual este abastecimento será vinculado. Os dados de empregado e veículo serão preenchidos automaticamente.</p>
+        <label for="abastecimento-lancamento-select">Ocorrência / Lançamento</label>
+        <select id="abastecimento-lancamento-select" style="display:block;width:100%;max-width:760px;min-height:40px;margin:8px 0 14px;padding:8px;border:1px solid #cbd2d9;border-radius:7px">
+            <option value="">Carregando lançamentos...</option>
+        </select>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button type="button" class="btn btn-primary" data-abastecimento-continuar>Continuar</button>
+            <button type="button" class="btn btn-secondary" data-abastecimento-cancelar>Cancelar</button>
+        </div>
+        <p data-abastecimento-seletor-msg role="status" aria-live="polite"></p>
+    `;
+    container.prepend(painel);
+    painel.querySelector("[data-abastecimento-cancelar]").addEventListener("click", () => painel.remove());
+    painel.querySelector("[data-abastecimento-continuar]").addEventListener("click", () => {
+        const id = painel.querySelector("select").value;
+        if (!id) {
+            painel.querySelector("[data-abastecimento-seletor-msg]").textContent = "Selecione um lançamento para continuar.";
+            return;
+        }
+        window.location.href = "abastecimentos.html?lancamento=" + encodeURIComponent(id);
+    });
+
+    const select = painel.querySelector("select");
+    try {
+        const dados = await listar("lancamentos");
+        const registros = Array.isArray(dados) ? dados : [];
+        select.replaceChildren();
+        const inicial = document.createElement("option");
+        inicial.value = "";
+        inicial.textContent = registros.length ? "Selecione uma ocorrência..." : "Nenhum lançamento encontrado";
+        select.appendChild(inicial);
+        registros
+            .slice()
+            .sort((a, b) => String(b.data || "").localeCompare(String(a.data || "")) || String(b.hora || "").localeCompare(String(a.hora || "")))
+            .forEach(r => {
+                const option = document.createElement("option");
+                option.value = String(r.id || "");
+                const detalhes = [r.data ? formatarData(r.data) : "", r.hora ? formatarHora(r.hora) : "", r.placa_modelo || r.veiculo || "", r.empregado_matricula || "", r.passageiro_setor_motivo || ""]
+                    .filter(Boolean).join(" · ");
+                option.textContent = `${r.id || "Lançamento"}${detalhes ? " — " + detalhes : ""}`;
+                select.appendChild(option);
+            });
+    } catch (erro) {
+        select.replaceChildren();
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = "Não foi possível carregar os lançamentos";
+        select.appendChild(option);
+        painel.querySelector("[data-abastecimento-seletor-msg]").textContent = erro?.message || String(erro);
+    }
 }
 
 export async function iniciar() {

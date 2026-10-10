@@ -243,6 +243,12 @@ function montarHeader(
 
         <div class="header-acoes">
 
+            ${deveExibirVoltarAoPainel() ? `
+                <a class="header-back-home" href="./index.html" title="Voltar à página Painel Frota">
+                    <span aria-hidden="true">←</span> Painel Frota
+                </a>
+            ` : ""}
+
             <div class="header-datahora">
 
                 <span
@@ -311,6 +317,19 @@ function montarHeader(
         config.tituloPadrao
     );
 
+}
+
+
+/* ============================================================
+   RETORNO AO PAINEL PRINCIPAL
+============================================================ */
+
+function deveExibirVoltarAoPainel() {
+    const pagina = String(document.body?.dataset?.page || "").trim().toLowerCase();
+    return [
+        "veiculos", "empregados", "abastecimentos", "agenda",
+        "lancamentos", "relatorio", "ruv", "dashboard"
+    ].includes(pagina);
 }
 
 
