@@ -1538,3 +1538,35 @@ view-field{
    min-height:180px
 }
 }
+
+
+/* Ação global de retorno ao menu Painel Frota */
+.header-back-home{
+   display:inline-flex;
+   align-items:center;
+   justify-content:center;
+   gap:7px;
+   min-height:36px;
+   padding:7px 12px;
+   border:1px solid rgba(255,255,255,.38);
+   border-radius:8px;
+   color:inherit;
+   text-decoration:none;
+   font-weight:600;
+   white-space:nowrap;
+   box-sizing:border-box;
+   transition:background .15s ease, border-color .15s ease;
+}
+.header-back-home:hover,.header-back-home:focus-visible{
+   background:rgba(255,255,255,.12);
+   border-color:rgba(255,255,255,.7);
+   outline-offset:2px;
+}
+@media(max-width:760px){
+   .header-back-home{font-size:12px;padding:6px 8px;min-height:32px}
+}
+
+.abastecimento-seletor{margin:0 0 18px;padding:18px;border:1px solid #dce2e8;border-radius:10px;background:#fff}
+.abastecimento-seletor h2{margin:0 0 8px;font-size:1.1rem}
+.abastecimento-seletor p{margin:8px 0 12px}
+.abastecimento-seletor label{font-weight:600}
