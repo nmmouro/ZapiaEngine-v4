@@ -14,7 +14,7 @@
   <main id="app" class="app-container">
     <section class="agenda-page">
       <div class="agenda-heading">
-        <div><h2>Agenda</h2><p>Cadastre e gerencie os agendamentos.</p></div>
+        <div><h2>Agenda</h2><p>Cadastre e gerencie os agendamentos. Clique em uma linha para iniciar uma nova ocorrência com os dados do agendamento.</p></div>
         <button type="button" id="agenda-novo" class="btn btn-primary">Novo agendamento</button>
       </div>
       <div id="agenda-mensagem" class="agenda-message" role="status" aria-live="polite"></div>
@@ -37,7 +37,7 @@
           <tbody id="agenda-lista"><tr><td colspan="8">Carregando agendamentos...</td></tr></tbody>
         </table>
       </div>
-      <p class="agenda-hint">Clique em qualquer parte da linha do agendamento para abrir uma nova ocorrência.</p>
+      <p class="agenda-hint">Para abrir uma nova ocorrência, clique em qualquer parte da linha do agendamento. Os botões Editar e Excluir não abrem a ocorrência.</p>
     </section>
   </main>
   <script type="module" src="./js/app.js"></script>
