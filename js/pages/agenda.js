@@ -3,6 +3,7 @@ import { listar, criar, atualizar, excluir } from "../services/crudService.js";
 const ENTITY = "agenda";
 let registros = [];
 let editando = false;
+let abrindoAgendamento = false;
 
 export async function iniciarAgenda() {
   const form = document.querySelector("#agenda-form");
@@ -44,6 +45,11 @@ export async function iniciarAgenda() {
   function preencherFormulario(registro) {
     for (const nome of ["id","data","hora","passageiro","setor","motivo","itinerario","status"]) {
       campo(nome).value = registro[nome] ?? "";
+    }
+    // Compatibilidade com valores antigos: ao editar, converte estados anteriores
+    // para uma das três opções atuais de status.
+    if (!["AGENDADO", "ATENDIDO", "CANCELADO"].includes(campo("status").value)) {
+      campo("status").value = ["REALIZADO", "CONFIRMADO"].includes(campo("status").value) ? "ATENDIDO" : "AGENDADO";
     }
     editando = true;
     document.querySelector("#agenda-salvar").textContent = "Salvar alterações";
@@ -139,17 +145,36 @@ export async function iniciarAgenda() {
       return;
     }
     const linha = evento.target.closest("tr[data-open]");
-    if (linha) abrirOcorrencia(linha.dataset.open);
+    if (linha) await abrirOcorrencia(linha.dataset.open);
   });
   lista.addEventListener("keydown", evento => {
     if ((evento.key === "Enter" || evento.key === " ") && evento.target.matches("tr[data-open]")) {
-      evento.preventDefault(); abrirOcorrencia(evento.target.dataset.open);
+      evento.preventDefault(); void abrirOcorrencia(evento.target.dataset.open);
     }
   });
 
-  function abrirOcorrencia(id) {
+  async function abrirOcorrencia(id) {
+    if (abrindoAgendamento) return;
     const registro = registros.find(r => String(r.id) === String(id));
     if (!registro) return;
+    const statusAtual = String(registro.status || "AGENDADO").trim().toUpperCase();
+    if (statusAtual === "CANCELADO") {
+      avisar("Este agendamento está CANCELADO e não pode iniciar uma ocorrência.", true);
+      return;
+    }
+    if (statusAtual !== "ATENDIDO") {
+      abrindoAgendamento = true;
+      try {
+        await atualizar(ENTITY, { id: registro.id, status: "ATENDIDO" });
+        registro.status = "ATENDIDO";
+        renderizar();
+      } catch (erro) {
+        console.error("AGENDA → ERRO AO MARCAR AGENDAMENTO COMO ATENDIDO:", erro);
+        avisar(erro.message || "Não foi possível atualizar o status para ATENDIDO. A ocorrência não foi aberta.", true);
+        abrindoAgendamento = false;
+        return;
+      }
+    }
     const url = new URL("./lancamentos.html", window.location.href);
     url.searchParams.set("agenda", registro.id);
     window.location.href = url.href;
