@@ -388,28 +388,31 @@ async function abrirOcorrenciaDoAgendamento(id) {
     if (!chave || idsAgendamentosAbrindo.has(chave)) return;
     const registro = agendamentosDashboardPorId.get(chave);
     if (!registro) return;
-    if (normalizarStatus(registro.status) === "CANCELADO") {
+    const statusAtual = normalizarStatus(registro.status || "AGENDADO");
+    if (statusAtual === "CANCELADO") {
         alert("Este agendamento está CANCELADO e não pode iniciar uma ocorrência.");
+        return;
+    }
+    if (statusAtual === "ATENDIDO") {
+        alert("Este agendamento já está ATENDIDO. Não é possível iniciar outra ocorrência por ele.");
         return;
     }
     idsAgendamentosAbrindo.add(chave);
     try {
-        if (normalizarStatus(registro.status) !== "ATENDIDO") {
-            // Grava o novo status no Supabase antes de abrir a ocorrência.
-            await atualizar("agenda", { id: registro.id, status: "ATENDIDO" });
-            registro.status = "ATENDIDO";
+        // Só permite iniciar a ocorrência a partir de um agendamento ainda AGENDADO.
+        // Grava o status no Supabase antes de abrir Lançamentos.
+        await atualizar("agenda", { id: registro.id, status: "ATENDIDO" });
+        registro.status = "ATENDIDO";
 
-            // Atualiza imediatamente a coluna STATUS no painel do Dashboard.
-            // A atualização também permanecerá salva quando o usuário voltar à página.
-            const linhaAtual = document.querySelector(
-                `[data-dashboard-table="agendamentos"] tr[data-dashboard-agenda="${CSS.escape(chave)}"]`
-            );
-            const celulaStatus = linhaAtual?.querySelector("td:last-child .dashboard-agenda-status");
-            if (celulaStatus) {
-                celulaStatus.textContent = "ATENDIDO";
-                celulaStatus.classList.add("is-atendido");
-                celulaStatus.classList.remove("is-agendado", "is-cancelado");
-            }
+        // Atualiza imediatamente a coluna STATUS no painel do Dashboard.
+        const linhaAtual = document.querySelector(
+            `[data-dashboard-table="agendamentos"] tr[data-dashboard-agenda="${CSS.escape(chave)}"]`
+        );
+        const celulaStatus = linhaAtual?.querySelector("td:last-child .dashboard-agenda-status");
+        if (celulaStatus) {
+            celulaStatus.textContent = "ATENDIDO";
+            celulaStatus.classList.add("is-atendido");
+            celulaStatus.classList.remove("is-agendado", "is-cancelado");
         }
         const url = new URL("./lancamentos.html", window.location.href);
         url.searchParams.set("agenda", id);

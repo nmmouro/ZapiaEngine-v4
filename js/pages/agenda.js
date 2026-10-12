@@ -162,18 +162,21 @@ export async function iniciarAgenda() {
       avisar("Este agendamento está CANCELADO e não pode iniciar uma ocorrência.", true);
       return;
     }
-    if (statusAtual !== "ATENDIDO") {
-      abrindoAgendamento = true;
-      try {
-        await atualizar(ENTITY, { id: registro.id, status: "ATENDIDO" });
-        registro.status = "ATENDIDO";
-        renderizar();
-      } catch (erro) {
-        console.error("AGENDA → ERRO AO MARCAR AGENDAMENTO COMO ATENDIDO:", erro);
-        avisar(erro.message || "Não foi possível atualizar o status para ATENDIDO. A ocorrência não foi aberta.", true);
-        abrindoAgendamento = false;
-        return;
-      }
+    if (statusAtual === "ATENDIDO") {
+      avisar("Este agendamento já está ATENDIDO. Não é possível iniciar outra ocorrência por ele.", true);
+      return;
+    }
+
+    abrindoAgendamento = true;
+    try {
+      await atualizar(ENTITY, { id: registro.id, status: "ATENDIDO" });
+      registro.status = "ATENDIDO";
+      renderizar();
+    } catch (erro) {
+      console.error("AGENDA → ERRO AO MARCAR AGENDAMENTO COMO ATENDIDO:", erro);
+      avisar(erro.message || "Não foi possível atualizar o status para ATENDIDO. A ocorrência não foi aberta.", true);
+      abrindoAgendamento = false;
+      return;
     }
     const url = new URL("./lancamentos.html", window.location.href);
     url.searchParams.set("agenda", registro.id);
