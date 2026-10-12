@@ -10,10 +10,12 @@
  * ============================================================
  */
 
-import { listar } from "../services/crudService.js";
+import { listar, atualizar } from "../services/crudService.js";
 
 const INTERVALO_ATUALIZACAO = 30000;
 let timerAtualizacao = null;
+let agendamentosDashboardPorId = new Map();
+let idsAgendamentosAbrindo = new Set();
 
 async function iniciarDashboard() {
     console.log("PÁGINA DASHBOARD → INICIANDO");
@@ -354,6 +356,7 @@ function renderizarAgendamentosHoje(agendamentos, erro = null) {
     }
 
     const hoje = obterDataHoje();
+    agendamentosDashboardPorId = new Map(agendamentos.map((item) => [String(item.id), item]));
     const doDia = [...agendamentos]
         .filter((item) => normalizarData(item.data) === hoje)
         .sort((a, b) => texto(a.hora).localeCompare(texto(b.hora), "pt-BR"));
@@ -367,17 +370,55 @@ function renderizarAgendamentosHoje(agendamentos, erro = null) {
                 <td>${escaparHTML(texto(item.setor) || "—")}</td>
                 <td>${escaparHTML(texto(item.motivo) || "—")}</td>
                 <td>${escaparHTML(texto(item.itinerario) || "—")}</td>
-                <td><span class="dashboard-agenda-status">${escaparHTML(texto(item.status) || "AGENDADO")}</span></td>
+                <td><span class="dashboard-agenda-status ${classeStatusAgendamento(item.status)}">${escaparHTML(texto(item.status) || "AGENDADO")}</span></td>
             </tr>
         `).join("")
         : linhaVazia(6, "Nenhum agendamento para hoje.");
 }
 
-function abrirOcorrenciaDoAgendamento(id) {
-    if (!texto(id)) return;
-    const url = new URL("./lancamentos.html", window.location.href);
-    url.searchParams.set("agenda", id);
-    window.location.href = url.href;
+function classeStatusAgendamento(status) {
+    const valor = normalizarStatus(status || "AGENDADO");
+    if (valor === "ATENDIDO") return "is-atendido";
+    if (valor === "CANCELADO") return "is-cancelado";
+    return "is-agendado";
+}
+
+async function abrirOcorrenciaDoAgendamento(id) {
+    const chave = String(id || "");
+    if (!chave || idsAgendamentosAbrindo.has(chave)) return;
+    const registro = agendamentosDashboardPorId.get(chave);
+    if (!registro) return;
+    if (normalizarStatus(registro.status) === "CANCELADO") {
+        alert("Este agendamento está CANCELADO e não pode iniciar uma ocorrência.");
+        return;
+    }
+    idsAgendamentosAbrindo.add(chave);
+    try {
+        if (normalizarStatus(registro.status) !== "ATENDIDO") {
+            // Grava o novo status no Supabase antes de abrir a ocorrência.
+            await atualizar("agenda", { id: registro.id, status: "ATENDIDO" });
+            registro.status = "ATENDIDO";
+
+            // Atualiza imediatamente a coluna STATUS no painel do Dashboard.
+            // A atualização também permanecerá salva quando o usuário voltar à página.
+            const linhaAtual = document.querySelector(
+                `[data-dashboard-table="agendamentos"] tr[data-dashboard-agenda="${CSS.escape(chave)}"]`
+            );
+            const celulaStatus = linhaAtual?.querySelector("td:last-child .dashboard-agenda-status");
+            if (celulaStatus) {
+                celulaStatus.textContent = "ATENDIDO";
+                celulaStatus.classList.add("is-atendido");
+                celulaStatus.classList.remove("is-agendado", "is-cancelado");
+            }
+        }
+        const url = new URL("./lancamentos.html", window.location.href);
+        url.searchParams.set("agenda", id);
+        window.location.href = url.href;
+    } catch (erro) {
+        console.error("DASHBOARD → ERRO AO MARCAR AGENDAMENTO COMO ATENDIDO:", erro);
+        alert("Não foi possível atualizar o status para ATENDIDO. A ocorrência não foi aberta.");
+        idsAgendamentosAbrindo.delete(chave);
+    }
 }
 
 function instalarCliqueAgendamentos() {
