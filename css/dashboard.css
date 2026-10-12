@@ -142,3 +142,28 @@ body[data-page="dashboard"] #app.dashboard-container {
     .dashboard-agendamentos-header { align-items: flex-start; }
     .dashboard-ver-agenda { white-space: normal; text-align: right; }
 }
+
+/* Impressão do Dashboard: aplicar à logo do cabeçalho o aumento de 50%
+   solicitado para o RUV, mantendo o tamanho normal na tela. */
+@media print {
+    body[data-page="dashboard"] .app-header .header-logo img,
+    body[data-page="dashboard"] .app-header [data-header-logo] {
+        max-width: 225px !important;
+        max-height: 78px !important;
+    }
+}
+
+
+/* Status dos agendamentos: mantém a coluna legível e diferencia os estados. */
+.dashboard-agenda-status.is-agendado {
+    color: #805b00;
+    background: #fff3cd;
+}
+.dashboard-agenda-status.is-atendido {
+    color: #17643a;
+    background: #d9f2e3;
+}
+.dashboard-agenda-status.is-cancelado {
+    color: #8a2424;
+    background: #fde2e2;
+}
