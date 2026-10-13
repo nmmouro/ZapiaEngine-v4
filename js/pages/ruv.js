@@ -17,15 +17,17 @@ const COLUNAS = [
     ["data", "Data"],
     ["empregado_matricula", "Empregado / Matrícula"],
     ["placa_modelo", "Placa / Modelo"],
+    ["passageiro_setor_motivo", "Passageiro / Setor / Motivo"],
+    ["itinerario", "Itinerário"],
     ["horario_inicial", "Horário Inicial"],
     ["horario_final", "Horário Final"],
     ["km_inicial", "Km Inicial"],
     ["km_final", "Km Final"],
     ["distancia_percorrida", "Distância Percorrida"],
     ["media_consumo_combustivel", "Média de Consumo"],
-    ["valor_higienizacao", "Valor Higienização"],
-    ["notas_abastecimento", "Notas Abastecimento"],
-    ["notas_manutencao", "Notas Manutenção"]
+    ["valor_higienizacao", "Higienização (R$)"],
+    ["notas_abastecimento", "Abastecimento (R$)"],
+    ["notas_manutencao", "Manutenção (R$)"]
 ];
 
 export async function iniciar() {
