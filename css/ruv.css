@@ -257,7 +257,7 @@ box-sizing:border-box
 }
 @page{
 size:A4 landscape;
-margin:15mm
+margin:7.5mm
 }
 @media print{
 .app-header,
