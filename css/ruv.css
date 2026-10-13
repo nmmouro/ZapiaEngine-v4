@@ -143,7 +143,7 @@ opacity:1
 .ruv-resumo{
 display:grid;
 grid-template-columns:repeat(4,minmax(170px,1fr));
-gap:12px;
+gap:6px;
 margin-bottom:18px
 }
 .ruv-card{
