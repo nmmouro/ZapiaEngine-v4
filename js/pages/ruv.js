@@ -353,7 +353,7 @@ function exportarCSV() {
 
     const totais = calcularTotais(filtrados);
     linhas.push([]);
-    linhas.push(["TOTAL / MÉDIA GERAL", "", "", "", "", "", "", totais.distancia_percorrida, totais.media_consumo_combustivel ?? "", totais.valor_higienizacao, totais.notas_abastecimento, totais.notas_manutencao]);
+    linhas.push(["TOTAL / MÉDIA GERAL", "", "", "", "", "", "", "", "", totais.distancia_percorrida, totais.media_consumo_combustivel ?? "", totais.valor_higienizacao, totais.notas_abastecimento, totais.notas_manutencao]);
 
     const csv = "\uFEFF" + linhas.map(linha => linha.map(textoCSV).join(";")).join("\r\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
