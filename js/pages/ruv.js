@@ -307,7 +307,7 @@ function calcularTotais(lista) {
 
 function montarRodape(totais) {
     return `<tr class="ruv-total">
-        <th colspan="7">TOTAL / MÉDIA GERAL</th>
+        <th colspan="9">TOTAL / MÉDIA GERAL</th>
         <th>${formatarQuilometragem(totais.distancia_percorrida)} km</th>
         <th>${totais.media_consumo_combustivel == null ? "—" : `${formatarNumero(totais.media_consumo_combustivel)} km/L`}</th>
         <th>${formatarMoeda(totais.valor_higienizacao)}</th>
