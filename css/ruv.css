@@ -187,8 +187,8 @@ background:#fff
 .ruv-tabela th,.ruv-tabela td{
 padding:9px 10px;
 border-bottom:1px solid #edf0f2;
-text-align:left;
-vertical-align:top;
+text-align:center;
+vertical-align:middle;
 white-space:nowrap
 }
 .ruv-tabela th{
@@ -257,7 +257,7 @@ box-sizing:border-box
 }
 @page{
 size:A4 landscape;
-margin:10mm 6.5mm
+margin:10mm 6mm
 }
 @media print{
 .app-header,
