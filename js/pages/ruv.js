@@ -328,7 +328,7 @@ function atualizarResumo(dataInicial, dataFinal) {
         : `${formatarNumero(totais.media_consumo_combustivel)} km/L`;
 
     const periodo = dataInicial || dataFinal
-        ? `${dataInicial || "..."} até ${dataFinal || "..."}`
+        ? `BR -(${formatarDataPeriodo(dataInicial) || "..."} até ${formatarDataPeriodo(dataFinal) || "..."})`
         : "Todos os registros";
     document.querySelector("#ruvPeriodoResumo").textContent = periodo;
 }
@@ -408,6 +408,13 @@ function formatarQuilometragem(valor) {
 
 function formatarMoeda(valor) {
     return Number(valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+function formatarDataPeriodo(valor) {
+    const data = extrairData(valor);
+    if (!data) return "";
+    const [ano, mes, dia] = data.split("-");
+    return `${dia}-${mes}-${ano}`;
 }
 
 function formatarData(valor) {
