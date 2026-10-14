@@ -328,7 +328,7 @@ function atualizarResumo(dataInicial, dataFinal) {
         : `${formatarNumero(totais.media_consumo_combustivel)} km/L`;
 
     const periodo = dataInicial || dataFinal
-        ? `BR -(${formatarDataPeriodo(dataInicial) || "..."} até ${formatarDataPeriodo(dataFinal) || "..."})`
+        ? `${formatarDataPeriodo(dataInicial) || "..."} até ${formatarDataPeriodo(dataFinal) || "..."}`
         : "Todos os registros";
     document.querySelector("#ruvPeriodoResumo").textContent = periodo;
 }
