@@ -299,125 +299,30 @@ async function criarErroHTTP(
 // EXECUTAR REQUEST
 // ============================================================
 
-async function request(
-    url,
-    options = {}
-) {
-
-    validarAPI();
-
-
-    console.log(
-        "CRUD SERVICE → MÉTODO:",
-        options.method || "GET"
-    );
-
-
-    console.log(
-        "CRUD SERVICE → URL:",
-        url
-    );
-
-
-    console.log(
-        "CRUD SERVICE → API KEY:",
-        API_KEY
-            ? "ENVIADA"
-            : "NÃO ENVIADA"
-    );
-
-
-    const resposta =
-        await fetch(
-            url,
-            {
-
-                ...options,
-
-                headers: {
-
-                    ...obterHeaders(
-                        Boolean(
-                            options.body
-                        )
-                    ),
-
-                    ...(options.headers || {})
-
-                }
-
-            }
-        );
-
-
-    console.log(
-        "CRUD SERVICE → RESPOSTA HTTP:",
-        resposta.status
-    );
-
-
-    if (
-        !resposta.ok
-    ) {
-
-        const erro =
-            await criarErroHTTP(
-                resposta
-            );
-
-
-        console.error(
-            "CRUD SERVICE → ERRO HTTP:",
-            erro
-        );
-
-
-        throw erro;
-
+async function request(url, options = {}) {
+    const auth = window.PainelFrotaAuth;
+    const token = auth?.token?.();
+    if (!token) throw new Error("Sessão não iniciada. Entre novamente no Painel Frota.");
+    const original = new URL(url, location.href);
+    const parts = original.pathname.split("/").filter(Boolean);
+    const tabela = parts[parts.length - 1];
+    const apiBase = auth.API || ((location.hostname === "localhost" || location.hostname === "127.0.0.1") ? `${location.protocol}//${location.hostname}:3000` : location.origin);
+    const target = new URL(`${apiBase}/api/data/${encodeURIComponent(tabela)}`);
+    original.searchParams.forEach((v,k)=>target.searchParams.append(k,v));
+    console.log("CRUD SERVICE → MÉTODO:", options.method || "GET");
+    console.log("CRUD SERVICE → API PROTEGIDA:", target.pathname);
+    const headers = { "Authorization": `Bearer ${token}` };
+    if (options.body) { headers["Content-Type"] = "application/json"; headers.Prefer = "return=representation"; }
+    if (options.headers?.Prefer) headers.Prefer = options.headers.Prefer;
+    const resposta = await fetch(target.toString(), { ...options, headers: { ...headers, ...(options.headers||{}) } });
+    console.log("CRUD SERVICE → RESPOSTA HTTP:", resposta.status);
+    if (!resposta.ok) {
+        let detalhe = ""; try { detalhe = await resposta.text(); } catch {}
+        const erro = new Error(detalhe || `Erro HTTP ${resposta.status}`); erro.status=resposta.status; erro.statusText=resposta.statusText; erro.url=target.toString(); throw erro;
     }
-
-
-    /*
-     * DELETE pode retornar
-     * resposta vazia.
-     */
-
-    if (
-        resposta.status === 204
-    ) {
-
-        return null;
-
-    }
-
-
-    const texto =
-        await resposta.text();
-
-
-    if (
-        !texto
-    ) {
-
-        return null;
-
-    }
-
-
-    try {
-
-        return JSON.parse(
-            texto
-        );
-
-    }
-
-    catch {
-
-        return texto;
-
-    }
-
+    if (resposta.status === 204) return null;
+    const texto = await resposta.text(); if (!texto) return null;
+    try { return JSON.parse(texto); } catch { return texto; }
 }
 
 

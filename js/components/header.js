@@ -95,6 +95,8 @@ export function iniciarHeader(config = {}) {
         opcoes
     );
 
+    // Recria o controle de sessão após o cabeçalho ser montado.
+    window.PainelFrotaAuth?.adicionarControleUsuario?.();
 
     iniciarRelogio();
 

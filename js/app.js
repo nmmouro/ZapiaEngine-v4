@@ -83,6 +83,11 @@
         );
 
 
+        const paginaInicial = detectarPagina();
+        if (window.PainelFrotaAuth && !(await window.PainelFrotaAuth.verificarAcesso(paginaInicial))) {
+            return;
+        }
+
         /*
          * ----------------------------------------------------
          * CONTAINER
