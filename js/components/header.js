@@ -245,7 +245,7 @@ function montarHeader(
 
             ${deveExibirVoltarAoPainel() ? `
                 <a class="header-back-home" href="./index.html" title="Voltar à página Painel Frota">
-                    <span aria-hidden="true">←◄</span> Painel Frota
+                    <span aria-hidden="true">◄</span> Painel Frota
                 </a>
             ` : ""}
 
