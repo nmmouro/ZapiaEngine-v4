@@ -24,26 +24,9 @@ const CONFIG = {
 
     api: {
 
-        /*
-         * URL da API REST do Supabase.
-         */
-
-        url:
-            "https://iomekawabacmuhlltket.supabase.co/rest/v1/",
-
-
-        /*
-         * Chave pública utilizada pelo frontend.
-         *
-         * IMPORTANTE:
-         *
-         * Use aqui a sua chave anon/public do Supabase.
-         *
-         * NÃO coloque service_role.
-         */
-
-        key:
-            "sb_publishable_KWT8pnUIjfTWVK1hLnP0_w_ljRm2o4-",
+        // O navegador acessa somente o backend. Credenciais do Supabase ficam no servidor.
+        url: "",
+        key: "",
 
 
         /*
