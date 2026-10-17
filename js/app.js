@@ -84,9 +84,22 @@
 
 
         const paginaInicial = detectarPagina();
-        if (window.PainelFrotaAuth && !(await window.PainelFrotaAuth.verificarAcesso(paginaInicial))) {
-            return;
-        }
+
+if (!window.PainelFrotaAuth) {
+  console.error("AUTH → arquivo js/auth.js não carregado.");
+
+  const app = document.querySelector("#app");
+  if (app) {
+    app.innerHTML = `
+      <p style="padding:20px;color:#b91c1c">
+        Não foi possível iniciar a autenticação.
+        Recarregue a página.
+      </p>
+    `;
+  }
+
+  return;
+}
 
         /*
          * ----------------------------------------------------
