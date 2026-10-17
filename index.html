@@ -258,10 +258,13 @@
          APP PRINCIPAL
     ========================================================= -->
 
-    <script
-        type="module"
-        src="./js/app.js"
-    ></script>
+    
+<!-- AUTENTICAÇÃO: carregar antes do app.js -->
+<script src="./js/auth.js"></script>
+
+<!-- APLICAÇÃO PRINCIPAL -->
+<script type="module" src="./js/app.js"></script>
+
 
 
     <!-- ========================================================
