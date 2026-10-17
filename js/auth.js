@@ -3,7 +3,7 @@
   "use strict";
   const LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1";
   // Após criar o Web Service no Render, substitua o endereço abaixo pela URL HTTPS real do serviço.
-  const API = String(window.PAINEL_FROTA_API_URL || (LOCAL ? `${location.protocol}//${location.hostname}:3000` : "https://SEU-BACKEND.onrender.com")).replace(/\/+$/, "");
+  const API = String(window.PAINEL_FROTA_API_URL || (LOCAL ? `${location.protocol}//${location.hostname}:3000` : "https://iomekawabacmuhlltket.supabase.co")).replace(/\/+$/, "");
   const TOKEN_KEY = "painel_frota_auth_token", USER_KEY = "painel_frota_auth_user";
   const token = () => localStorage.getItem(TOKEN_KEY);
   const page = () => String(document.body?.dataset.page || document.body?.dataset.pageTitle || "home").toLowerCase();
