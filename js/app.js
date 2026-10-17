@@ -101,6 +101,11 @@ if (!window.PainelFrotaAuth) {
   return;
 }
 
+        // A autenticação é inicializada uma única vez por js/auth.js.
+        // Aguarda a validação antes de iniciar módulos e consultas de dados.
+        const acessoPermitido = await window.PainelFrotaAuth.ready();
+        if (!acessoPermitido) return;
+
         /*
          * ----------------------------------------------------
          * CONTAINER

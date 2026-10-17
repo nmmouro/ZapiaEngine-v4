@@ -3,15 +3,17 @@ import CONFIG from "../config/config.js";
 const BUCKET_PADRAO = "veiculos";
 
 function apiBase() {
-    const api = window.PainelFrotaAuth?.API;
-    if (!api) throw new Error("API de autenticação não inicializada.");
+    const api = window.PainelFrotaAuth?.supabaseUrl;
+    if (!api) throw new Error("Configuração do Supabase não inicializada.");
     return String(api).replace(/\/+$/, "");
 }
 
 function headers(extra = {}) {
     const token = window.PainelFrotaAuth?.token?.();
+    const key = window.PainelFrotaAuth?.anonKey;
     if (!token) throw new Error("Sessão não iniciada. Entre novamente no Painel Frota.");
-    return { Authorization: `Bearer ${token}`, ...extra };
+    if (!key) throw new Error("Chave pública do Supabase não configurada.");
+    return { apikey: key, Authorization: `Bearer ${token}`, ...extra };
 }
 
 function safe(v) {
@@ -171,7 +173,7 @@ export async function uploadArquivo(
             : montarCaminhoAnexo(caminho, id, campo, file);
 
     const r = await fetch(
-        `${apiBase()}/api/storage/upload?bucket=${encodeURIComponent(bucket)}&path=${encodeURIComponent(path)}`,
+        `${apiBase()}/storage/v1/object/${encodeURIComponent(bucket)}/${path.split("/").map(encodeURIComponent).join("/")}`,
         {
             method: "POST",
             headers: headers({
@@ -184,14 +186,13 @@ export async function uploadArquivo(
 
     if (!r.ok) {
         let msg = "";
-        try { const b = await r.json(); msg = b?.message || b?.erro || ""; } catch (_) {}
+        try { const b = await r.json(); msg = b?.message || b?.error || b?.statusCode || ""; } catch (_) {}
         throw new Error(`Falha ao enviar ${label}${msg ? `: ${msg}` : "."}`);
     }
-    const uploaded = await r.json();
     return {
         bucket,
         path,
-        url: uploaded.url,
+        url: `${apiBase()}/storage/v1/object/public/${encodeURIComponent(bucket)}/${path.split("/").map(encodeURIComponent).join("/")}`,
         nome: file.name,
         tipo: file.type,
         tamanho: file.size,
@@ -228,8 +229,12 @@ export async function excluirArquivo(
     if (!path) return true;
 
     const r = await fetch(
-        `${apiBase()}/api/storage/object?bucket=${encodeURIComponent(bucket)}&path=${encodeURIComponent(path)}`,
-        { method: "DELETE", headers: headers() }
+        `${apiBase()}/storage/v1/object/${encodeURIComponent(bucket)}`,
+        {
+            method: "DELETE",
+            headers: headers({ "Content-Type": "application/json" }),
+            body: JSON.stringify({ prefixes: [path] })
+        }
     );
     return r.ok;
 }

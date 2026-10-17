@@ -303,22 +303,23 @@ async function request(url, options = {}) {
     const auth = window.PainelFrotaAuth;
     const token = auth?.token?.();
     if (!token) throw new Error("Sessão não iniciada. Entre novamente no Painel Frota.");
+    const apiBase = String(CONFIG?.api?.url || "").trim().replace(/\/+$/, "");
+    const apiKey = String(CONFIG?.api?.key || "").trim();
+    if (!apiBase || !apiKey || /SEU-PROJETO|SUA_CHAVE_PUBLICA/.test(apiBase + apiKey)) {
+        throw new Error("Configure a URL REST e a chave pública do Supabase em js/config/config.js.");
+    }
     const original = new URL(url, location.href);
     const parts = original.pathname.split("/").filter(Boolean);
     const tabela = parts[parts.length - 1];
-    const apiBase = auth.API || ((location.hostname === "localhost" || location.hostname === "127.0.0.1") ? `${location.protocol}//${location.hostname}:3000` : location.origin);
-    const target = new URL(`${apiBase}/api/data/${encodeURIComponent(tabela)}`);
-    original.searchParams.forEach((v,k)=>target.searchParams.append(k,v));
-    console.log("CRUD SERVICE → MÉTODO:", options.method || "GET");
-    console.log("CRUD SERVICE → API PROTEGIDA:", target.pathname);
-    const headers = { "Authorization": `Bearer ${token}` };
+    const target = new URL(`${apiBase}/${encodeURIComponent(tabela)}`);
+    original.searchParams.forEach((v, k) => target.searchParams.append(k, v));
+    const headers = { apikey: apiKey, Authorization: `Bearer ${token}` };
     if (options.body) { headers["Content-Type"] = "application/json"; headers.Prefer = "return=representation"; }
     if (options.headers?.Prefer) headers.Prefer = options.headers.Prefer;
-    const resposta = await fetch(target.toString(), { ...options, headers: { ...headers, ...(options.headers||{}) } });
-    console.log("CRUD SERVICE → RESPOSTA HTTP:", resposta.status);
+    const resposta = await fetch(target.toString(), { ...options, headers: { ...headers, ...(options.headers || {}) } });
     if (!resposta.ok) {
-        let detalhe = ""; try { detalhe = await resposta.text(); } catch {}
-        const erro = new Error(detalhe || `Erro HTTP ${resposta.status}`); erro.status=resposta.status; erro.statusText=resposta.statusText; erro.url=target.toString(); throw erro;
+        let detalhe = ""; try { const body = await resposta.json(); detalhe = body.message || body.details || body.hint || body.error || JSON.stringify(body); } catch { try { detalhe = await resposta.text(); } catch {} }
+        const erro = new Error(detalhe || `Erro HTTP ${resposta.status}`); erro.status = resposta.status; erro.statusText = resposta.statusText; erro.url = target.toString(); throw erro;
     }
     if (resposta.status === 204) return null;
     const texto = await resposta.text(); if (!texto) return null;
