@@ -16,6 +16,7 @@
   const getUser = () => { try { return JSON.parse(localStorage.getItem(USER_KEY) || "null"); } catch { return null; } };
   const configured = () => projectUrl && apiKey && !/SEU-PROJETO|SUA_CHAVE_PUBLICA/.test(projectUrl + apiKey);
   
+
 function matriculaEmail(m) {
   const matricula = String(m || "").trim();
 
@@ -23,20 +24,24 @@ function matriculaEmail(m) {
     throw new Error("Informe a matrícula.");
   }
 
-  const contas = {
-    "5000199": "nmmouro@gmail.com"
-  };
-
-  const email = contas[matricula];
-
-  if (!email) {
-    throw new Error(
-      "Matrícula sem conta de acesso configurada."
-    );
+  if (matricula === "5000199") {
+    return "nmmouro@gmail.com";
   }
 
-  return email;
+  throw new Error(
+    "Matrícula sem associação de e-mail configurada. " +
+    "Solicite ao administrador o cadastro do acesso."
+  );
 }
+
+   const d = await authRequest(
+  "/token?grant_type=password",
+  {
+    email: matriculaEmail(matricula),
+    password: senha
+  }
+);
+
 
   async function authRequest(path, body, bearer) {
     if (!configured()) throw new Error("Configure a URL real do Supabase e a chave pública em js/config/config.js antes de publicar.");
