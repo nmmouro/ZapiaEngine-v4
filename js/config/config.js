@@ -27,9 +27,9 @@ const CONFIG = {
         // Frontend GitHub Pages acessa o Supabase diretamente.
         // Preencha com a URL real do projeto e a chave publishable/anon PUBLICA.
         // NUNCA use service_role / sb_secret no navegador.
-        url: `${String(window.PAINEL_FROTA_SUPABASE_URL || "https://SEU-PROJETO.supabase.co").replace(/\/+$/, "")}/rest/v1`,
-        authUrl: `${String(window.PAINEL_FROTA_SUPABASE_URL || "https://SEU-PROJETO.supabase.co").replace(/\/+$/, "")}/auth/v1`,
-        key: String(window.PAINEL_FROTA_SUPABASE_ANON_KEY || "SUA_CHAVE_PUBLICA_SUPABASE"),
+        url: `${String(window.PAINEL_FROTA_SUPABASE_URL || "https://iomekawabacmuhlltket.supabase.co").replace(/\/+$/, "")}/rest/v1`,
+        authUrl: `${String(window.PAINEL_FROTA_SUPABASE_URL || "https://iomekawabacmuhlltket.supabase.co").replace(/\/+$/, "")}/auth/v1`,
+        key: String(window.PAINEL_FROTA_SUPABASE_ANON_KEY || "sb_secret_uLIM_l_OOQ21LvFNsohW_w__w-43AhA"),
 
 
         /*
