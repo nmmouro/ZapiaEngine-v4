@@ -95,7 +95,27 @@
     if (!meRes.ok || !me.id) throw new Error("Não foi possível validar a sessão do Supabase.");
     const rows = await rest(`perfis_acesso?auth_user_id=eq.${encodeURIComponent(me.id)}&select=*`, accessToken);
     const profile = Array.isArray(rows) ? rows[0] : null;
-    if (!profile || profile.ativo === false) throw new Error("A matrícula ainda não foi vinculada a um perfil ativo. Peça ao administrador para concluir o cadastro de acesso.");
+    
+if (!profile) {
+  throw new Error(
+    "Não foi encontrado um perfil de acesso vinculado à conta."
+  );
+}
+
+const status = String(profile.status || "").toUpperCase();
+const perfilAtivo = profile.perfil_ativo;
+const ativo = profile.ativo;
+
+if (
+  ativo === false ||
+  perfilAtivo === false ||
+  (status && status !== "ATIVO")
+) {
+  throw new Error(
+    "O acesso está inativo. Solicite a verificação ao administrador."
+  );
+}
+
     if (matriculaInformada && String(profile.matricula).toLowerCase() !== String(matriculaInformada).trim().toLowerCase()) throw new Error("A matrícula autenticada não corresponde ao perfil cadastrado.");
     const roleRaw = String(profile.perfil || "usuario").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const perfil = roleRaw === "administrador" ? "admin" : roleRaw;
