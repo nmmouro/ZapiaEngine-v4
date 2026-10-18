@@ -143,12 +143,7 @@ if (!profile) {
     "A matrícula autenticada não corresponde ao perfil cadastrado."
   );
 }
-     const roleRaw = String(profile.perfil || "usuario")
-  .toLowerCase()
-  .normalize("NFD")
-  .replace(/[\u0300-\u036f]/g, "");
-
-const perfil = roleRaw === "administrador" ? "admin" : roleRaw;
+  
 
 return {
   id: me.id,
@@ -159,8 +154,7 @@ return {
   classificacao: profile.perfil
 };
 
-const status = String(profile.status || "").toUpperCase();
-const perfilAtivo = profile.perfil_ativo;
+
 const ativo = profile.ativo;
 
 if (
