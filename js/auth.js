@@ -15,11 +15,29 @@
   const token = () => readSession()?.access_token || "";
   const getUser = () => { try { return JSON.parse(localStorage.getItem(USER_KEY) || "null"); } catch { return null; } };
   const configured = () => projectUrl && apiKey && !/SEU-PROJETO|SUA_CHAVE_PUBLICA/.test(projectUrl + apiKey);
-  function matriculaEmail(m) {
-    const v = String(m || "").trim().toLowerCase().replace(/[^a-z0-9._+-]/g, "");
-    if (!v) throw new Error("Informe a matrícula.");
-    return `${v}@login.painelfrota.invalid`;
+  
+function matriculaEmail(m) {
+  const matricula = String(m || "").trim();
+
+  if (!matricula) {
+    throw new Error("Informe a matrícula.");
   }
+
+  const contas = {
+    "5000199": "nmmouro@gmail.com"
+  };
+
+  const email = contas[matricula];
+
+  if (!email) {
+    throw new Error(
+      "Matrícula sem conta de acesso configurada."
+    );
+  }
+
+  return email;
+}
+
   async function authRequest(path, body, bearer) {
     if (!configured()) throw new Error("Configure a URL real do Supabase e a chave pública em js/config/config.js antes de publicar.");
     const headers = { apikey: apiKey, "Content-Type": "application/json" };
