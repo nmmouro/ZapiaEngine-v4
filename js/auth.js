@@ -57,12 +57,29 @@
     addStyle(); let shade = document.querySelector(".pf-auth-shade");
     if (shade && shade.querySelector("form.pf-auth-card")) { const p = shade.querySelector(".pf-auth-intro"); if (p) p.textContent = message; return; }
     shade?.remove(); shade = document.createElement("div"); shade.className = "pf-auth-shade";
-    shade.innerHTML = `<form class="pf-auth-card"><h1>Acesso ao Painel Frota</h1><p class="pf-auth-intro">${safe(message)}</p><label for="pf-matricula">Matrícula</label><input id="pf-matricula" autocomplete="username" required><label for="pf-senha">Senha</label><input id="pf-senha" type="password" autocomplete="current-password" required><div class="pf-auth-msg" role="status" aria-live="polite"></div><button type="submit">Entrar</button></form>`;
+    shade.innerHTML = `<form class="pf-auth-card"><h1>Acesso ao Painel Frota</h1><p class="pf-auth-intro">${safe(message)}</p><label for="pf-matricula">Matrícula</label><input id="pf-matricula" name="matricula" autocomplete="username" autocapitalize="off" spellcheck="false" required><label for="pf-senha">Senha</label><input id="pf-senha" name="password" type="password" autocomplete="current-password" required><div class="pf-auth-msg" role="status" aria-live="polite"></div><button type="submit">Entrar</button></form>`;
     document.body.appendChild(shade);
     const form = shade.querySelector("form"), msg = shade.querySelector(".pf-auth-msg");
     form.addEventListener("submit", async e => {
-      e.preventDefault(); const matricula = shade.querySelector("#pf-matricula").value.trim(), senha = shade.querySelector("#pf-senha").value;
-      const button = form.querySelector("button"); button.disabled = true; msg.textContent = "Validando acesso…";
+      e.preventDefault();
+
+      const matriculaInput = shade.querySelector("#pf-matricula");
+      const senhaInput = shade.querySelector("#pf-senha");
+      const matricula = matriculaInput?.value.trim() || "";
+      const senha = senhaInput?.value ?? "";
+      const button = form.querySelector("button");
+
+      // Impede uma chamada ao Supabase se o formulário estiver incompleto.
+      if (!matricula || senha.length === 0) {
+        msg.textContent = !matricula
+          ? "Informe sua matrícula."
+          : "Informe sua senha.";
+        (!matricula ? matriculaInput : senhaInput)?.focus();
+        return;
+      }
+
+      button.disabled = true;
+      msg.textContent = "Validando acesso…";
       try {
         const d = await authRequest("/token?grant_type=password", { email: matriculaEmail(matricula), password: senha });
         d.expires_at = Math.floor(Date.now()/1000) + Number(d.expires_in || 3600);
