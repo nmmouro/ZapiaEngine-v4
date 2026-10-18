@@ -114,64 +114,75 @@ function matriculaEmail(m) {
       } catch (err) { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); msg.textContent = err.message || "Não foi possível entrar."; button.disabled = false; }
     });
   }
+ 
   async function carregarPerfil(accessToken, matriculaInformada) {
-    const meRes = await fetch(`${projectUrl}/user`, { headers: { apikey: apiKey, Authorization: `Bearer ${accessToken}` } });
+    // 1. Validar a sessão diretamente no Supabase Auth.
+    const meRes = await fetch(`${projectUrl}/user`, {
+      headers: {
+        apikey: apiKey,
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+
     const me = await meRes.json().catch(() => ({}));
-    if (!meRes.ok || !me.id) throw new Error("Não foi possível validar a sessão do Supabase.");
+
+    if (!meRes.ok || !me.id) {
+      throw new Error("Não foi possível validar a sessão do Supabase.");
+    }
+
+    // 2. Consultar somente as colunas existentes em perfis_acesso.
     const rows = await rest(
-  `perfis_acesso?auth_user_id=eq.${encodeURIComponent(me.id)}&select=id,auth_user_id,empregado_id,matricula,nome,perfil,ativo`,
-  accessToken
-);
+      `perfis_acesso?auth_user_id=eq.${encodeURIComponent(me.id)}` +
+      `&select=id,auth_user_id,empregado_id,matricula,nome,perfil,ativo`,
+      accessToken
+    );
+
     const profile = Array.isArray(rows) ? rows[0] : null;
-    
-if (!profile) {
-  throw new Error(
-    "Não foi encontrado um perfil de acesso vinculado à conta."
-  );
-}
-     if (profile.ativo !== true) {
-  throw new Error(
-    "O acesso está inativo. Solicite a verificação ao administrador."
-  );
-}
-     if (
-  matriculaInformada &&
-  String(profile.matricula).trim().toUpperCase() !==
-  String(matriculaInformada).trim().toUpperCase()
-) {
-  throw new Error(
-    "A matrícula autenticada não corresponde ao perfil cadastrado."
-  );
-}
-  
 
-return {
-  id: me.id,
-  employeeId: profile.empregado_id,
-  matricula: profile.matricula,
-  nome: profile.nome || profile.matricula,
-  perfil,
-  classificacao: profile.perfil
-};
+    if (!profile) {
+      throw new Error(
+        "Não foi encontrado um perfil de acesso vinculado à conta."
+      );
+    }
 
+    // 3. Confirmar que o perfil está ativo.
+    if (profile.ativo !== true) {
+      throw new Error(
+        "O acesso está inativo. Solicite a verificação ao administrador."
+      );
+    }
 
-const ativo = profile.ativo;
+    // 4. Confirmar que a matrícula informada corresponde ao perfil.
+    if (
+      matriculaInformada &&
+      String(profile.matricula || "").trim().toUpperCase() !==
+      String(matriculaInformada).trim().toUpperCase()
+    ) {
+      throw new Error(
+        "A matrícula autenticada não corresponde ao perfil cadastrado."
+      );
+    }
 
-if (
-  ativo === false ||
-  perfilAtivo === false ||
-  (status && status !== "ATIVO")
-) {
-  throw new Error(
-    "O acesso está inativo. Solicite a verificação ao administrador."
-  );
-}
+    // 5. Normalizar o nome do perfil de acesso.
+    const roleRaw = String(profile.perfil || "usuario")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
 
-    if (matriculaInformada && String(profile.matricula).toLowerCase() !== String(matriculaInformada).trim().toLowerCase()) throw new Error("A matrícula autenticada não corresponde ao perfil cadastrado.");
-    const roleRaw = String(profile.perfil || "usuario").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const perfil = roleRaw === "administrador" ? "admin" : roleRaw;
-    return { id: me.id, employeeId: profile.empregado_id, matricula: profile.matricula, nome: profile.nome || profile.matricula, perfil, classificacao: profile.perfil };
+
+    // 6. Devolver os dados usados pelo Painel Frota.
+    return {
+      id: me.id,
+      employeeId: profile.empregado_id,
+      matricula: profile.matricula,
+      nome: profile.nome || profile.matricula,
+      perfil,
+      classificacao: profile.perfil
+    };
   }
+
   function pageAllowed(p, role) {
     if (["relatorio", "ruv", "lancamentos_relatorio"].includes(p)) return ["admin", "supervisor"].includes(role);
     if (["usuarios"].includes(p)) return role === "admin";
