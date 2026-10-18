@@ -17,6 +17,7 @@
   const configured = () => projectUrl && apiKey && !/SEU-PROJETO|SUA_CHAVE_PUBLICA/.test(projectUrl + apiKey);
   
 
+
 function matriculaEmail(m) {
   const matricula = String(m || "").trim();
 
@@ -24,23 +25,24 @@ function matriculaEmail(m) {
     throw new Error("Informe a matrícula.");
   }
 
-  if (matricula === "5000199") {
-    return "nmmouro@gmail.com";
+  const contas = {
+    "5000199": "nmmouro@gmail.com"
+  };
+
+  const email = contas[matricula];
+
+  if (!email) {
+    throw new Error(
+      "Matrícula sem associação de e-mail configurada. " +
+      "Solicite ao administrador o cadastro do acesso."
+    );
   }
 
-  throw new Error(
-    "Matrícula sem associação de e-mail configurada. " +
-    "Solicite ao administrador o cadastro do acesso."
-  );
+  return email;
 }
 
-   const d = await authRequest(
-  "/token?grant_type=password",
-  {
-    email: matriculaEmail(matricula),
-    password: senha
-  }
-);
+
+ 
 
 
   async function authRequest(path, body, bearer) {
@@ -116,7 +118,10 @@ function matriculaEmail(m) {
     const meRes = await fetch(`${projectUrl}/user`, { headers: { apikey: apiKey, Authorization: `Bearer ${accessToken}` } });
     const me = await meRes.json().catch(() => ({}));
     if (!meRes.ok || !me.id) throw new Error("Não foi possível validar a sessão do Supabase.");
-    const rows = await rest(`perfis_acesso?auth_user_id=eq.${encodeURIComponent(me.id)}&select=*`, accessToken);
+    const rows = await rest(
+  `perfis_acesso?auth_user_id=eq.${encodeURIComponent(me.id)}&select=id,auth_user_id,empregado_id,matricula,nome,perfil,ativo`,
+  accessToken
+);
     const profile = Array.isArray(rows) ? rows[0] : null;
     
 if (!profile) {
@@ -124,6 +129,35 @@ if (!profile) {
     "Não foi encontrado um perfil de acesso vinculado à conta."
   );
 }
+     if (profile.ativo !== true) {
+  throw new Error(
+    "O acesso está inativo. Solicite a verificação ao administrador."
+  );
+}
+     if (
+  matriculaInformada &&
+  String(profile.matricula).trim().toUpperCase() !==
+  String(matriculaInformada).trim().toUpperCase()
+) {
+  throw new Error(
+    "A matrícula autenticada não corresponde ao perfil cadastrado."
+  );
+}
+     const roleRaw = String(profile.perfil || "usuario")
+  .toLowerCase()
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "");
+
+const perfil = roleRaw === "administrador" ? "admin" : roleRaw;
+
+return {
+  id: me.id,
+  employeeId: profile.empregado_id,
+  matricula: profile.matricula,
+  nome: profile.nome || profile.matricula,
+  perfil,
+  classificacao: profile.perfil
+};
 
 const status = String(profile.status || "").toUpperCase();
 const perfilAtivo = profile.perfil_ativo;
