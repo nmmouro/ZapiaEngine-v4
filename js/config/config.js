@@ -29,7 +29,7 @@ const CONFIG = {
         // NUNCA use service_role / sb_secret no navegador.
         url: `${String(window.PAINEL_FROTA_SUPABASE_URL || "https://iomekawabacmuhlltket.supabase.co").replace(/\/+$/, "")}/rest/v1`,
         authUrl: `${String(window.PAINEL_FROTA_SUPABASE_URL || "https://iomekawabacmuhlltket.supabase.co").replace(/\/+$/, "")}/auth/v1`,
-        key: String(window.PAINEL_FROTA_SUPABASE_ANON_KEY || "sb_publishable_KWT8pnUIjfTWVK1hLnP0_w_ljRm2o4-"),
+        key: String(window.PAINEL_FROTA_SUPABASE_ANON_KEY || ""),
 
 
         /*
