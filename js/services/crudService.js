@@ -1057,6 +1057,16 @@ function normalizarPayloadEntidade(entity, payload) {
 
     const entidade = String(entity || "").toLowerCase();
 
+    // Normaliza e-mails antes de qualquer INSERT/UPDATE de empregados.
+    // A proteção no banco (trigger) também garante a regra para outros clientes.
+    if (entidade === "empregados") {
+        const resultado = { ...payload };
+        if (typeof resultado.email === "string") {
+            resultado.email = resultado.email.trim().toLowerCase();
+        }
+        return resultado;
+    }
+
     if (entidade === "abastecimento") {
         // public.abastecimento usa os nomes próprios do formulário.
         // id_veiculo continua sendo auxiliar da UI; placa_modelo é
