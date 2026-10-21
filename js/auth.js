@@ -124,85 +124,91 @@ function matriculaEmail(m) {
   }
  
   async function carregarPerfil(accessToken, matriculaInformada) {
-    // 1. Validar a sessão diretamente no Supabase Auth.
+    // 1. Validar a sessão no Supabase Auth.
     const meRes = await fetch(`${projectUrl}/user`, {
-      headers: {
-        apikey: apiKey,
-        Authorization: `Bearer ${accessToken}`
-      }
-    });
-    const me = await meRes.json().catch(() => ({}));
-    if (!meRes.ok || !me.id) {
-      throw new Error("Não foi possível validar a sessão do Supabase.");
-    }
-
-    // 2. Compatibilidade com a view perfis_usuario e com a tabela perfis_acesso.
-    // A view perfis_usuario pode expor empregado/status/perfil_ativo;
-    // perfis_acesso usa nome/ativo. Consultamos somente com a sessão autenticada.
-    let profile = null;
-    let lastProfileError = null;
-    for (const tabela of ["perfis_usuario", "perfis_acesso"]) {
-      try {
-        const rows = await rest(
-          `${tabela}?auth_user_id=eq.${encodeURIComponent(me.id)}&select=*`,
-          accessToken
-        );
-        if (Array.isArray(rows) && rows.length) {
-          profile = rows[0];
-          break;
+        headers: {
+            apikey: apiKey,
+            Authorization: `Bearer ${accessToken}`
         }
-      } catch (err) {
-        lastProfileError = err;
-      }
-    }
+    });
 
-    if (!profile) {
-      if (lastProfileError) {
+    const me = await meRes.json().catch(() => ({}));
+
+    if (!meRes.ok || !me.id || !me.email) {
         throw new Error(
-          "Não foi possível consultar o perfil de acesso. Verifique se perfis_usuario ou perfis_acesso permite SELECT para usuários autenticados e se contém a coluna auth_user_id. Detalhe: " +
-          lastProfileError.message
+            "Não foi possível validar a sessão do Supabase."
         );
-      }
-      throw new Error("Não foi encontrado um perfil de acesso vinculado à conta autenticada.");
     }
 
-    // 3. Normalizar os campos, pois a view e a tabela usam nomes diferentes.
-    const matriculaPerfil = String(profile.matricula ?? profile.matricula_perfil ?? "").trim();
-    const nomePerfil = profile.nome || profile.empregado || profile.name || matriculaPerfil;
-    const perfilOriginal = profile.perfil || profile.classificacao || profile.tipo_perfil || "usuario";
-    const status = String(profile.status || "").trim().toUpperCase();
-    const ativoFlag = profile.ativo ?? profile.perfil_ativo;
-    const ativo = ativoFlag === true || (ativoFlag == null && status === "ATIVO");
+    // 2. Consultar o empregado pelo e-mail da conta autenticada.
+    const filtroEmail = encodeURIComponent(me.email);
 
-    if (!ativo || (status && status !== "ATIVO")) {
-      throw new Error("O acesso está inativo. Solicite a verificação ao administrador.");
+    const rows = await rest(
+        `empregados?email=eq.${filtroEmail}` +
+        `&select=id,empregado,matricula,email,classificacao,status`,
+        accessToken
+    );
+
+    if (!Array.isArray(rows) || rows.length !== 1) {
+        throw new Error(
+            "Não foi encontrado um único empregado vinculado " +
+            "ao e-mail autenticado. Verifique o cadastro em empregados."
+        );
     }
 
-    // 4. Confirmar que a matrícula digitada corresponde ao perfil encontrado.
+    const profile = rows[0];
+
+    // 3. Validar a matrícula informada.
+    const matriculaPerfil = String(
+        profile.matricula ?? ""
+    ).trim();
+
     if (
-      matriculaInformada &&
-      matriculaPerfil.toUpperCase() !== String(matriculaInformada).trim().toUpperCase()
+        matriculaInformada &&
+        matriculaPerfil !== String(matriculaInformada).trim()
     ) {
-      throw new Error("A matrícula autenticada não corresponde ao perfil cadastrado.");
+        throw new Error(
+            "A matrícula informada não corresponde ao empregado autenticado."
+        );
     }
 
-    // 5. Normalizar o perfil de acesso.
-    const roleRaw = String(perfilOriginal)
-      .trim()
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
-    const perfil = roleRaw === "administrador" ? "admin" : roleRaw;
+    // 4. Verificar a situação do empregado.
+    const status = String(profile.status ?? "")
+        .trim()
+        .toUpperCase();
 
+    if (status !== "ATIVO") {
+        throw new Error(
+            "O acesso está inativo. Solicite a verificação ao administrador."
+        );
+    }
+
+    // 5. Normalizar a classificação para as regras do Painel Frota.
+    const classificacao = String(profile.classificacao ?? "")
+        .trim();
+
+    const perfil = classificacao
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+    if (!perfil) {
+        throw new Error(
+            "O empregado não possui classificação de acesso cadastrada."
+        );
+    }
+
+    // 6. Retornar os dados no formato esperado pelo restante do app.
     return {
-      id: me.id,
-      employeeId: profile.empregado_id || profile.id_empregado || "",
-      matricula: matriculaPerfil,
-      nome: nomePerfil || matriculaPerfil,
-      perfil,
-      classificacao: perfilOriginal
+        id: me.id,
+        employeeId: profile.id,
+        matricula: matriculaPerfil,
+        nome: profile.empregado || matriculaPerfil,
+        perfil,
+        classificacao,
+        status
     };
-  }
+}
 
   function pageAllowed(p, role) {
     if (["relatorio", "ruv", "lancamentos_relatorio"].includes(p)) return ["admin", "supervisor"].includes(role);
