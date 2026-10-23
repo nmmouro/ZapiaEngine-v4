@@ -1,0 +1,7 @@
+# O login por matricula nao tem JWT antes de autenticar.
+[functions.login-matricula]
+verify_jwt = false
+
+# A funcao de criacao exige JWT e tambem valida o perfil ADMIN no codigo.
+[functions.admin-criar-acesso]
+verify_jwt = true
