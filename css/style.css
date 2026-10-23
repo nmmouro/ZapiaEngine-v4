@@ -605,3 +605,116 @@ body {
 .engine-form-container select {
     text-transform: uppercase;
 }
+
+
+/* ============================================================
+   AJUSTE DO CABEÇALHO — CONTROLE DE USUÁRIO EM LINHA PRÓPRIA
+   Evita que o botão de criação de acesso e o status da sessão
+   cubram a logo, o título, a data/hora ou o botão Tela Cheia.
+   ============================================================ */
+.app-header {
+    box-sizing: border-box;
+    height: auto;
+    min-height: 76px;
+    grid-template-rows: 76px auto;
+}
+
+.app-header > .header-logo {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.app-header > .header-titulo {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.app-header > .header-acoes {
+    grid-column: 3;
+    grid-row: 1;
+}
+
+.app-header > .pf-auth-user {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: stretch;
+    align-self: stretch;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 8px 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+    position: relative;
+    border-top: 1px solid #e5e7eb;
+    background: #f8fafc;
+    z-index: 1;
+}
+
+.app-header > .pf-auth-user > span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    color: #334155;
+}
+
+.app-header > .pf-auth-user .pf-create-driver-access,
+.app-header > .pf-auth-user .pf-auth-logout {
+    flex: 0 0 auto;
+    min-height: 32px;
+}
+
+@media (max-width: 900px) {
+    .app-header {
+        grid-template-rows: 72px auto;
+    }
+
+    .app-header > .pf-auth-user {
+        justify-content: flex-end;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 650px) {
+    .app-header {
+        height: auto;
+        min-height: 72px;
+        grid-template-rows: auto auto;
+        grid-template-columns: 80px minmax(0, 1fr) auto;
+        align-items: center;
+    }
+
+    .app-header > .header-logo,
+    .app-header > .header-titulo,
+    .app-header > .header-acoes {
+        grid-row: 1;
+    }
+
+    .app-header > .header-acoes {
+        gap: 6px;
+    }
+
+    .app-header > .pf-auth-user {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        justify-content: flex-start;
+        gap: 7px;
+        padding: 8px 0 2px;
+    }
+
+    .app-header > .pf-auth-user > span {
+        flex: 1 1 100%;
+        order: 3;
+    }
+
+    .app-header > .pf-auth-user .pf-create-driver-access {
+        order: 1;
+    }
+
+    .app-header > .pf-auth-user .pf-auth-logout {
+        order: 2;
+    }
+}
