@@ -45,7 +45,9 @@ const PREFIXOS = {
 
     manutencao: "MAN",
 
-    manutencoes: "MAN"
+    manutencoes: "MAN",
+
+    agenda: "AGD"
 
 };
 
@@ -170,12 +172,15 @@ export async function gerarId(
                     prefixo.length
                 );
 
+            // IDs antigos da Agenda usavam AGD + Date.now() (13 dígitos).
+            // Ignora esses sufixos legados para iniciar o padrão sequencial
+            // AGD000001 sem alterar os registros existentes.
+            // O padrão sequencial atual usa de 1 a 6 dígitos.
+            if (!/^\d{1,6}$/.test(numeroTexto)) {
+                return;
+            }
 
-            const numero =
-                Number(
-                    numeroTexto
-                );
-
+            const numero = Number(numeroTexto);
 
             if (
                 Number.isInteger(numero) &&
