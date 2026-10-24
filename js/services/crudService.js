@@ -757,6 +757,31 @@ export async function criar(
             payload
         );
 
+    // Em uma NOVA ocorrência, define o responsável diretamente no payload
+    // enviado ao Supabase. Assim, o valor não depende apenas do campo oculto
+    // do formulário, que pode ser ignorado ou alterado antes da serialização.
+    if (String(entity || "").toLowerCase() === "lancamentos") {
+        const auth = window.PainelFrotaAuth;
+        const usuarioConectado = typeof auth?.usuario === "function"
+            ? auth.usuario()
+            : null;
+        const nomeConectado = String(
+            usuarioConectado?.nome ||
+            usuarioConectado?.empregado ||
+            usuarioConectado?.name ||
+            usuarioConectado?.matricula ||
+            ""
+        ).trim();
+
+        if (nomeConectado) {
+            payload.usuario = nomeConectado;
+        } else {
+            console.warn(
+                "CRUD SERVICE → nova ocorrência sem nome do usuário autenticado; confira PainelFrotaAuth.usuario()."
+            );
+        }
+    }
+
     console.log(
         "CRUD SERVICE → CRIAR → PAYLOAD FINAL:",
         JSON.stringify(payload, null, 2)
