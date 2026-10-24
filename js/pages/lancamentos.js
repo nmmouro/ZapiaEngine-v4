@@ -550,6 +550,11 @@ function instalarControlesDoCiclo() {
         // depois do clique em "INICIAR OCORRÊNCIA".
         limparDadosParaNovaOcorrencia();
 
+        // Registra no lançamento o empregado autenticado (motorista,
+        // administrador ou usuário), independentemente do empregado/veículo
+        // escolhido para a ocorrência.
+        preencherUsuarioConectado();
+
         configurarAbertura();
         adicionarBotoesAuxiliares();
         resetarIndicadoresAuxiliares();
@@ -738,6 +743,67 @@ function aplicarDadosAgendamento(agendamento) {
 }
 
 
+function preencherUsuarioConectado() {
+    const auth = window.PainelFrotaAuth;
+    const usuario = typeof auth?.usuario === "function" ? auth.usuario() : null;
+    const nome = String(
+        usuario?.nome || usuario?.empregado || usuario?.name || usuario?.matricula || ""
+    ).trim();
+    const matricula = String(usuario?.matricula || "").trim();
+    const idEmpregado = String(usuario?.employeeId || usuario?.id_empregado || "").trim();
+    const rotuloEmpregado = [nome, matricula].filter(Boolean).join(" / ");
+
+    // Nome da conta que iniciou a sessão (motorista, administrador ou usuário).
+    if (nome) {
+        setValor("usuario", nome);
+    } else {
+        console.warn("LANÇAMENTOS → não foi possível obter o nome do usuário autenticado.");
+    }
+
+    // Empregado/Matrícula deve representar a pessoa autenticada, não uma pessoa
+    // escolhida manualmente. Mantemos o select habilitado para que seja enviado
+    // no FormData, mas bloqueamos interação e substituição por outra pessoa.
+    const selectEmpregado = modulo?.form?.formulario?.querySelector('[name="id_empregado"]');
+    if (selectEmpregado && idEmpregado) {
+        let opcao = Array.from(selectEmpregado.options).find(o => o.value === idEmpregado);
+        if (!opcao) {
+            opcao = new Option(rotuloEmpregado || idEmpregado, idEmpregado, true, true);
+            selectEmpregado.add(opcao);
+        } else if (rotuloEmpregado) {
+            opcao.textContent = rotuloEmpregado;
+        }
+
+        selectEmpregado.value = idEmpregado;
+        selectEmpregado.dataset.usuarioConectado = "true";
+        selectEmpregado.setAttribute("aria-readonly", "true");
+        selectEmpregado.title = "Preenchido automaticamente conforme o usuário conectado";
+        selectEmpregado.style.pointerEvents = "none";
+        selectEmpregado.style.backgroundColor = "#f1f5f9";
+        selectEmpregado.style.color = "#475569";
+        selectEmpregado.tabIndex = -1;
+
+        // Impede mudanças via teclado/script de interação; reafirma o valor da sessão.
+        if (!selectEmpregado.dataset.usuarioConectadoProtegido) {
+            selectEmpregado.addEventListener("change", () => {
+                if (selectEmpregado.value !== idEmpregado) selectEmpregado.value = idEmpregado;
+                setValor("empregado_matricula", rotuloEmpregado);
+            });
+            selectEmpregado.addEventListener("keydown", evento => evento.preventDefault());
+            selectEmpregado.dataset.usuarioConectadoProtegido = "true";
+        }
+
+        setValor("empregado_matricula", rotuloEmpregado);
+        selectEmpregado.dispatchEvent(new Event("change", { bubbles: true }));
+        // A sincronização do select pode atualizar o snapshot; reafirma o rótulo correto.
+        setValor("empregado_matricula", rotuloEmpregado);
+        console.log("LANÇAMENTOS → EMPREGADO/MATRÍCULA DA SESSÃO:", rotuloEmpregado, idEmpregado);
+    } else {
+        console.warn("LANÇAMENTOS → não foi possível preencher Empregado/Matrícula; perfil sem employeeId/id_empregado.");
+    }
+
+    if (nome) console.log("LANÇAMENTOS → USUÁRIO RESPONSÁVEL:", nome);
+}
+
 function limparDadosParaNovaOcorrencia() {
     const form = modulo?.form?.formulario;
     if (!form) return;
@@ -923,6 +989,9 @@ async function interceptarESalvarComCalculados(evento) {
     if (preparando || modulo?.form?.salvando) return;
 
     if (modo === "abertura") {
+        // Reaplica imediatamente antes de salvar para que o nome não seja
+        // perdido por resets ou alterações no formulário.
+        preencherUsuarioConectado();
         await validarAntesDeSalvar(evento);
         return;
     }
