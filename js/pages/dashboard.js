@@ -11,6 +11,7 @@
  */
 
 import { listar, atualizar } from "../services/crudService.js";
+import { CONFIG } from "../config/config.js";
 
 const INTERVALO_ATUALIZACAO = 30000;
 let timerAtualizacao = null;
@@ -133,11 +134,63 @@ function renderizarEstrutura(container) {
     `;
 }
 
+/**
+ * O Dashboard precisa considerar ocorrências de todos os usuários para
+ * calcular ocupação de veículos/motoristas e exibir todo o andamento do dia.
+ * A função RPC no Supabase entrega os lançamentos globais apenas para sessão
+ * autenticada, sem ampliar a política geral de leitura da tabela.
+ */
+async function listarLancamentosDashboard() {
+    const auth = window.PainelFrotaAuth;
+    const token = auth?.token?.();
+    const apiBase = String(CONFIG?.api?.url || "").trim().replace(/\/+$/, "");
+    const apiKey = String(CONFIG?.api?.key || "").trim();
+
+    if (!token) {
+        throw new Error("Sessão não iniciada. Entre novamente no Painel Frota.");
+    }
+    if (!apiBase || !apiKey) {
+        throw new Error("Configure a URL REST e a chave pública do Supabase em js/config/config.js.");
+    }
+
+    const resposta = await fetch(`${apiBase}/rpc/dashboard_lancamentos`, {
+        method: "POST",
+        headers: {
+            apikey: apiKey,
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+        },
+        body: "{}"
+    });
+
+    if (!resposta.ok) {
+        let detalhe = "";
+        try {
+            const erro = await resposta.json();
+            detalhe = erro.message || erro.details || erro.hint || erro.error || JSON.stringify(erro);
+        } catch {}
+        throw new Error(detalhe || `Erro HTTP ${resposta.status} ao carregar ocorrências do Dashboard.`);
+    }
+
+    const dados = await resposta.json();
+    if (Array.isArray(dados)) return dados;
+    if (Array.isArray(dados?.data)) return dados.data;
+    return [];
+}
+
 async function atualizarDashboard() {
     const [veiculos, empregados, lancamentos] = await Promise.all([
         listar("veiculos"),
         listar("empregados"),
-        listar("lancamentos")
+        listarLancamentosDashboard().catch((erro) => {
+            console.error(
+                "DASHBOARD → falha ao carregar ocorrências globais. Verifique se sql/dashboard_lancamentos.sql foi executado no Supabase:",
+                erro
+            );
+            // Mantém o Dashboard funcional enquanto a RPC não estiver instalada.
+            // A visão global só será possível após executar a migração SQL.
+            return listar("lancamentos");
+        })
     ]);
 
     // A Agenda é carregada separadamente para que uma falha nessa tabela
