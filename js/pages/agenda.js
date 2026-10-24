@@ -1,4 +1,5 @@
 import { listar, criar, atualizar, excluir } from "../services/crudService.js";
+import { gerarId } from "../engine/idService.js";
 
 const ENTITY = "agenda";
 let registros = [];
@@ -106,7 +107,7 @@ export async function iniciarAgenda() {
         await atualizar(ENTITY, { id, ...dados });
         avisar("Agendamento atualizado com sucesso.");
       } else {
-        dados.id = `AGD${Date.now()}`;
+        dados.id = await gerarId(ENTITY);
         await criar(ENTITY, dados);
         avisar("Agendamento cadastrado com sucesso.");
       }
