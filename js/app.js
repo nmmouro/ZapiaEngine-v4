@@ -370,6 +370,17 @@ if (!window.PainelFrotaAuth) {
         }
 
 
+        if (
+            caminho.endsWith(
+                "/usuarios.html"
+            )
+        ) {
+
+            return "usuarios";
+
+        }
+
+
         /*
          * ----------------------------------------------------
          * RAIZ / INDEX
@@ -686,6 +697,28 @@ if (!window.PainelFrotaAuth) {
                 return executarModulo(
                     modulo,
                     "RUV"
+                );
+
+            }
+
+
+            /* =================================================
+               GERENCIAR ACESSOS / USUÁRIOS
+            ================================================= */
+
+            case "usuarios": {
+
+                console.log(
+                    "APP → CARREGANDO GERENCIAR ACESSOS"
+                );
+
+                const modulo = await import(
+                    "./pages/usuarios.js"
+                );
+
+                return executarModulo(
+                    modulo,
+                    "GERENCIAR ACESSOS"
                 );
 
             }
