@@ -109,148 +109,43 @@ async function edgeRequest(functionName, body, bearer = "") {
   }
  
   async function carregarPerfil(accessToken, matriculaInformada) {
-    // 1. Validar a sessão no Supabase Auth.
-    const meRes = await fetch(`${projectUrl}/user`, {
-        headers: {
-            apikey: apiKey,
-            Authorization: `Bearer ${accessToken}`
-        }
-    });
-
+    const meRes = await fetch(`${projectUrl}/user`, { headers: { apikey: apiKey, Authorization: `Bearer ${accessToken}` } });
     const me = await meRes.json().catch(() => ({}));
+    if (!meRes.ok || !me.id || !me.email) throw new Error("Não foi possível validar a sessão do Supabase.");
 
-    if (!meRes.ok || !me.id || !me.email) {
-        throw new Error(
-            "Não foi possível validar a sessão do Supabase."
-        );
-    }
+    const rows = await rest(`empregados?email=eq.${encodeURIComponent(String(me.email).trim().toLowerCase())}&select=id,empregado,matricula,email,classificacao,status`, accessToken);
+    if (!Array.isArray(rows) || rows.length !== 1) throw new Error("Não foi encontrado um único empregado vinculado ao e-mail autenticado.");
+    const employee = rows[0];
+    const matriculaEmpregado = String(employee.matricula ?? "").trim();
+    if (matriculaInformada && matriculaEmpregado !== String(matriculaInformada).trim()) throw new Error("A matrícula informada não corresponde ao empregado autenticado.");
+    if (String(employee.status ?? "").trim().toUpperCase() !== "ATIVO") throw new Error("O cadastro do empregado está inativo. Solicite a verificação ao administrador.");
 
-    // 2. Consultar o empregado pelo e-mail da conta autenticada.
-    const filtroEmail = encodeURIComponent(me.email);
-
-    const rows = await rest(
-        `empregados?email=eq.${filtroEmail}` +
-        `&select=id,empregado,matricula,email,classificacao,status`,
-        accessToken
-    );
-
-    if (!Array.isArray(rows) || rows.length !== 1) {
-        throw new Error(
-            "Não foi encontrado um único empregado vinculado " +
-            "ao e-mail autenticado. Verifique o cadastro em empregados."
-        );
-    }
-
-    const profile = rows[0];
-
-    // 3. Validar a matrícula informada.
-    const matriculaPerfil = String(
-        profile.matricula ?? ""
-    ).trim();
-
-    if (
-        matriculaInformada &&
-        matriculaPerfil !== String(matriculaInformada).trim()
-    ) {
-        throw new Error(
-            "A matrícula informada não corresponde ao empregado autenticado."
-        );
-    }
-
-    // 4. Verificar a situação do empregado.
-    const status = String(profile.status ?? "")
-        .trim()
-        .toUpperCase();
-
-    if (status !== "ATIVO") {
-        throw new Error(
-            "O acesso está inativo. Solicite a verificação ao administrador."
-        );
-    }
-
-    // 5. Normalizar a classificação para as regras do Painel Frota.
-    const classificacao = String(profile.classificacao ?? "")
-        .trim();
-
-    const perfil = classificacao
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
-
-    if (!perfil) {
-        throw new Error(
-            "O empregado não possui classificação de acesso cadastrada."
-        );
-    }
-
-    // 6. Retornar os dados no formato esperado pelo restante do app.
-    return {
-        id: me.id,
-        employeeId: profile.id,
-        matricula: matriculaPerfil,
-        nome: profile.empregado || matriculaPerfil,
-        perfil,
-        classificacao,
-        status
-    };
-}
+    const profiles = await rest(`perfis_acesso?auth_user_id=eq.${encodeURIComponent(me.id)}&select=id,auth_user_id,empregado_id,matricula,nome,perfil,ativo`, accessToken);
+    if (!Array.isArray(profiles) || profiles.length !== 1) throw new Error("Não foi encontrado um perfil de acesso vinculado à conta. Solicite a regularização ao administrador.");
+    const profile = profiles[0];
+    if (profile.ativo !== true) throw new Error("Este acesso está desativado. Solicite ao administrador a reativação.");
+    if (String(profile.matricula ?? "").trim() !== matriculaEmpregado) throw new Error("A matrícula do perfil de acesso não corresponde ao empregado autenticado.");
+    const rawRole = String(profile.perfil ?? "").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const perfil = rawRole === "administrador" ? "admin" : rawRole;
+    if (!new Set(["admin", "motorista", "supervisor", "usuario"]).has(perfil)) throw new Error("O perfil de acesso não é válido. Solicite a correção ao administrador.");
+    const roleLabel = perfil === "admin" ? "ADMIN" : perfil.toUpperCase();
+    return { id: me.id, employeeId: profile.empregado_id || employee.id, matricula: matriculaEmpregado,
+      nome: profile.nome || employee.empregado || matriculaEmpregado, perfil, classificacao: roleLabel, status: employee.status };
+  }
 
   function pageAllowed(p, role) {
     if (["relatorio", "ruv", "lancamentos_relatorio"].includes(p)) return ["admin", "supervisor"].includes(role);
     if (["usuarios"].includes(p)) return role === "admin";
     return true;
   }
-  function abrirModalCriarAcesso() {
-    if (document.querySelector(".pf-access-modal")) return;
-    addStyle();
-    const modal = document.createElement("div");
-    modal.className = "pf-auth-shade pf-access-modal";
-    modal.innerHTML = `<form class="pf-auth-card" autocomplete="off">
-      <h1>Criar acesso de motorista</h1>
-      <p>O empregado já deve estar cadastrado em Empregados, com classificação MOTORISTA, status ATIVO e e-mail.</p>
-      <label for="pf-access-matricula">Matrícula do motorista</label>
-      <input id="pf-access-matricula" name="matricula" inputmode="numeric" required>
-      <label for="pf-access-password">Senha inicial (mínimo 8 caracteres)</label>
-      <input id="pf-access-password" name="password" type="password" minlength="8" autocomplete="new-password" required>
-      <label for="pf-access-confirm">Confirmar senha</label>
-      <input id="pf-access-confirm" name="confirm" type="password" minlength="8" autocomplete="new-password" required>
-      <div class="pf-auth-msg" role="status" aria-live="polite"></div>
-      <button type="submit">Criar acesso</button>
-      <button type="button" class="pf-access-cancel" style="background:#64748b;margin-top:8px">Cancelar</button>
-    </form>`;
-    document.body.appendChild(modal);
-    const form = modal.querySelector("form"), msg = modal.querySelector(".pf-auth-msg"), submit = form.querySelector('button[type="submit"]');
-    modal.querySelector(".pf-access-cancel").addEventListener("click", () => modal.remove());
-    form.addEventListener("submit", async event => {
-      event.preventDefault();
-      const matricula = modal.querySelector("#pf-access-matricula").value.trim();
-      const password = modal.querySelector("#pf-access-password").value;
-      const confirm = modal.querySelector("#pf-access-confirm").value;
-      if (!matricula) { msg.textContent = "Informe a matrícula."; return; }
-      if (password.length < 8) { msg.textContent = "A senha deve ter pelo menos 8 caracteres."; return; }
-      if (password !== confirm) { msg.textContent = "As senhas não coincidem."; return; }
-      submit.disabled = true; msg.textContent = "Criando acesso seguro…";
-      try {
-        const result = await edgeRequest("admin-criar-acesso", { matricula, password }, token());
-        msg.style.color = "#166534";
-        msg.textContent = `Acesso criado para ${result.nome || "motorista"} (matrícula ${result.matricula}).`;
-        form.reset();
-        submit.textContent = "Acesso criado";
-      } catch (error) {
-        msg.style.color = "#b91c1c";
-        msg.textContent = error.message || "Não foi possível criar o acesso.";
-        submit.disabled = false;
-      }
-    });
-  }
 
   function addUserControl(user) {
     const header = document.querySelector("[data-header]"); if (!header || header.querySelector(".pf-auth-user")) return;
     const el = document.createElement("div"); el.className = "pf-auth-user";
     const isAdmin = String(user.perfil || "").toLowerCase() === "admin";
-    el.innerHTML = `${isAdmin ? '<button type="button" class="pf-create-driver-access">Criar acesso MOTORISTA</button>' : ""}<span>Conectado: ${safe(user.nome || user.matricula)} · ${safe(user.classificacao || user.perfil)}</span><button type="button" class="pf-auth-logout">Sair</button>`;
+    el.innerHTML = `${isAdmin ? '<button type="button" class="pf-create-driver-access">Gerenciar acessos</button>' : ""}<span>Conectado: ${safe(user.nome || user.matricula)} · ${safe(user.classificacao || user.perfil)}</span><button type="button" class="pf-auth-logout">Sair</button>`;
     const createButton = el.querySelector(".pf-create-driver-access");
-    if (createButton) createButton.addEventListener("click", abrirModalCriarAcesso);
+    if (createButton) createButton.addEventListener("click", () => { location.href = "./usuarios.html"; });
     el.querySelector(".pf-auth-logout").addEventListener("click", async () => {
       const activeToken = token();
       try { if (activeToken) await fetch(`${projectUrl}/logout`, { method: "POST", headers: { apikey: apiKey, Authorization: `Bearer ${activeToken}` } }); } catch (_) {}
