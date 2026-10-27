@@ -77,7 +77,7 @@ async function loadAccesses() {
   }
 }
 
-async function init() {
+export async function init() {
   const auth = getAuth();
   if (!auth) { setMessage("Autenticação não foi carregada. Recarregue a página."); return; }
   await auth.ready();
@@ -111,4 +111,3 @@ async function init() {
   });
   await loadAccesses();
 }
-init().catch(error => setMessage(error.message || "Falha ao iniciar o gerenciamento de acessos."));
