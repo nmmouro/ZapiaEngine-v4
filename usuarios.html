@@ -3,51 +3,82 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Painel Frota - gerenciamento administrativo de acessos">
   <title>Painel Frota - Gerenciar acessos</title>
   <link rel="stylesheet" href="./css/style.css">
   <link rel="stylesheet" href="./css/components.css">
-  <style>
-    .pf-access-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-    .pf-access-grid label{display:block;font-weight:600;margin:10px 0 5px}
-    .pf-access-grid input,.pf-access-grid select{width:100%;box-sizing:border-box;padding:10px;border:1px solid #cbd5e1;border-radius:7px;font:inherit}
-    .pf-access-actions{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
-    .pf-access-actions button,.pf-access-table button{padding:9px 12px;border:0;border-radius:6px;background:#1d4ed8;color:#fff;font-weight:600;cursor:pointer}
-    .pf-access-actions button:disabled,.pf-access-table button:disabled{opacity:.55;cursor:wait}
-    #empregado-encontrado{margin:12px 0;padding:12px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc;line-height:1.7}
-    .pf-access-table{width:100%;border-collapse:collapse;margin-top:12px}
-    .pf-access-table th,.pf-access-table td{padding:9px;border-bottom:1px solid #e2e8f0;text-align:left;overflow-wrap:anywhere}
-    .pf-access-table th{background:#f1f5f9}
-    @media(max-width:700px){.table-responsive{overflow-x:auto}.pf-access-table{min-width:760px}}
-  </style>
+  <link rel="stylesheet" href="./css/usuarios.css?v=20261028-usuarios-v1">
 </head>
 <body data-page="usuarios" data-page-title="Gerenciar acessos">
   <header data-header class="app-header"></header>
-  <main id="app" class="app-container">
-    <section class="panel">
-      <h1>Gerenciar acessos</h1>
-      <p>Crie acessos para Motorista, Supervisor e Usuário. O perfil de acesso controla as permissões do Painel Frota; o cadastro funcional do empregado permanece em Empregados.</p>
-      <form id="form-acesso" autocomplete="off" hidden>
-        <h2>Novo acesso</h2>
-        <div class="pf-access-grid">
-          <div><label for="matricula">Matrícula do empregado</label><input id="matricula" name="matricula" required autocomplete="off"></div>
-          <div class="pf-access-actions"><button type="button" id="consultar-empregado">Consultar empregado</button></div>
-          <div><label for="perfil-acesso">Perfil de acesso</label><select id="perfil-acesso" name="perfil" required><option value="motorista">Motorista</option><option value="supervisor">Supervisor</option><option value="usuario">Usuário</option></select></div>
-          <div><label for="senha">Senha inicial (mínimo 8 caracteres)</label><input id="senha" name="senha" type="password" minlength="8" required autocomplete="new-password"></div>
-          <div><label for="confirmar-senha">Confirmar senha</label><input id="confirmar-senha" name="confirmar-senha" type="password" minlength="8" required autocomplete="new-password"></div>
+
+  <main id="app" class="app-container usuarios-page">
+    <section class="usuarios-panel" aria-labelledby="usuarios-titulo">
+      <div class="usuarios-heading">
+        <div>
+          <p class="usuarios-eyebrow">ADMINISTRAÇÃO</p>
+          <h2 id="usuarios-titulo">Gerenciar acessos</h2>
+          <p class="usuarios-intro">Crie e gerencie os acessos ao Painel Frota. O perfil de acesso controla as permissões, enquanto o cadastro funcional do empregado permanece no módulo Empregados.</p>
         </div>
-        <div id="empregado-encontrado" hidden></div>
-        <button type="submit">Criar acesso</button>
-        <p id="mensagem" role="status" aria-live="polite"></p>
+      </div>
+
+      <form id="form-acesso" class="usuarios-form" autocomplete="off" hidden>
+        <div class="usuarios-section-heading">
+          <h3>Novo acesso</h3>
+          <p>Consulte o empregado antes de criar uma conta.</p>
+        </div>
+        <div class="usuarios-grid">
+          <div class="usuarios-field">
+            <label for="matricula">Matrícula do empregado</label>
+            <input id="matricula" name="matricula" required autocomplete="off" inputmode="numeric">
+          </div>
+          <div class="usuarios-field usuarios-field-action">
+            <span class="usuarios-label-spacer" aria-hidden="true">Consulta</span>
+            <button type="button" id="consultar-empregado" class="btn btn-secondary">Consultar empregado</button>
+          </div>
+          <div class="usuarios-field">
+            <label for="perfil-acesso">Perfil de acesso</label>
+            <select id="perfil-acesso" name="perfil" required>
+              <option value="motorista">Motorista</option>
+              <option value="supervisor">Supervisor</option>
+              <option value="usuario">Usuário</option>
+            </select>
+          </div>
+          <div class="usuarios-field">
+            <label for="senha">Senha inicial (mínimo 8 caracteres)</label>
+            <input id="senha" name="senha" type="password" minlength="8" required autocomplete="new-password">
+          </div>
+          <div class="usuarios-field">
+            <label for="confirmar-senha">Confirmar senha</label>
+            <input id="confirmar-senha" name="confirmar-senha" type="password" minlength="8" required autocomplete="new-password">
+          </div>
+        </div>
+        <div id="empregado-encontrado" class="usuarios-employee-card" hidden></div>
+        <div class="usuarios-form-actions">
+          <button type="submit" class="btn btn-primary">Criar acesso</button>
+        </div>
+        <p id="mensagem" class="usuarios-message" role="status" aria-live="polite"></p>
       </form>
-      <p id="mensagem-fallback" role="status" aria-live="polite"></p>
-      <h2>Contas cadastradas</h2>
-      <div id="lista-acessos">Carregando...</div>
-      <p><a href="./index.html">Voltar ao menu</a></p>
+
+      <p id="mensagem-fallback" class="usuarios-message" role="status" aria-live="polite"></p>
+
+      <section class="usuarios-list-section" aria-labelledby="usuarios-lista-titulo">
+        <div class="usuarios-section-heading">
+          <h3 id="usuarios-lista-titulo">Contas cadastradas</h3>
+          <p>Consulte os perfis e ative ou desative os acessos existentes.</p>
+        </div>
+        <div id="lista-acessos" class="usuarios-list" aria-live="polite">Carregando acessos...</div>
+      </section>
     </section>
   </main>
-  <script src="./js/config/public-config.js?v=20261025-access-admin-v1"></script>
-  <script src="./js/auth.js?v=20261025-access-admin-v1"></script>
+
+  <script src="./js/config/public-config.js?v=20261017-supabase-v1"></script>
+  <script src="./js/auth.js?v=20261017-supabase-auth-v1"></script>
+  <!-- O app.js importa e inicializa usuarios.js. Não incluir uma segunda tag de módulo aqui. -->
   <script type="module" src="./js/app.js"></script>
-  <script type="module" src="./js/pages/usuarios.js?v=20261025-access-admin-v1"></script>
+  <script type="module">
+    import { iniciarHeader } from "./js/components/header.js";
+    iniciarHeader({ logo: "./assets/logo.png", tituloPadrao: "Painel Frota" });
+  </script>
 </body>
 </html>
