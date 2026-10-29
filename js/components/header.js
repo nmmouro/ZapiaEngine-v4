@@ -330,7 +330,7 @@ function deveExibirVoltarAoPainel() {
     const pagina = String(document.body?.dataset?.page || "").trim().toLowerCase();
     return [
         "veiculos", "empregados", "abastecimentos", "agenda",
-        "lancamentos", "relatorio", "ruv", "dashboard"
+        "lancamentos", "relatorio", "ruv", "dashboard", "usuarios"
     ].includes(pagina);
 }
 
