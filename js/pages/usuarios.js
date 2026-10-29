@@ -59,7 +59,7 @@ async function loadAccesses() {
     const result = await edge("list");
     const rows = result.acessos || [];
     if (!rows.length) { root.innerHTML = "<p>Nenhum perfil de acesso cadastrado.</p>"; return; }
-    root.innerHTML = `<div class="table-responsive"><table class="pf-access-table"><thead><tr><th>Matrícula</th><th>Empregado</th><th>E-mail</th><th>Perfil de acesso</th><th>Status do acesso</th><th>Ação</th></tr></thead><tbody>${rows.map(r => `<tr><td>${esc(r.matricula)}</td><td>${esc(r.nome)}</td><td>${esc(r.email)}</td><td>${esc(r.perfil)}</td><td>${r.ativo ? "ATIVO" : "INATIVO"}</td><td><button type="button" class="pf-access-toggle" data-matricula="${esc(r.matricula)}" data-active="${r.ativo ? "true" : "false"}" ${String(r.empregado_status).toUpperCase() !== "ATIVO" && !r.ativo ? "disabled" : ""}>${r.ativo ? "Desativar" : "Ativar"}</button></td></tr>`).join("")}</tbody></table></div>`;
+    root.innerHTML = `<div class="table-responsive"><table class="pf-access-table"><thead><tr><th>Matrícula</th><th>Empregado</th><th>E-mail</th><th>Perfil de acesso</th><th>Status do acesso</th><th>Ação</th></tr></thead><tbody>${rows.map(r => `<tr><td>${esc(r.matricula)}</td><td>${esc(r.nome)}</td><td>${esc(r.email)}</td><td>${esc(r.perfil)}</td><td>${r.ativo ? "ATIVO" : "INATIVO"}</td><td><button type="button" class="btn ${r.ativo ? "btn-danger" : "btn-success"} pf-access-toggle" data-matricula="${esc(r.matricula)}" data-active="${r.ativo ? "true" : "false"}" ${String(r.empregado_status).toUpperCase() !== "ATIVO" && !r.ativo ? "disabled" : ""}>${r.ativo ? "Desativar" : "Ativar"}</button></td></tr>`).join("")}</tbody></table></div>`;
     root.querySelectorAll(".pf-access-toggle").forEach(button => button.addEventListener("click", async () => {
       const matricula = button.dataset.matricula;
       const current = button.dataset.active === "true";
@@ -77,7 +77,7 @@ async function loadAccesses() {
   }
 }
 
-export async function init() {
+async function inicializarUsuarios() {
   const auth = getAuth();
   if (!auth) { setMessage("Autenticação não foi carregada. Recarregue a página."); return; }
   await auth.ready();
@@ -110,4 +110,18 @@ export async function init() {
     finally { submit.disabled = false; }
   });
   await loadAccesses();
+}
+
+
+/*
+ * Inicialização idempotente: app.js é o único responsável por importar
+ * este módulo. Se init() for chamado novamente, reutiliza a mesma Promise
+ * e não registra listeners nem consulta dados em duplicidade.
+ */
+export function init() {
+  if (window.__PAINEL_FROTA_USUARIOS_INIT_PROMISE__) {
+    return window.__PAINEL_FROTA_USUARIOS_INIT_PROMISE__;
+  }
+  window.__PAINEL_FROTA_USUARIOS_INIT_PROMISE__ = inicializarUsuarios();
+  return window.__PAINEL_FROTA_USUARIOS_INIT_PROMISE__;
 }
