@@ -1,0 +1,182 @@
+/* ============================================================
+   USUÁRIOS — estilos específicos da página de gerenciamento
+   Os botões reutilizam .btn de components.css.
+   ============================================================ */
+
+.usuarios-page {
+  width: min(100%, 1440px);
+  margin-inline: auto;
+}
+
+.usuarios-panel {
+  min-width: 0;
+  padding: clamp(18px, 3vw, 30px);
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgb(15 23 42 / 5%);
+}
+
+.usuarios-heading { margin-bottom: 24px; }
+.usuarios-eyebrow {
+  margin: 0 0 6px;
+  color: #2563eb;
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+.usuarios-heading h2 {
+  margin: 0;
+  color: #111827;
+  font-size: clamp(1.35rem, 2.5vw, 1.8rem);
+  line-height: 1.25;
+}
+.usuarios-intro {
+  max-width: 850px;
+  margin: 10px 0 0;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+.usuarios-form {
+  margin: 0 0 26px;
+  padding: 22px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+.usuarios-section-heading {
+  margin-bottom: 16px;
+}
+.usuarios-section-heading h3 {
+  margin: 0;
+  color: #111827;
+  font-size: 1.08rem;
+}
+.usuarios-section-heading p {
+  margin: 5px 0 0;
+  color: #6b7280;
+  font-size: .9rem;
+  line-height: 1.5;
+}
+
+.usuarios-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.usuarios-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+.usuarios-field label,
+.usuarios-label-spacer {
+  color: #374151;
+  font-size: .87rem;
+  font-weight: 650;
+}
+.usuarios-field input,
+.usuarios-field select {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  background: #fff;
+  color: #111827;
+  font: inherit;
+}
+.usuarios-field input:focus,
+.usuarios-field select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 13%);
+}
+.usuarios-field-action { justify-content: flex-end; }
+.usuarios-field-action .btn { align-self: flex-start; }
+.usuarios-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+.usuarios-employee-card {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #374151;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.usuarios-message {
+  margin: 12px 0 0;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.usuarios-list-section { margin-top: 20px; }
+.usuarios-list { min-width: 0; }
+.usuarios-list > p { color: #4b5563; }
+
+.usuarios-table-wrap,
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 9px;
+  background: #fff;
+}
+.pf-access-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+}
+.pf-access-table th,
+.pf-access-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+}
+.pf-access-table th {
+  background: #f3f4f6;
+  color: #374151;
+  font-size: .8rem;
+  font-weight: 750;
+  white-space: nowrap;
+}
+.pf-access-table td {
+  color: #374151;
+  font-size: .88rem;
+}
+.pf-access-table tbody tr:hover { background: #f9fafb; }
+.pf-access-table tbody tr:last-child td { border-bottom: 0; }
+.pf-access-table .pf-access-toggle {
+  min-height: 34px;
+  padding: 7px 12px;
+  font-size: .82rem;
+}
+.pf-access-table .pf-access-toggle:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+.usuarios-page .btn:focus-visible,
+.usuarios-page .pf-access-toggle:focus-visible {
+  outline: 3px solid rgb(37 99 235 / 30%);
+  outline-offset: 2px;
+}
+
+@media (max-width: 700px) {
+  .usuarios-page { padding: 12px; }
+  .usuarios-panel { padding: 16px; }
+  .usuarios-form { padding: 16px; }
+  .usuarios-grid { grid-template-columns: minmax(0, 1fr); }
+  .usuarios-field-action .btn { width: 100%; }
+  .usuarios-form-actions .btn { width: 100%; }
+}
