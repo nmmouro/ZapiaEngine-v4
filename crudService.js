@@ -1,0 +1,1189 @@
+/**
+ * ============================================================
+ * CRUD SERVICE
+ * Painel Frota
+ * Arquivo: crudService.js
+ *
+ * Camada de comunicação com o backend.
+ *
+ * Backend atual:
+ *
+ *     PostgreSQL
+ *     Supabase REST API
+ *
+ * Responsabilidade:
+ *
+ * - Montar URL
+ * - Enviar API Key
+ * - Executar GET
+ * - Executar POST
+ * - Executar PATCH
+ * - Executar DELETE
+ * - Tratar respostas HTTP
+ *
+ * NÃO conhece:
+ *
+ * - Engine
+ * - Form
+ * - Table
+ * - Toolbar
+ * - HTML
+ *
+ * ============================================================
+ */
+
+
+// ============================================================
+// CONFIGURAÇÃO
+// ============================================================
+
+import { CONFIG } from "../config/config.js";
+
+
+// ============================================================
+// CONFIGURAÇÃO DA API
+// ============================================================
+
+const API_URL =
+    String(
+        CONFIG?.api?.url || ""
+    )
+    .trim()
+    .replace(
+        /\/+$/,
+        ""
+    );
+
+
+const API_KEY =
+    String(
+        CONFIG?.api?.key || ""
+    )
+    .trim();
+
+
+const TOKEN =
+    String(
+        CONFIG?.api?.token ||
+        API_KEY
+    )
+    .trim();
+
+
+// ============================================================
+// VALIDAÇÃO
+// ============================================================
+
+if (!API_URL) {
+
+    console.error(
+        "CRUD SERVICE → URL DA API NÃO CONFIGURADA."
+    );
+
+}
+
+
+if (!API_KEY) {
+
+    console.warn(
+        "CRUD SERVICE → API KEY NÃO CONFIGURADA."
+    );
+
+}
+
+
+// ============================================================
+// HEADERS
+// ============================================================
+
+function obterHeaders(
+    incluirJSON = false
+) {
+
+    const headers = {
+
+        "apikey":
+            API_KEY,
+
+        "Authorization":
+            `Bearer ${TOKEN}`
+
+    };
+
+
+    if (
+        incluirJSON
+    ) {
+
+        headers[
+            "Content-Type"
+        ] =
+            "application/json";
+
+
+        headers[
+            "Prefer"
+        ] =
+            "return=representation";
+
+    }
+
+
+    return headers;
+
+}
+
+
+// ============================================================
+// VALIDAR ENTIDADE
+// ============================================================
+
+function validarEntidade(
+    entity
+) {
+
+    const nome =
+        String(
+            entity || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    if (!nome) {
+
+        throw new Error(
+            "CRUD SERVICE: entidade não informada."
+        );
+
+    }
+
+
+    /*
+     * Evita que caracteres inválidos
+     * sejam inseridos na URL.
+     */
+
+    if (
+        !/^[a-zA-Z0-9_]+$/.test(
+            nome
+        )
+    ) {
+
+        throw new Error(
+            `CRUD SERVICE: entidade inválida: ${nome}`
+        );
+
+    }
+
+
+    return nome;
+
+}
+
+
+// ============================================================
+// VALIDAR API
+// ============================================================
+
+function validarAPI() {
+
+    if (!API_URL) {
+
+        throw new Error(
+            "CRUD SERVICE: CONFIG.api.url não configurada."
+        );
+
+    }
+
+
+    if (!API_KEY) {
+
+        throw new Error(
+            "CRUD SERVICE: CONFIG.api.key não configurada."
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// ERRO HTTP
+// ============================================================
+
+async function criarErroHTTP(
+    resposta
+) {
+
+    let detalhe =
+        "";
+
+
+    try {
+
+        const texto =
+            await resposta.text();
+
+
+        if (
+            texto
+        ) {
+
+            try {
+
+                const json =
+                    JSON.parse(
+                        texto
+                    );
+
+
+                detalhe =
+                    json?.message ||
+                    json?.error ||
+                    json?.hint ||
+                    json?.details ||
+                    texto;
+
+            }
+
+            catch {
+
+                detalhe =
+                    texto;
+
+            }
+
+        }
+
+    }
+
+    catch {
+
+        detalhe =
+            "";
+
+    }
+
+
+    const mensagem =
+        detalhe ||
+
+        `Erro HTTP ${resposta.status}.`;
+
+
+    const erro =
+        new Error(
+            mensagem
+        );
+
+
+    erro.status =
+        resposta.status;
+
+
+    erro.statusText =
+        resposta.statusText;
+
+
+    erro.url =
+        resposta.url;
+
+
+    return erro;
+
+}
+
+
+// ============================================================
+// EXECUTAR REQUEST
+// ============================================================
+
+async function request(url, options = {}) {
+    const auth = window.PainelFrotaAuth;
+    const token = auth?.token?.();
+    if (!token) throw new Error("Sessão não iniciada. Entre novamente no Painel Frota.");
+    const apiBase = String(CONFIG?.api?.url || "").trim().replace(/\/+$/, "");
+    const apiKey = String(CONFIG?.api?.key || "").trim();
+    if (!apiBase || !apiKey || /SEU-PROJETO|SUA_CHAVE_PUBLICA/.test(apiBase + apiKey)) {
+        throw new Error("Configure a URL REST e a chave pública do Supabase em js/config/config.js.");
+    }
+    const original = new URL(url, location.href);
+    const parts = original.pathname.split("/").filter(Boolean);
+    const tabela = parts[parts.length - 1];
+    const target = new URL(`${apiBase}/${encodeURIComponent(tabela)}`);
+    original.searchParams.forEach((v, k) => target.searchParams.append(k, v));
+    const headers = { apikey: apiKey, Authorization: `Bearer ${token}` };
+    if (options.body) { headers["Content-Type"] = "application/json"; headers.Prefer = "return=representation"; }
+    if (options.headers?.Prefer) headers.Prefer = options.headers.Prefer;
+    const resposta = await fetch(target.toString(), { ...options, headers: { ...headers, ...(options.headers || {}) } });
+    if (!resposta.ok) {
+        let detalhe = ""; try { const body = await resposta.json(); detalhe = body.message || body.details || body.hint || body.error || JSON.stringify(body); } catch { try { detalhe = await resposta.text(); } catch {} }
+        const erro = new Error(detalhe || `Erro HTTP ${resposta.status}`); erro.status = resposta.status; erro.statusText = resposta.statusText; erro.url = target.toString(); throw erro;
+    }
+    if (resposta.status === 204) return null;
+    const texto = await resposta.text(); if (!texto) return null;
+    try { return JSON.parse(texto); } catch { return texto; }
+}
+
+
+// ============================================================
+// URL DA TABELA
+// ============================================================
+
+function tabelaURL(
+    entity
+) {
+
+    const tabela =
+        validarEntidade(
+            entity
+        );
+
+
+    return `${API_URL}/${tabela}`;
+
+}
+
+
+// ============================================================
+// ESCAPAR VALOR PARA QUERY
+// ============================================================
+
+function queryValue(
+    valor
+) {
+
+    return encodeURIComponent(
+        String(
+            valor
+        )
+    );
+
+}
+
+
+// ============================================================
+// LISTAR
+// ============================================================
+
+export async function listar(
+    entity,
+    filtros = {}
+) {
+
+    const tabela =
+        tabelaURL(
+            entity
+        );
+
+
+    const parametros =
+        new URLSearchParams();
+
+
+    /*
+     * Filtros simples:
+     *
+     * {
+     *     status: "ativo",
+     *     placa: "ABC1234"
+     * }
+     */
+
+    Object.entries(
+        filtros || {}
+    )
+    .forEach(
+
+        ([campo, valor]) => {
+
+            if (
+                valor === undefined ||
+                valor === null ||
+                valor === ""
+            ) {
+
+                return;
+
+            }
+
+
+            parametros.set(
+                campo,
+                `eq.${valor}`
+            );
+
+        }
+
+    );
+
+
+    // LANÇAMENTOS já possui o snapshot placa_modelo.
+    // Não fazemos JOIN com veiculos aqui: além de ser desnecessário,
+    // isso fazia a consulta depender de colunas que podem não existir
+    // na estrutura atual de public.veiculos.
+
+    const url =
+        parametros.toString()
+
+            ? `${tabela}?${parametros.toString()}`
+
+            : tabela;
+
+
+    console.log(
+        `CRUD SERVICE: LISTAR ${entity}`
+    );
+
+
+    const resposta =
+        await request(
+            url,
+            {
+                method: "GET"
+            }
+        );
+
+
+    /*
+     * Supabase normalmente retorna:
+     *
+     * [
+     *     {...},
+     *     {...}
+     * ]
+     */
+
+    if (
+        Array.isArray(
+            resposta
+        )
+    ) {
+
+        if (String(entity || "").toLowerCase() === "lancamentos") {
+            return resposta.map(registro => ({
+                ...registro,
+                placa_modelo: String(registro?.placa_modelo ?? "").trim()
+            }));
+        }
+
+        if (String(entity || "").toLowerCase() === "abastecimento") {
+            return resposta.map(registro => ({
+                ...registro,
+                // public.abastecimento possui o snapshot próprio em `placa_modelo`.
+                placa_modelo: String(registro?.placa_modelo ?? registro?.veiculo ?? "").trim()
+            }));
+        }
+
+        return resposta;
+
+    }
+
+
+    /*
+     * Compatibilidade com
+     * possíveis wrappers.
+     */
+
+    if (
+        resposta &&
+        Array.isArray(
+            resposta.data
+        )
+    ) {
+
+        if (String(entity || "").toLowerCase() === "lancamentos") {
+            return resposta.data.map(registro => ({
+                ...registro,
+                placa_modelo: String(registro?.placa_modelo ?? "").trim()
+            }));
+        }
+
+        if (String(entity || "").toLowerCase() === "abastecimento") {
+            return resposta.data.map(registro => ({
+                ...registro,
+                placa_modelo: String(registro?.placa_modelo ?? registro?.veiculo ?? "").trim()
+            }));
+        }
+
+        return resposta.data;
+
+    }
+
+
+    if (
+        resposta &&
+        Array.isArray(
+            resposta.dados
+        )
+    ) {
+
+        return resposta.dados;
+
+    }
+
+
+    return [];
+
+}
+
+
+// ============================================================
+// LISTAR TODOS
+// ============================================================
+
+/**
+ * Percorre a tabela em páginas para não depender do limite padrão do
+ * PostgREST/Supabase (frequentemente 1.000 registros).
+ */
+export async function listarTodos(entity, filtros = {}, tamanhoPagina = 1000) {
+    const tabela = tabelaURL(entity);
+    const tamanho = Math.max(1, Math.min(1000, Number(tamanhoPagina) || 1000));
+    const todos = [];
+    let inicio = 0;
+
+    while (true) {
+        const parametros = new URLSearchParams();
+        Object.entries(filtros || {}).forEach(([campo, valor]) => {
+            if (valor !== undefined && valor !== null && valor !== "") {
+                parametros.set(campo, `eq.${valor}`);
+            }
+        });
+        parametros.set("offset", String(inicio));
+        parametros.set("limit", String(tamanho));
+
+        const resposta = await request(`${tabela}?${parametros.toString()}`, {
+            method: "GET",
+            headers: { "Prefer": "count=exact" }
+        });
+
+        const pagina = Array.isArray(resposta)
+            ? resposta
+            : Array.isArray(resposta?.data)
+                ? resposta.data
+                : Array.isArray(resposta?.dados)
+                    ? resposta.dados
+                    : [];
+
+        todos.push(...pagina);
+        if (pagina.length < tamanho) break;
+        inicio += tamanho;
+    }
+
+    if (String(entity || "").toLowerCase() === "lancamentos") {
+        return todos.map(registro => ({
+            ...registro,
+            placa_modelo: String(registro?.placa_modelo ?? "").trim()
+        }));
+    }
+
+    return todos;
+}
+
+
+// ============================================================
+// OBTER
+// ============================================================
+
+export async function obter(
+    entity,
+    id
+) {
+
+    const identificador =
+        String(
+            id ?? ""
+        )
+        .trim();
+
+
+    if (!identificador) {
+
+        throw new Error(
+            "CRUD SERVICE: ID não informado."
+        );
+
+    }
+
+
+    const tabela =
+        tabelaURL(
+            entity
+        );
+
+
+    /*
+     * O banco utiliza:
+     *
+     * id = VEI000002
+     *
+     * Portanto:
+     *
+     * ?id=eq.VEI000002
+     */
+
+    const url =
+        `${tabela}?id=eq.${queryValue(
+            identificador
+        )}`;
+
+
+    console.log(
+        `CRUD SERVICE: OBTER ${entity} ${identificador}`
+    );
+
+
+    const resposta =
+        await request(
+            url,
+            {
+                method: "GET"
+            }
+        );
+
+
+    /*
+     * Supabase retorna array.
+     */
+
+    if (
+        Array.isArray(
+            resposta
+        )
+    ) {
+
+        return (
+            resposta[0] ||
+            null
+        );
+
+    }
+
+
+    if (
+        resposta?.data &&
+        Array.isArray(
+            resposta.data
+        )
+    ) {
+
+        return (
+            resposta.data[0] ||
+            null
+        );
+
+    }
+
+
+    if (
+        resposta?.dados &&
+        Array.isArray(
+            resposta.dados
+        )
+    ) {
+
+        return (
+            resposta.dados[0] ||
+            null
+        );
+
+    }
+
+
+    return (
+        resposta || null
+    );
+
+}
+
+
+// ============================================================
+// CRIAR
+// ============================================================
+
+export async function criar(
+    entity,
+    dados
+) {
+
+    if (
+        !dados ||
+        typeof dados !== "object" ||
+        Array.isArray(dados)
+    ) {
+
+        throw new Error(
+            "CRUD SERVICE: dados inválidos para criação."
+        );
+
+    }
+
+
+    const tabela =
+        tabelaURL(
+            entity
+        );
+
+/*
+    console.log(
+        `CRUD SERVICE: CRIAR ${entity}`,
+        dados
+    );
+*/
+
+    console.log(
+    "CRUD SERVICE → CRIAR → PAYLOAD FINAL:",
+    JSON.stringify(dados, null, 2)
+);
+
+    /*
+     * IMPORTANTE:
+     *
+     * Não enviamos ID automaticamente.
+     *
+     * O banco pode possuir DEFAULT
+     * ou trigger para gerar o ID.
+     */
+
+    let payload =
+        prepararDados(
+            dados
+        );
+
+    payload =
+        normalizarPayloadEntidade(
+            entity,
+            payload
+        );
+
+    // Em uma NOVA ocorrência, define o responsável diretamente no payload
+    // enviado ao Supabase. Assim, o valor não depende apenas do campo oculto
+    // do formulário, que pode ser ignorado ou alterado antes da serialização.
+    if (String(entity || "").toLowerCase() === "lancamentos") {
+        const auth = window.PainelFrotaAuth;
+        const usuarioConectado = typeof auth?.usuario === "function"
+            ? auth.usuario()
+            : null;
+        const nomeConectado = String(
+            usuarioConectado?.nome ||
+            usuarioConectado?.empregado ||
+            usuarioConectado?.name ||
+            usuarioConectado?.matricula ||
+            ""
+        ).trim();
+
+        if (nomeConectado) {
+            payload.usuario = nomeConectado;
+        } else {
+            console.warn(
+                "CRUD SERVICE → nova ocorrência sem nome do usuário autenticado; confira PainelFrotaAuth.usuario()."
+            );
+        }
+    }
+
+    console.log(
+        "CRUD SERVICE → CRIAR → PAYLOAD FINAL:",
+        JSON.stringify(payload, null, 2)
+    );
+
+
+    delete payload.ID;
+
+
+    const resposta =
+        await request(
+            tabela,
+            {
+
+                method: "POST",
+
+                body:
+                    JSON.stringify(
+                        payload
+                    )
+
+            }
+        );
+
+
+    return resposta;
+
+}
+
+
+// ============================================================
+// ATUALIZAR
+// ============================================================
+
+export async function atualizar(
+    entity,
+    dados
+) {
+
+    if (
+        !dados ||
+        typeof dados !== "object" ||
+        Array.isArray(dados)
+    ) {
+
+        throw new Error(
+            "CRUD SERVICE: dados inválidos para atualização."
+        );
+
+    }
+
+
+    const id =
+        String(
+            dados.id ??
+            dados.ID ??
+            ""
+        )
+        .trim();
+
+
+    if (!id) {
+
+        throw new Error(
+            "CRUD SERVICE: ID não informado para atualização."
+        );
+
+    }
+
+
+    const tabela =
+        tabelaURL(
+            entity
+        );
+
+
+    const url =
+        `${tabela}?id=eq.${queryValue(
+            id
+        )}`;
+
+
+    console.log(
+        `CRUD SERVICE: ATUALIZAR ${entity} ${id}`,
+        dados
+    );
+
+
+    let payload =
+        prepararDados(
+            dados
+        );
+
+    payload =
+        normalizarPayloadEntidade(
+            entity,
+            payload
+        );
+
+
+    /*
+     * O ID identifica o registro.
+     *
+     * Não precisa ser enviado
+     * no corpo do PATCH.
+     */
+
+    delete payload.id;
+
+    delete payload.ID;
+
+
+    const resposta =
+        await request(
+            url,
+            {
+
+                method: "PATCH",
+
+                body:
+                    JSON.stringify(
+                        payload
+                    )
+
+            }
+        );
+
+
+    return resposta;
+
+}
+
+
+// ============================================================
+// EXCLUIR
+// ============================================================
+
+export async function excluir(
+    entity,
+    id
+) {
+
+    const identificador =
+        String(
+            id ?? ""
+        )
+        .trim();
+
+
+    if (!identificador) {
+
+        throw new Error(
+            "CRUD SERVICE: ID não informado para exclusão."
+        );
+
+    }
+
+
+    const tabela =
+        tabelaURL(
+            entity
+        );
+
+
+    const url =
+        `${tabela}?id=eq.${queryValue(
+            identificador
+        )}`;
+
+
+    console.log(
+        `CRUD SERVICE: EXCLUIR ${entity} ${identificador}`
+    );
+
+
+    const resposta =
+        await request(
+            url,
+            {
+
+                method: "DELETE"
+
+            }
+        );
+
+
+    return resposta;
+
+}
+
+
+// ============================================================
+// PREPARAR DADOS
+// ============================================================
+
+function prepararDados(
+    dados
+) {
+
+    const resultado =
+        {};
+
+
+    Object.entries(
+        dados || {}
+    )
+    .forEach(
+
+        ([campo, valor]) => {
+
+            /*
+             * Campos de auditoria são responsabilidade exclusiva
+             * do PostgreSQL. Nunca enviar esses campos pelo cliente.
+             *
+             * Isso é especialmente importante quando um formulário
+             * contém os campos ocultos criado_em/atualizado_em: se
+             * chegarem como null, o DEFAULT now() não é aplicado.
+             */
+            const nomeCampo =
+                String(campo).toLowerCase();
+
+            if (
+                nomeCampo === "criado_em" ||
+                nomeCampo === "atualizado_em"
+            ) {
+                return;
+            }
+
+            /*
+             * Ignorar undefined.
+             */
+
+            if (
+                valor === undefined
+            ) {
+
+                return;
+
+            }
+
+
+            /*
+             * Converter strings vazias
+             * para null.
+             *
+             * Isso é importante para
+             * campos PostgreSQL opcionais.
+             */
+
+            if (
+                valor === ""
+            ) {
+
+                resultado[campo] =
+                    null;
+
+                return;
+
+            }
+
+
+            // Todos os dados textuais são enviados em CAIXA ALTA.
+            // URLs/caminhos de foto permanecem intactos para não quebrar
+            // endereços sensíveis a maiúsculas/minúsculas.
+            if (typeof valor === "string") {
+
+                const preservar =
+                    nomeCampo === "foto" ||
+                    nomeCampo.endsWith("_foto") ||
+                    nomeCampo.includes("url") ||
+                    nomeCampo.includes("caminho");
+
+                resultado[campo] = preservar
+                    ? valor.trim()
+                    : valor.trim().toLocaleUpperCase("pt-BR");
+
+                return;
+            }
+
+            resultado[campo] =
+                valor;
+
+        }
+
+    );
+
+
+    return resultado;
+
+}
+
+
+// ============================================================
+// NORMALIZAR PAYLOAD POR ENTIDADE
+// ============================================================
+
+function normalizarPayloadEntidade(entity, payload) {
+
+    const entidade = String(entity || "").toLowerCase();
+
+    // Normaliza e-mails antes de qualquer INSERT/UPDATE de empregados.
+    // A proteção no banco (trigger) também garante a regra para outros clientes.
+    if (entidade === "empregados") {
+        const resultado = { ...payload };
+        if (typeof resultado.email === "string") {
+            resultado.email = resultado.email.trim().toLowerCase();
+        }
+        return resultado;
+    }
+
+    if (entidade === "abastecimento") {
+        // public.abastecimento usa os nomes próprios do formulário.
+        // id_veiculo continua sendo auxiliar da UI; placa_modelo é
+        // persistido como snapshot da ocorrência relacionada.
+        const camposPermitidos = new Set([
+            "id",
+            "id_lancamento",
+            "data",
+            "hora",
+            "empregado_matricula",
+            "placa_modelo",
+            "veiculo",
+            "odometro",
+            "usuario",
+            "imagem",
+            "tipo_combustivel",
+            "qtde_l",
+            "preco_l",
+            "valor_total_nota",
+            "localizacao"
+        ]);
+
+        return Object.fromEntries(
+            Object.entries(payload).filter(([campo]) => camposPermitidos.has(campo))
+        );
+    }
+
+    if (entidade !== "lancamentos") {
+        return payload;
+    }
+
+    // Colunas efetivamente existentes em public.lancamentos.
+    // Campos exclusivamente visuais/snapshot não entram no POST/PATCH.
+    const camposPermitidos = new Set([
+        "id",
+        "data",
+        "hora",
+        "id_empregado",
+        "id_veiculo",
+        "placa_modelo",
+        "empregado_matricula",
+        "passageiro_setor_motivo",
+        "itinerario",
+        "horario_inicial",
+        "horario_final",
+        "km_inicial",
+        "km_final",
+        "distancia_percorrida",
+        "combustivel",
+        "media_consumo_combustivel",
+        "checklist",
+        "avaliacao_visual",
+        "avarias_registradas",
+        "lava_car",
+        "valor_higienizacao",
+        "notas_abastecimento",
+        "notas_manutencao",
+        "status",
+        "horas_extras",
+        "revisao",
+        "usuario",
+        "classificacao",
+        "localizacao",
+        "duracao_atendimento"
+    ]);
+
+    const resultado = {};
+
+    Object.entries(payload || {}).forEach(([campo, valor]) => {
+        if (camposPermitidos.has(campo)) {
+            resultado[campo] = valor;
+        }
+    });
+
+    return resultado;
+}
+
+
+// ============================================================
+// EXPORTAR API
+// ============================================================
+
+export default {
+
+    listar,
+
+    obter,
+
+    criar,
+
+    atualizar,
+
+    excluir
+
+};

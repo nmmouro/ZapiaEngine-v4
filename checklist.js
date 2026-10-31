@@ -1,0 +1,588 @@
+/**
+ * ============================================================
+ * PÁGINA — CHECKLIST
+ * Painel Frota
+ *
+ * Fluxo:
+ *     Lançamento → Checklist → Salvar → Retornar ao lançamento
+ *
+ * O ID do lançamento é recebido pela URL:
+ *     checklist.html?lancamento=LAN000001
+ * ============================================================
+ */
+
+import { createModule } from "../engine/module.js";
+import { SCHEMA_CHECKLIST } from "../schemas/checklist.js";
+import {
+    listar,
+    atualizar
+} from "../services/crudService.js";
+
+
+let moduloChecklist = null;
+let idLancamento = "";
+let contextoLancamento = null;
+
+
+/* ============================================================
+   ERRO VISÍVEL
+   ============================================================ */
+
+function mostrarErroChecklist(erro) {
+
+    console.error(
+        "CHECKLIST → ERRO DE INICIALIZAÇÃO:",
+        erro
+    );
+
+    const app = document.querySelector("#app");
+
+    if (!app) return;
+
+    app.innerHTML = `
+        <div class="engine-form-wrapper">
+            <div class="engine-form-header">
+                <h2>Checklist</h2>
+            </div>
+            <div class="engine-form-empty" style="padding:20px;">
+                <strong>Não foi possível abrir o Checklist.</strong>
+                <p style="margin-top:10px;">${escaparMensagemChecklist(erro?.message || erro)}</p>
+                <button type="button" class="btn btn-secondary"
+                        data-checklist-voltar-erro>
+                    Voltar ao Lançamento
+                </button>
+            </div>
+        </div>
+    `;
+
+    const botao = app.querySelector("[data-checklist-voltar-erro]");
+
+    if (botao) {
+        botao.addEventListener("click", voltarAoLancamento);
+    }
+}
+
+function escaparMensagemChecklist(valor) {
+    return String(valor ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+/* ============================================================
+   INICIAR
+============================================================ */
+
+async function iniciarChecklistInterno() {
+
+    console.log("PÁGINA CHECKLIST → INICIANDO");
+
+    const container = document.querySelector("#app");
+
+    if (!container) {
+        throw new Error("PÁGINA CHECKLIST → #app não encontrado.");
+    }
+
+    idLancamento =
+        new URLSearchParams(window.location.search)
+            .get("lancamento") || "";
+
+    idLancamento = String(idLancamento).trim();
+
+    if (!idLancamento) {
+        throw new Error(
+            "Nenhum lançamento foi informado para o Checklist."
+        );
+    }
+
+    console.log(
+        "CHECKLIST → ID DO LANÇAMENTO:",
+        idLancamento
+    );
+
+    // Busca o lançamento pelo ID. Usamos LISTAR com filtro explícito
+    // para manter compatibilidade com a API REST atual do projeto.
+    const lancamentos =
+        await listar(
+            "lancamentos",
+            { id: idLancamento }
+        );
+
+    contextoLancamento =
+        Array.isArray(lancamentos)
+            ? lancamentos[0] || null
+            : null;
+
+    if (!contextoLancamento) {
+        throw new Error(
+            `Lançamento ${idLancamento} não encontrado.`
+        );
+    }
+
+    moduloChecklist = createModule({
+
+        entity: "checklist",
+
+        schema: SCHEMA_CHECKLIST,
+
+        container: "#app",
+
+        stateName: "checklist",
+
+        options: {
+
+            titulo: "Checklist",
+
+            tabela: "Checklists",
+
+            permitirNovo: false,
+
+            permitirEditar: false,
+
+            permitirExcluir: false,
+
+            pageSize: 10,
+
+            colunas: [
+                { name: "data", label: "Data" },
+                { name: "hora", label: "Hora" },
+                { name: "empregado_matricula", label: "Empregado / Matrícula" },
+                { name: "placa_modelo", label: "Placa / Modelo" },
+                { name: "observacoes", label: "Observações" }
+            ]
+        }
+    });
+
+    window.checklist = moduloChecklist;
+
+    await moduloChecklist.iniciar();
+
+    garantirCampoOculto("id_lancamento");
+    adicionarBotaoMarcarTodas();
+    adicionarBotaoVoltar();
+
+    const registros =
+        await listar(
+            "checklist",
+            { id_lancamento: idLancamento }
+        );
+
+    const existente =
+        Array.isArray(registros) && registros.length
+            ? registros[0]
+            : null;
+
+    if (existente?.id) {
+
+        console.log(
+            "CHECKLIST → REGISTRO EXISTENTE:",
+            existente.id
+        );
+
+        await moduloChecklist.editar(existente.id);
+
+        preencherContextoSeNecessario(existente);
+
+    } else {
+
+        console.log(
+            "CHECKLIST → NOVO CHECKLIST"
+        );
+
+        moduloChecklist.novo();
+
+        preencherNovoChecklist();
+
+    }
+
+    instalarRetornoAposSalvar();
+
+    console.log(
+        "PÁGINA CHECKLIST → INICIADO"
+    );
+
+    return moduloChecklist;
+}
+
+
+/* ============================================================
+   PREENCHER NOVO
+============================================================ */
+
+function preencherNovoChecklist() {
+
+    setValor("id_lancamento", idLancamento);
+
+    setValor(
+        "data",
+        contextoLancamento.data ||
+        new Date().toISOString().slice(0, 10)
+    );
+
+    setValor(
+        "hora",
+        formatarHora(contextoLancamento.hora) ||
+        horaAtual()
+    );
+
+    setValor(
+        "empregado_matricula",
+        contextoLancamento.empregado_matricula || ""
+    );
+
+    setValor(
+        "placa_modelo",
+        contextoLancamento.placa_modelo || ""
+    );
+
+    console.log(
+        "CHECKLIST → CONTEXTO PREENCHIDO"
+    );
+}
+
+
+/* ============================================================
+   PREENCHER CONTEXTO
+============================================================ */
+
+function preencherContextoSeNecessario(registro) {
+
+    setValor(
+        "id_lancamento",
+        registro.id_lancamento || idLancamento
+    );
+
+    if (!getValor("empregado_matricula")) {
+        setValor(
+            "empregado_matricula",
+            contextoLancamento.empregado_matricula || ""
+        );
+    }
+
+    if (!getValor("placa_modelo")) {
+        setValor(
+            "placa_modelo",
+            contextoLancamento.placa_modelo || ""
+        );
+    }
+}
+
+
+/* ============================================================
+   BOTÃO VOLTAR
+============================================================ */
+
+function adicionarBotaoVoltar() {
+
+    const form = moduloChecklist?.form?.formulario;
+
+    if (!form) return;
+
+    if (form.querySelector("[data-checklist-voltar]")) {
+        return;
+    }
+
+    const botao = document.createElement("button");
+
+    botao.type = "button";
+    botao.className = "btn btn-secondary";
+    botao.dataset.checklistVoltar = "true";
+    botao.textContent = "Voltar ao Lançamento";
+
+    botao.addEventListener("click", () => {
+        voltarAoLancamento();
+    });
+
+    const actions =
+        form.querySelector(".engine-form-actions");
+
+    (actions || form).appendChild(botao);
+}
+
+
+
+
+/* ============================================================
+   MARCAR / DESMARCAR TODAS AS OPÇÕES DO CHECKLIST
+============================================================ */
+
+function adicionarBotaoMarcarTodas() {
+
+    const form = moduloChecklist?.form?.formulario;
+
+    if (!form) return;
+
+    if (form.querySelector("[data-checklist-marcar-todas]")) {
+        return;
+    }
+
+    // Somente os campos que fazem parte do Checklist.
+    const nomesChecklist = [
+        "oleo_motor",
+        "agua_radiador",
+        "pneus",
+        "estepe",
+        "freios",
+        "farois",
+        "lanternas",
+        "setas",
+        "limpadores",
+       /* "extintor",*/
+        "triangulo",
+        "macaco",
+        "chave_roda",
+        "cintos_seguranca",
+        "cartao_neofacilidades"
+    ];
+
+    const checkboxes = nomesChecklist
+        .map(nome => form.elements.namedItem(nome))
+        .filter(campo =>
+            campo &&
+            campo.type === "checkbox"
+        );
+
+    if (!checkboxes.length) {
+
+        console.warn(
+            "CHECKLIST → NENHUMA CHECKBOX DO CHECKLIST ENCONTRADA"
+        );
+
+        return;
+    }
+
+    const botao = document.createElement("button");
+
+    botao.type = "button";
+    botao.className = "btn btn-secondary";
+    botao.dataset.checklistMarcarTodas = "true";
+    botao.textContent = "Marcar todas";
+
+    botao.addEventListener("click", () => {
+
+        const todasMarcadas =
+            checkboxes.every(campo => campo.checked);
+
+        const novoEstado = !todasMarcadas;
+
+        checkboxes.forEach(campo => {
+
+            campo.checked = novoEstado;
+
+            campo.dispatchEvent(
+                new Event("change", {
+                    bubbles: true
+                })
+            );
+        });
+
+        atualizarTextoBotao();
+
+        console.log(
+            "CHECKLIST → TODAS AS OPÇÕES:",
+            novoEstado
+                ? "MARCADAS"
+                : "DESMARCADAS"
+        );
+    });
+
+    function atualizarTextoBotao() {
+
+        const todasMarcadas =
+            checkboxes.every(campo => campo.checked);
+
+        botao.textContent =
+            todasMarcadas
+                ? "Desmarcar todas"
+                : "Marcar todas";
+    }
+
+    // Se o usuário marcar/desmarcar individualmente,
+    // o texto do botão acompanha o estado real.
+    checkboxes.forEach(campo => {
+
+        campo.addEventListener("change", () => {
+            atualizarTextoBotao();
+        });
+
+    });
+
+    const actions =
+        form.querySelector(".engine-form-actions");
+
+    if (actions) {
+        actions.prepend(botao);
+    } else {
+        form.prepend(botao);
+    }
+
+    atualizarTextoBotao();
+
+    console.log(
+        "CHECKLIST → BOTÃO 'MARCAR TODAS' INSTALADO:",
+        checkboxes.length,
+        "opções"
+    );
+}
+
+
+
+
+
+
+
+
+/* ============================================================
+   RETORNO APÓS SALVAR
+============================================================ */
+
+function instalarRetornoAposSalvar() {
+
+    const container = moduloChecklist?.form?.container;
+
+    if (!container) return;
+
+    if (container.dataset.checklistRetorno === "true") {
+        return;
+    }
+
+    container.dataset.checklistRetorno = "true";
+
+    container.addEventListener(
+        "form:salvo",
+        async () => {
+            console.log(
+                "CHECKLIST → SALVO → ATUALIZANDO STATUS DO LANÇAMENTO"
+            );
+
+            try {
+                // O registro do checklist é a fonte da verdade para o
+                // indicador no lançamento. Gravamos explicitamente o
+                // status TEXT na coluna public.lancamentos.checklist,
+                // em vez de depender apenas do valor visual do formulário.
+                await atualizar("lancamentos", {
+                    id: idLancamento,
+                    checklist: "REGISTRADO"
+                });
+
+                console.log(
+                    "CHECKLIST → LANÇAMENTO ATUALIZADO:",
+                    { id: idLancamento, checklist: "REGISTRADO" }
+                );
+            } catch (erro) {
+                console.error(
+                    "CHECKLIST → ERRO AO ATUALIZAR LANÇAMENTO:",
+                    erro
+                );
+                alert(
+                    "O Checklist foi salvo, mas não foi possível atualizar o status do lançamento.\n\n" +
+                    (erro?.message || erro)
+                );
+                return;
+            }
+
+            voltarAoLancamento();
+        },
+        { once: true }
+    );
+}
+
+
+/* ============================================================
+   VOLTAR
+============================================================ */
+
+function voltarAoLancamento() {
+
+    window.location.href =
+        `lancamentos.html?editar=${encodeURIComponent(idLancamento)}`;
+}
+
+
+/* ============================================================
+   CAMPO OCULTO
+============================================================ */
+
+function garantirCampoOculto(nome) {
+
+    const form = moduloChecklist?.form?.formulario;
+
+    if (!form || form.elements.namedItem(nome)) {
+        return;
+    }
+
+    const input = document.createElement("input");
+
+    input.type = "hidden";
+    input.name = nome;
+
+    form.appendChild(input);
+}
+
+
+/* ============================================================
+   VALORES
+============================================================ */
+
+function getCampo(nome) {
+    return moduloChecklist?.form?.formulario
+        ?.elements?.namedItem(nome) || null;
+}
+
+
+function getValor(nome) {
+    const campo = getCampo(nome);
+    return campo ? campo.value : "";
+}
+
+
+function setValor(nome, valor) {
+    const campo = getCampo(nome);
+    if (campo) {
+        campo.value = valor ?? "";
+    }
+}
+
+
+function formatarHora(valor) {
+
+    const texto = String(valor ?? "").trim();
+
+    const match = texto.match(/^(\d{2}):(\d{2})/);
+
+    return match
+        ? `${match[1]}:${match[2]}`
+        : "";
+}
+
+
+function horaAtual() {
+
+    const agora = new Date();
+
+    return `${String(agora.getHours()).padStart(2, "0")}:${String(
+        agora.getMinutes()
+    ).padStart(2, "0")}`;
+}
+
+
+/* ============================================================
+   EXPORT
+============================================================ */
+
+async function iniciarChecklist() {
+    try {
+        return await iniciarChecklistInterno();
+    } catch (erro) {
+        mostrarErroChecklist(erro);
+        return null;
+    }
+}
+
+export {
+    iniciarChecklist,
+    iniciarChecklist as iniciar
+};
