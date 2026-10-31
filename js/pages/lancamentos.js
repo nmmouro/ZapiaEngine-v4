@@ -28,6 +28,13 @@ let preparando = false;
 let vehicleListenerRegistrado = false;
 let agendamentoPendente = null;
 
+// Rascunho temporário usado quando o usuário sai para preencher dados
+// complementares e retorna à mesma ocorrência sem salvar a conclusão.
+const CHAVE_RASCUNHO_LANCAMENTO = "painelFrota:lancamentoRascunhoConclusao";
+const CAMPOS_NAO_RESTAURAR_RASCUNHO = new Set([
+    "status", "distancia_percorrida", "duracao_atendimento"
+]);
+
 const CAMPOS_ABERTURA = [
     "data", "hora", "id_empregado", "id_veiculo",
     "passageiro_setor_motivo", "itinerario",
@@ -122,6 +129,98 @@ modulo.abrirManutencao =
 // =================================================================================================================================
 // FORMULÁRIOS RELACIONADOS
 // ============================================================
+
+function preservarRascunhoLancamento(idLancamento) {
+    const id = String(idLancamento || "").trim();
+    const form = modulo?.form?.formulario;
+    if (!id || !form) return;
+
+    try {
+        const campos = {};
+        for (const campo of Array.from(form.elements || [])) {
+            const nome = campo?.name;
+            if (!nome || campo.disabled || CAMPOS_NAO_RESTAURAR_RASCUNHO.has(nome)) continue;
+            if (campo.type === "checkbox") {
+                if (!Array.isArray(campos[nome])) campos[nome] = [];
+                if (campo.checked) campos[nome].push(campo.value);
+            } else if (campo.type === "radio") {
+                if (campo.checked) campos[nome] = campo.value;
+                else if (!(nome in campos)) campos[nome] = null;
+            } else if (campo.tagName === "SELECT" && campo.multiple) {
+                campos[nome] = Array.from(campo.selectedOptions, opcao => opcao.value);
+            } else {
+                campos[nome] = campo.value;
+            }
+        }
+
+        sessionStorage.setItem(CHAVE_RASCUNHO_LANCAMENTO, JSON.stringify({
+            id, salvoEm: Date.now(), campos
+        }));
+        console.log("LANÇAMENTOS → RASCUNHO PRESERVADO:", id);
+    } catch (erro) {
+        console.error("LANÇAMENTOS → NÃO FOI POSSÍVEL PRESERVAR O RASCUNHO:", erro);
+        alert("Não foi possível preservar os campos digitados. Não feche esta página antes de anotar os valores.");
+        throw erro;
+    }
+}
+
+function restaurarRascunhoLancamento(idLancamento) {
+    const id = String(idLancamento || "").trim();
+    const form = modulo?.form?.formulario;
+    if (!id || !form) return;
+
+    let rascunho;
+    try {
+        rascunho = JSON.parse(sessionStorage.getItem(CHAVE_RASCUNHO_LANCAMENTO) || "null");
+    } catch (erro) {
+        console.warn("LANÇAMENTOS → RASCUNHO INVÁLIDO; ignorando.", erro);
+        sessionStorage.removeItem(CHAVE_RASCUNHO_LANCAMENTO);
+        return;
+    }
+
+    if (!rascunho || rascunho.id !== id || !rascunho.campos) return;
+    // Evita reaplicar rascunhos muito antigos caso o usuário deixe a aba aberta.
+    if (!Number.isFinite(rascunho.salvoEm) || Date.now() - rascunho.salvoEm > 4 * 60 * 60 * 1000) {
+        sessionStorage.removeItem(CHAVE_RASCUNHO_LANCAMENTO);
+        return;
+    }
+
+    for (const [nome, valor] of Object.entries(rascunho.campos)) {
+        if (CAMPOS_NAO_RESTAURAR_RASCUNHO.has(nome)) continue;
+        const elemento = form.elements.namedItem(nome);
+        if (!elemento) continue;
+        const controles = typeof elemento.length === "number" && !elemento.tagName
+            ? Array.from(elemento) : [elemento];
+
+        if (controles.length > 1 && controles.every(c => c.type === "checkbox")) {
+            const marcados = new Set(Array.isArray(valor) ? valor : []);
+            controles.forEach(c => { c.checked = marcados.has(c.value); });
+        } else if (controles.length > 1 && controles.every(c => c.type === "radio")) {
+            controles.forEach(c => { c.checked = c.value === valor; });
+        } else {
+            const campo = controles[0];
+            if (!campo) continue;
+            if (campo.type === "checkbox") campo.checked = Array.isArray(valor) && valor.includes(campo.value);
+            else if (campo.tagName === "SELECT" && campo.multiple) {
+                const selecionados = new Set(Array.isArray(valor) ? valor : []);
+                Array.from(campo.options).forEach(opcao => { opcao.selected = selecionados.has(opcao.value); });
+            } else if (valor !== null && valor !== undefined) campo.value = valor;
+        }
+    }
+
+    console.log("LANÇAMENTOS → RASCUNHO RESTAURADO:", id);
+}
+
+function limparRascunhoLancamento(idLancamento) {
+    try {
+        const rascunho = JSON.parse(sessionStorage.getItem(CHAVE_RASCUNHO_LANCAMENTO) || "null");
+        if (!idLancamento || !rascunho || rascunho.id === String(idLancamento).trim()) {
+            sessionStorage.removeItem(CHAVE_RASCUNHO_LANCAMENTO);
+        }
+    } catch {
+        sessionStorage.removeItem(CHAVE_RASCUNHO_LANCAMENTO);
+    }
+}
 
 function obterLancamentoAtual() {
 
@@ -260,6 +359,8 @@ function abrirChecklist() {
             contexto
         );
 
+        preservarRascunhoLancamento(contexto.id_lancamento);
+
         const url =
             `checklist.html?lancamento=${encodeURIComponent(
                 contexto.id_lancamento
@@ -288,6 +389,7 @@ function abrirAbastecimento() {
     try {
         const contexto = obterContextoLancamento();
         const id = String(contexto.id_lancamento || "").trim();
+        preservarRascunhoLancamento(id);
         sessionStorage.setItem("painelFrota:lancamentoAtual", id);
         localStorage.setItem("painelFrota:lancamentoAtual", id);
         const url = `abastecimentos.html?lancamento=${encodeURIComponent(id)}`;
@@ -304,6 +406,7 @@ function abrirAvarias() {
 
     try {
         const contexto = obterContextoLancamento();
+        preservarRascunhoLancamento(contexto.id_lancamento);
         const url = `avarias.html?lancamento=${encodeURIComponent(contexto.id_lancamento)}`;
         console.log("LANÇAMENTOS → ABRIR AVARIAS:", contexto);
         window.location.href = url;
@@ -317,6 +420,7 @@ function abrirAvarias() {
 function abrirManutencao() {
     try {
         const contexto = obterContextoLancamento();
+        preservarRascunhoLancamento(contexto.id_lancamento);
         const url = `manutencao.html?lancamento=${encodeURIComponent(contexto.id_lancamento)}`;
         console.log("LANÇAMENTOS → ABRIR MANUTENÇÃO:", contexto);
         window.location.href = url;
@@ -331,6 +435,7 @@ function abrirLavaCar() {
 
     try {
         const contexto = obterContextoLancamento();
+        preservarRascunhoLancamento(contexto.id_lancamento);
         const url = `lava_car.html?lancamento=${encodeURIComponent(contexto.id_lancamento)}`;
         console.log("LANÇAMENTOS → ABRIR LAVA-CAR:", contexto);
         window.location.href = url;
@@ -596,6 +701,11 @@ function instalarControlesDoCiclo() {
             setValor("status", statusPersistido === "CONCLUÍDO" ? "CONCLUÍDO" : "EM ANDAMENTO");
             await atualizarIndicadoresRelacionados(registro.id);
         }
+
+        // Os valores digitados antes de navegar para um formulário relacionado
+        // prevalecem sobre o snapshot antigo carregado do banco. O rascunho só
+        // é aplicado à mesma ocorrência e é removido após salvar a ocorrência.
+        restaurarRascunhoLancamento(registro.id);
     });
 
     
@@ -682,6 +792,7 @@ function instalarControlesDoCiclo() {
         );
 
         modo = "edicao";
+        limparRascunhoLancamento(id);
 
         // Agora que o registro foi efetivamente salvo como
         // CONCLUÍDO, os campos calculados podem ser exibidos.
@@ -707,6 +818,11 @@ function instalarControlesDoCiclo() {
         );
 
         return;
+    }
+
+    // Uma atualização concluída com sucesso também encerra o rascunho.
+    if (modo === "edicao") {
+        limparRascunhoLancamento(id || modulo?.engine?.state?.registroEditando?.id);
     }
 });
 
