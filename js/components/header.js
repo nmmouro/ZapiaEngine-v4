@@ -105,6 +105,7 @@ export function iniciarHeader(config = {}) {
         header
     );
 
+    iniciarTemaGlobal(header);
 
     atualizarHeader();
 
@@ -275,6 +276,17 @@ function montarHeader(
 
             </div>
 
+            <button
+                type="button"
+                class="header-theme-toggle"
+                data-header-theme-toggle
+                title="Alternar tema claro/escuro"
+                aria-label="Alternar tema claro/escuro"
+                aria-pressed="false"
+            >
+                <span data-header-theme-icon aria-hidden="true">🌙</span>
+                <span class="header-theme-text" data-header-theme-text>Modo escuro</span>
+            </button>
 
             <button
                 type="button"
@@ -615,6 +627,64 @@ function formatarHora(
 
     return `${hora}:${minuto}`;
 
+}
+
+
+/* ============================================================
+   TEMA GLOBAL — CLARO / ESCURO
+============================================================ */
+
+const CHAVE_TEMA = "painel_frota_tema";
+
+function iniciarTemaGlobal(header) {
+    const botao = header.querySelector("[data-header-theme-toggle]");
+    if (!botao) return;
+
+    // Mantém a escolha do usuário entre páginas e recarregamentos.
+    let tema = "claro";
+    try {
+        tema = localStorage.getItem(CHAVE_TEMA) === "escuro" ? "escuro" : "claro";
+    } catch (erro) {
+        console.warn("HEADER → não foi possível ler a preferência de tema.", erro);
+    }
+
+    aplicarTema(tema);
+
+    if (botao.dataset.themeEvento === "true") return;
+
+    botao.addEventListener("click", () => {
+        const atual = document.documentElement.dataset.theme === "escuro"
+            ? "escuro"
+            : "claro";
+        const proximo = atual === "escuro" ? "claro" : "escuro";
+
+        aplicarTema(proximo);
+
+        try {
+            localStorage.setItem(CHAVE_TEMA, proximo);
+        } catch (erro) {
+            console.warn("HEADER → não foi possível salvar a preferência de tema.", erro);
+        }
+    });
+
+    botao.dataset.themeEvento = "true";
+}
+
+function aplicarTema(tema) {
+    const escuro = tema === "escuro";
+    document.documentElement.dataset.theme = escuro ? "escuro" : "claro";
+
+    const botao = document.querySelector("[data-header-theme-toggle]");
+    const icone = document.querySelector("[data-header-theme-icon]");
+    const texto = document.querySelector("[data-header-theme-text]");
+
+    if (botao) {
+        botao.setAttribute("aria-pressed", String(escuro));
+        botao.title = escuro ? "Ativar tema claro" : "Ativar tema escuro";
+        botao.setAttribute("aria-label", botao.title);
+    }
+    if (icone) icone.textContent = escuro ? "☀️" : "🌙";
+    if (texto) texto.textContent = escuro ? "Modo claro" : "Modo escuro";
 }
 
 
