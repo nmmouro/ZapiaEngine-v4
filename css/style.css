@@ -718,3 +718,187 @@ body {
         order: 2;
     }
 }
+
+
+/* ============================================================
+   TEMA GLOBAL CLARO / ESCURO — PAINEL FROTA
+   Ativado pelo atributo data-theme no elemento html.
+============================================================ */
+
+.header-theme-toggle {
+    min-height: 40px;
+    padding: 0 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #374151;
+    font: inherit;
+    font-size: 0.84rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.header-theme-toggle:hover {
+    background: #f3f4f6;
+}
+
+.header-theme-toggle [data-header-theme-icon] {
+    font-size: 1.05rem;
+    line-height: 1;
+}
+
+.header-theme-text {
+    display: inline;
+}
+
+@media (max-width: 760px) {
+    .header-theme-text {
+        display: none;
+    }
+    .header-theme-toggle {
+        width: 40px;
+        min-width: 40px;
+        padding: 0;
+    }
+}
+
+html[data-theme="escuro"] body {
+    background: #111827 !important;
+    color: #e5e7eb !important;
+    color-scheme: dark;
+}
+
+html[data-theme="escuro"] .app-header {
+    background: #111827 !important;
+    border-bottom-color: #374151 !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,.35) !important;
+}
+
+html[data-theme="escuro"] .app-header .header-titulo h1,
+html[data-theme="escuro"] .app-header .header-hora,
+html[data-theme="escuro"] .page-title,
+html[data-theme="escuro"] h1,
+html[data-theme="escuro"] h2,
+html[data-theme="escuro"] h3 {
+    color: #f9fafb;
+}
+
+html[data-theme="escuro"] .app-header .header-data,
+html[data-theme="escuro"] .app-header .header-separador {
+    color: #cbd5e1;
+}
+
+html[data-theme="escuro"] .header-theme-toggle,
+html[data-theme="escuro"] .app-header .header-fullscreen,
+html[data-theme="escuro"] .btn-secondary,
+html[data-theme="escuro"] .btn-fullscreen {
+    background: #1f2937 !important;
+    border-color: #4b5563 !important;
+    color: #f3f4f6 !important;
+}
+
+html[data-theme="escuro"] .header-theme-toggle:hover,
+html[data-theme="escuro"] .app-header .header-fullscreen:hover,
+html[data-theme="escuro"] .btn-secondary:hover,
+html[data-theme="escuro"] .btn-fullscreen:hover {
+    background: #374151 !important;
+}
+
+html[data-theme="escuro"] .engine-toolbar,
+html[data-theme="escuro"] .engine-form-wrapper,
+html[data-theme="escuro"] .card,
+html[data-theme="escuro"] .menu-card,
+html[data-theme="escuro"] .page-card,
+html[data-theme="escuro"] .modal-content,
+html[data-theme="escuro"] .app-container .panel,
+html[data-theme="escuro"] .app-container section.card {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+    color: #e5e7eb !important;
+}
+
+html[data-theme="escuro"] .engine-form-header,
+html[data-theme="escuro"] .engine-form-actions {
+    border-color: #374151 !important;
+}
+
+html[data-theme="escuro"] .engine-form-header h2,
+html[data-theme="escuro"] .engine-field label,
+html[data-theme="escuro"] .menu-card-title,
+html[data-theme="escuro"] .menu-card-description,
+html[data-theme="escuro"] label,
+html[data-theme="escuro"] legend,
+html[data-theme="escuro"] .text-muted {
+    color: #e5e7eb;
+}
+
+html[data-theme="escuro"] input:not([type="checkbox"]):not([type="radio"]),
+html[data-theme="escuro"] select,
+html[data-theme="escuro"] textarea,
+html[data-theme="escuro"] .engine-field input,
+html[data-theme="escuro"] .engine-field select,
+html[data-theme="escuro"] .engine-field textarea {
+    background: #111827 !important;
+    border-color: #4b5563 !important;
+    color: #f9fafb !important;
+}
+
+html[data-theme="escuro"] input::placeholder,
+html[data-theme="escuro"] textarea::placeholder {
+    color: #9ca3af !important;
+}
+
+html[data-theme="escuro"] input:disabled,
+html[data-theme="escuro"] select:disabled,
+html[data-theme="escuro"] textarea:disabled {
+    background: #374151 !important;
+    color: #d1d5db !important;
+}
+
+html[data-theme="escuro"] table {
+    color: #e5e7eb;
+    border-color: #374151;
+}
+
+html[data-theme="escuro"] table th {
+    background-color: #273449;
+    color: #f9fafb;
+    border-color: #4b5563;
+}
+
+html[data-theme="escuro"] table td {
+    background-color: #1f2937;
+    color: #e5e7eb;
+    border-color: #374151;
+}
+
+html[data-theme="escuro"] table tbody tr:nth-child(even) td {
+    background-color: #243041;
+}
+
+html[data-theme="escuro"] table tbody tr:hover td {
+    background-color: #334155;
+}
+
+html[data-theme="escuro"] hr,
+html[data-theme="escuro"] .divider {
+    border-color: #374151;
+}
+
+html[data-theme="escuro"] a:not(.btn):not(.menu-card) {
+    color: #93c5fd;
+}
+
+html[data-theme="escuro"] .loading-overlay {
+    background: rgba(17, 24, 39, .72);
+}
+
+html[data-theme="escuro"] ::selection {
+    background: #1d4ed8;
+    color: #ffffff;
+}
