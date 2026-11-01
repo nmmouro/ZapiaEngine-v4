@@ -132,8 +132,14 @@ modulo.abrirManutencao =
 
 function preservarRascunhoLancamento(idLancamento) {
     const id = String(idLancamento || "").trim();
-    const form = modulo?.form?.formulario;
-    if (!id || !form) return;
+    const form = modulo?.form?.formulario || document.querySelector("#app form");
+    if (!id || !form) {
+        console.warn("LANÇAMENTOS → RASCUNHO NÃO PRESERVADO: ID ou formulário ausente.", {
+            id,
+            formularioEncontrado: Boolean(form)
+        });
+        return;
+    }
 
     try {
         const campos = {};
@@ -166,8 +172,14 @@ function preservarRascunhoLancamento(idLancamento) {
 
 function restaurarRascunhoLancamento(idLancamento) {
     const id = String(idLancamento || "").trim();
-    const form = modulo?.form?.formulario;
-    if (!id || !form) return;
+    const form = modulo?.form?.formulario || document.querySelector("#app form");
+    if (!id || !form) {
+        console.warn("LANÇAMENTOS → RASCUNHO NÃO RESTAURADO: ID ou formulário ausente.", {
+            id,
+            formularioEncontrado: Boolean(form)
+        });
+        return;
+    }
 
     let rascunho;
     try {
@@ -501,6 +513,18 @@ function abrirLavaCar() {
 
         try {
             await modulo.editar(idRetorno);
+
+            // O Engine pode terminar de preencher/renderizar o formulário
+            // depois de disparar o evento "form:editar". Por isso, a restauração
+            // também é feita após o retorno de modulo.editar(), para que o
+            // rascunho tenha prioridade sobre os valores recarregados do Supabase.
+            restaurarRascunhoLancamento(idRetorno);
+
+            // Alguns controles do Engine são sincronizados de forma assíncrona.
+            // Reaplicamos o rascunho no próximo ciclo de renderização também.
+            requestAnimationFrame(() => {
+                restaurarRascunhoLancamento(idRetorno);
+            });
         } catch (erro) {
             console.error(
                 "LANÇAMENTOS → NÃO FOI POSSÍVEL REABRIR A OCORRÊNCIA:",
