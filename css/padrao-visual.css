@@ -223,3 +223,69 @@ input[type="file"] { max-width: 100%; font: inherit; }
   .engine-toolbar > * { min-width: 0; }
   .engine-table { min-width: 620px; }
 }
+
+/* ============================================================
+   PADRONIZAÇÃO DOS FILTROS — RUV, RELATÓRIO E AGENDA
+   Mantém IDs, estrutura e comportamento dos controles existentes.
+   ============================================================ */
+:where(.ruv-filtros-grid, .relatorio-filtros-grid, .relatorio-filtros, .agenda-fields)
+input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]),
+:where(.ruv-filtros-grid, .relatorio-filtros-grid, .relatorio-filtros, .agenda-fields) select,
+:where(.ruv-filtros-grid, .relatorio-filtros-grid, .relatorio-filtros, .agenda-fields) textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  box-sizing: border-box;
+  padding: 9px 11px;
+  border: 1px solid var(--pf-border-strong, #cbd5e1);
+  border-radius: var(--pf-radius-sm, 8px);
+  background-color: var(--pf-surface, #fff);
+  color: var(--pf-text, #1f2937);
+  font: inherit;
+  transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease;
+}
+:where(.ruv-filtros-grid, .relatorio-filtros-grid, .relatorio-filtros, .agenda-fields) label {
+  min-width: 0;
+}
+:where(.ruv-filtros-grid, .relatorio-filtros-grid, .relatorio-filtros, .agenda-fields) label > span,
+:where(.agenda-fields, .ruv-filtros-grid, .relatorio-filtros-grid) label {
+  color: var(--pf-text, #334155);
+}
+:where(.ruv-filtros-grid, .relatorio-filtros-grid, .relatorio-filtros, .agenda-fields) input:focus,
+:where(.ruv-filtros-grid, .relatorio-filtros-grid, .relatorio-filtros, .agenda-fields) select:focus,
+:where(.ruv-filtros-grid, .relatorio-filtros-grid, .relatorio-filtros, .agenda-fields) textarea:focus {
+  outline: none;
+  border-color: var(--pf-primary, #1d4ed8);
+  box-shadow: var(--pf-focus, 0 0 0 3px rgb(37 99 235 / 14%));
+}
+:where(.ruv-filtros-grid, .relatorio-filtros-grid, .relatorio-filtros, .agenda-fields) input:disabled,
+:where(.ruv-filtros-grid, .relatorio-filtros-grid, .relatorio-filtros, .agenda-fields) select:disabled {
+  opacity: .8;
+  cursor: not-allowed;
+}
+html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark {
+  --pf-text: #e5e7eb;
+  --pf-muted: #aab4c3;
+  --pf-border: #475569;
+  --pf-border-strong: #64748b;
+  --pf-surface: #252b35;
+  --pf-page: #171b22;
+  --pf-surface-soft: #303846;
+  --pf-primary-soft: #1e3a5f;
+  color-scheme: dark;
+}
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark)
+:where(.ruv-filtros-grid, .relatorio-filtros-grid, .relatorio-filtros, .agenda-fields)
+input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]),
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark)
+:where(.ruv-filtros-grid, .relatorio-filtros-grid, .relatorio-filtros, .agenda-fields) select,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark)
+:where(.ruv-filtros-grid, .relatorio-filtros-grid, .relatorio-filtros, .agenda-fields) textarea {
+  background-color: var(--pf-surface, #252b35);
+  color: var(--pf-text, #e5e7eb);
+  border-color: var(--pf-border-strong, #64748b);
+}
