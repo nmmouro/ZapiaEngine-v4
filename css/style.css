@@ -902,3 +902,76 @@ html[data-theme="escuro"] ::selection {
     background: #1d4ed8;
     color: #ffffff;
 }
+
+
+/* ============================================================
+   INTEGRAÇÃO COM PADRÃO VISUAL GLOBAL — PAINEL FROTA
+   Cores centralizadas em css/padrao-visual.css
+   ============================================================ */
+:where(.relatorio-page, .ruv-page, .app-container, #app) {
+  color: var(--pf-text, #1f2937);
+}
+:where(.relatorio-filtros, .relatorio-tabela-section, .ruv-card, .ruv-filtros, .ruv-tabela-wrap, .card, .panel, .modal-content) {
+  background-color: var(--pf-surface, #fff);
+  border-color: var(--pf-border, #dbe2ea);
+  border-radius: var(--pf-radius, 12px);
+  box-shadow: var(--pf-shadow, 0 2px 10px rgb(15 23 42 / 5%));
+}
+:where(.relatorio-page, .ruv-page) :is(input, select, textarea),
+:where(.app-container, #app) :is(input, select, textarea) {
+  color: var(--pf-text, #1f2937);
+  background-color: var(--pf-surface, #fff);
+  border-color: var(--pf-border-strong, #cbd5e1);
+  border-radius: var(--pf-radius-sm, 8px);
+}
+:where(.relatorio-page, .ruv-page, .app-container, #app) :is(input, select, textarea):focus {
+  border-color: var(--pf-primary, #1d4ed8);
+  box-shadow: var(--pf-focus, 0 0 0 3px rgb(37 99 235 / 14%));
+  outline: none;
+}
+:where(.relatorio-page, .ruv-page) :is(th, .ruv-tabela th) {
+  color: var(--pf-text, #1f2937);
+  background-color: var(--pf-surface-soft, #f8fafc);
+  border-color: var(--pf-border, #dbe2ea);
+}
+:where(.relatorio-page, .ruv-page) :is(td, .ruv-tabela td) {
+  color: var(--pf-text, #1f2937);
+  border-color: var(--pf-border, #dbe2ea);
+}
+:where(.relatorio-page, .ruv-page) :is(button, .btn-primary) {
+  border-radius: var(--pf-radius-sm, 8px);
+}
+:where(.relatorio-page, .ruv-page) :is(button, .btn-primary, .btn-primary:hover) {
+  --_pf-button-primary: var(--pf-primary, #1d4ed8);
+}
+:where(.relatorio-page, .ruv-page) .ruv-vazio { color: var(--pf-muted, #64748b); }
+
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) {
+  color-scheme: dark;
+}
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) :where(.relatorio-page, .ruv-page, .app-container, #app) {
+  color: var(--pf-text, #e5e7eb);
+}
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) :where(.relatorio-filtros, .relatorio-tabela-section, .ruv-card, .ruv-filtros, .ruv-tabela-wrap, .card, .panel, .modal-content) {
+  background-color: var(--pf-surface, #252b35);
+  border-color: var(--pf-border, #475569);
+  color: var(--pf-text, #e5e7eb);
+}
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) :where(.relatorio-page, .ruv-page, .app-container, #app) :is(input, select, textarea) {
+  color: var(--pf-text, #e5e7eb);
+  background-color: var(--pf-surface, #252b35);
+  border-color: var(--pf-border, #475569);
+}
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) :where(.relatorio-page, .ruv-page) :is(th, .ruv-tabela th, tfoot th) {
+  color: var(--pf-text, #e5e7eb);
+  background-color: var(--pf-surface-soft, #303846) !important;
+  border-color: var(--pf-border, #475569);
+}
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) :where(.relatorio-page, .ruv-page) :is(td, .ruv-tabela td) {
+  color: var(--pf-text, #e5e7eb);
+  background-color: var(--pf-surface, #252b35);
+  border-color: var(--pf-border, #475569);
+}
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) :where(.relatorio-page, .ruv-page) :is(tr:hover td, .ruv-tabela tbody tr:hover td) {
+  background-color: var(--pf-surface-soft, #303846);
+}
