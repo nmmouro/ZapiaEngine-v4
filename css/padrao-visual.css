@@ -289,3 +289,221 @@ html.dark-mode, body.dark-mode, body.theme-dark)
   color: var(--pf-text, #e5e7eb);
   border-color: var(--pf-border-strong, #64748b);
 }
+
+
+/* ============================================================
+   VISUALIZAÇÃO — OCORRÊNCIA / LANÇAMENTO
+   Padroniza todos os campos informativos e componentes relacionados
+   sem alterar dados, consultas ou comportamento JavaScript.
+   ============================================================ */
+.view-page {
+  color: var(--pf-text, #1f2937);
+  background: var(--pf-page, #f5f7fb);
+}
+.view-page .view-section {
+  box-sizing: border-box;
+  background: var(--pf-surface, #fff);
+  color: var(--pf-text, #1f2937);
+  border: 1px solid var(--pf-border, #dbe2ea);
+  border-radius: var(--pf-radius, 12px);
+  padding: clamp(14px, 2vw, 22px);
+  margin: 16px 0;
+  box-shadow: var(--pf-shadow, 0 2px 10px rgb(15 23 42 / 5%));
+  min-width: 0;
+}
+.view-page .view-section h2 {
+  color: var(--pf-text, #1f2937);
+  font-size: 1.05rem;
+  font-weight: 750;
+  line-height: 1.35;
+  margin: 0 0 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--pf-border, #dbe2ea);
+}
+.view-page .view-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+  gap: 12px;
+}
+.view-page .view-card {
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 15px;
+  border: 1px solid var(--pf-border, #dbe2ea);
+  border-radius: var(--pf-radius-sm, 8px);
+  background: var(--pf-surface-soft, #f8fafc);
+  color: var(--pf-text, #1f2937);
+}
+.view-page .view-card strong {
+  display: block;
+  color: var(--pf-text, #1f2937);
+  font-size: 1rem;
+  font-weight: 750;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.view-page .view-card span {
+  display: block;
+  margin-top: 5px;
+  color: var(--pf-muted, #64748b);
+  font-size: .78rem;
+  font-weight: 600;
+}
+.view-page .view-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 12px;
+  margin: 0;
+  min-width: 0;
+}
+.view-page .view-field {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 12px 13px;
+  border: 1px solid var(--pf-border, #dbe2ea);
+  border-radius: var(--pf-radius-sm, 8px);
+  background: var(--pf-surface-soft, #f8fafc);
+  color: var(--pf-text, #1f2937);
+}
+.view-page .view-field dt {
+  margin: 0 0 6px;
+  color: var(--pf-muted, #64748b);
+  font-size: .76rem;
+  font-weight: 650;
+  line-height: 1.35;
+}
+.view-page .view-field dd {
+  margin: 0;
+  color: var(--pf-text, #1f2937);
+  font-size: .9rem;
+  font-weight: 600;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.view-page .view-table-wrap {
+  max-width: 100%;
+  overflow: auto;
+  border: 1px solid var(--pf-border, #dbe2ea);
+  border-radius: var(--pf-radius-sm, 8px);
+  background: var(--pf-surface, #fff);
+}
+.view-page .view-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  color: var(--pf-text, #1f2937);
+}
+.view-page .view-table th {
+  padding: 11px 13px;
+  background: var(--pf-surface-soft, #f1f5f9);
+  color: var(--pf-text, #334155);
+  border-bottom: 1px solid var(--pf-border, #dbe2ea);
+  font-size: .78rem;
+  font-weight: 750;
+  text-align: left;
+  white-space: nowrap;
+}
+.view-page .view-table td {
+  padding: 10px 13px;
+  background: var(--pf-surface, #fff);
+  color: var(--pf-text, #334155);
+  border-bottom: 1px solid var(--pf-border, #e8edf3);
+  font-size: .84rem;
+  vertical-align: top;
+}
+.view-page .view-table tbody tr:nth-child(even) td {
+  background: var(--pf-surface-soft, #f8fafc);
+}
+.view-page .view-table tbody tr:last-child td { border-bottom: 0; }
+.view-page .view-empty,
+.view-page .view-loading {
+  padding: 18px;
+  border: 1px dashed var(--pf-border-strong, #cbd5e1);
+  border-radius: var(--pf-radius-sm, 8px);
+  background: var(--pf-surface-soft, #f8fafc);
+  color: var(--pf-muted, #64748b);
+  text-align: center;
+}
+.view-page .view-document {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+  border: 1px solid var(--pf-border, #dbe2ea);
+  border-radius: var(--pf-radius-sm, 8px);
+  background: var(--pf-surface, #fff);
+  color: var(--pf-text, #1f2937);
+  overflow-wrap: anywhere;
+}
+.view-page .view-document-icon {
+  background: var(--pf-surface-soft, #f1f5f9);
+  color: var(--pf-text, #334155);
+  border-radius: 6px;
+}
+.view-page .view-document-info strong,
+.view-page .view-document-name,
+.view-page .view-file-text { color: var(--pf-text, #1f2937); overflow-wrap: anywhere; }
+.view-page .view-document a { color: var(--pf-primary, #1d4ed8); font-weight: 650; }
+.view-page .view-attachment img { border-color: var(--pf-border, #dbe2ea); }
+
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .view-page .view-section,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .view-page .view-card,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .view-page .view-field,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .view-page .view-table-wrap,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .view-page .view-document {
+  background-color: var(--pf-surface, #252b35);
+  color: var(--pf-text, #e5e7eb);
+  border-color: var(--pf-border, #475569);
+}
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .view-page .view-card strong,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .view-page .view-field dd,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .view-page .view-document-info strong,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .view-page .view-document-name,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .view-page .view-file-text {
+  color: var(--pf-text, #e5e7eb);
+}
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .view-page .view-field dt,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .view-page .view-card span {
+  color: var(--pf-muted, #aab4c3);
+}
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .view-page .view-table th {
+  background: var(--pf-surface-soft, #303846);
+  color: var(--pf-text, #e5e7eb);
+  border-color: var(--pf-border, #475569);
+}
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .view-page .view-table td {
+  background: var(--pf-surface, #252b35);
+  color: var(--pf-text, #e5e7eb);
+  border-color: var(--pf-border, #475569);
+}
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .view-page .view-table tbody tr:nth-child(even) td,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .view-page .view-empty,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .view-page .view-loading,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .view-page .view-document-icon {
+  background: var(--pf-surface-soft, #303846);
+  color: var(--pf-text, #e5e7eb);
+  border-color: var(--pf-border, #475569);
+}
+@media (max-width: 600px) {
+  .view-page .view-section { padding: 14px; }
+  .view-page .view-fields { grid-template-columns: minmax(0, 1fr); }
+  .view-page .view-cards { grid-template-columns: minmax(0, 1fr); }
+}
