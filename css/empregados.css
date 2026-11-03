@@ -1,147 +1,20 @@
 /* ============================================================
-   MÓDULO EMPREGADOS — LAYOUT ALINHADO AO MÓDULO VEÍCULOS
-   Mantém a mesma hierarquia visual, espaçamento e componentes
-   do cadastro de Veículos, sem alterar campos ou regras CRUD.
+   EMPREGADOS — AJUSTES ESPECÍFICOS DO TEMA CLARO
+   Regras limitadas à página Empregados.
    ============================================================ */
-
-body[data-page="empregados"] #app {
-  width: 100%;
+body[data-page="empregados"] .engine-form-container,
+body[data-page="empregados"] .engine-table-container,
+body[data-page="empregados"] .engine-list-container {
   min-width: 0;
-}
-
-body[data-page="empregados"] #app > .engine-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 14px;
-  margin: 0 0 18px;
-}
-
-body[data-page="empregados"] #app > .engine-toolbar {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
   width: 100%;
-  box-sizing: border-box;
-  margin: 0 0 16px;
-  padding: 14px 16px;
-  background: var(--pf-surface, #fff);
-  border: 1px solid var(--pf-border, #dbe2ea);
-  border-radius: var(--pf-radius, 12px);
-  box-shadow: var(--pf-shadow, 0 2px 10px rgb(15 23 42 / 5%));
 }
-
-body[data-page="empregados"] #app > .engine-form-container {
-  width: 100%;
-  min-width: 0;
-  margin: 0 0 18px;
+body[data-page="empregados"] .engine-table-container,
+body[data-page="empregados"] .table-responsive {
+  overflow-x: auto;
+  max-width: 100%;
 }
-
-body[data-page="empregados"] #app .engine-form-wrapper {
-  padding: clamp(16px, 2vw, 24px);
-  background: var(--pf-surface, #fff);
-  border: 1px solid var(--pf-border, #dbe2ea);
-  border-radius: var(--pf-radius, 12px);
-  box-shadow: var(--pf-shadow, 0 2px 10px rgb(15 23 42 / 5%));
-}
-
-body[data-page="empregados"] #app .engine-form-header {
-  margin-bottom: 18px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #e8edf3;
-}
-
-body[data-page="empregados"] #app .engine-form-fields {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
-  gap: 14px 16px;
-}
-
-body[data-page="empregados"] #app .engine-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-}
-
-body[data-page="empregados"] #app .engine-field input,
-body[data-page="empregados"] #app .engine-field select,
-body[data-page="empregados"] #app .engine-field textarea {
-  width: 100%;
-  min-width: 0;
-  min-height: 40px;
-  box-sizing: border-box;
-  padding: 9px 11px;
-  border: 1px solid var(--pf-border-strong, #cbd5e1);
-  border-radius: var(--pf-radius-sm, 8px);
-  background: #fff;
-  color: var(--pf-text, #1f2937);
-  font: inherit;
-}
-
-body[data-page="empregados"] #app > .engine-table-container {
-  width: 100%;
-  min-width: 0;
-  overflow: auto;
-  background: var(--pf-surface, #fff);
-  border: 1px solid var(--pf-border, #dbe2ea);
-  border-radius: var(--pf-radius, 12px);
-  box-shadow: var(--pf-shadow, 0 2px 10px rgb(15 23 42 / 5%));
-}
-
-body[data-page="empregados"] #app .engine-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
-body[data-page="empregados"] #app .engine-table th {
-  padding: 11px 13px;
-  background: #f1f5f9;
-  color: #334155;
-  border-bottom: 1px solid var(--pf-border, #dbe2ea);
-  font-size: .78rem;
-  font-weight: 750;
-}
-
-body[data-page="empregados"] #app .engine-table td {
-  padding: 10px 13px;
-  color: #334155;
-  border-bottom: 1px solid #edf1f5;
-  font-size: .84rem;
-}
-
-body[data-page="empregados"] #app .engine-table tbody tr:nth-child(even) {
-  background: #fbfcfe;
-}
-
-body[data-page="empregados"] #app .engine-table tbody tr:hover {
-  background: #eff6ff;
-}
-
-body[data-page="empregados"] #app .btn,
-body[data-page="empregados"] #app button {
-  min-height: 36px;
-  border-radius: var(--pf-radius-sm, 8px);
-  font-family: inherit;
-  font-size: .875rem;
-  font-weight: 650;
-}
-
-@media (max-width: 760px) {
-  body[data-page="empregados"] #app .engine-form-fields {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  body[data-page="empregados"] #app .engine-form-wrapper {
-    padding: 16px;
-  }
-
-  body[data-page="empregados"] #app .engine-form-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
+body[data-page="empregados"] input,
+body[data-page="empregados"] select,
+body[data-page="empregados"] textarea {
+  max-width: 100%;
 }
