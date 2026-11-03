@@ -600,3 +600,350 @@ html.dark-mode, body.dark-mode, body.theme-dark) .view-page .view-document-icon 
 :where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) .relatorio-page .relatorio-resumo span {
   color: var(--pf-muted, #aab4c3) !important;
 }
+
+
+/* ============================================================
+   CAMADA DE CONSISTÊNCIA VISUAL — REVISÃO GERAL 03/11/2026
+   Aplicada após os estilos específicos. Somente apresentação:
+   não altera IDs, nomes de campos, eventos ou regras de negócio.
+   ============================================================ */
+
+:root {
+  --pf-success: #15803d;
+  --pf-success-soft: #f0fdf4;
+  --pf-warning: #b45309;
+  --pf-warning-soft: #fffbeb;
+  --pf-danger: #b91c1c;
+  --pf-danger-soft: #fef2f2;
+  --pf-info: #0369a1;
+  --pf-info-soft: #f0f9ff;
+  --pf-control-height: 40px;
+}
+
+/* Estrutura e títulos */
+.page-header, .engine-header, .agenda-heading, .relatorio-topo, .ruv-topo {
+  min-width: 0;
+}
+.engine-header h1, .engine-header h2, .page-header h1, .page-header h2 {
+  color: #172554;
+  font-weight: 750;
+  line-height: 1.25;
+}
+.engine-header p, .page-header p { color: var(--pf-muted); }
+
+/* Barra de ferramentas, pesquisa e filtros */
+.engine-toolbar, [data-engine-toolbar] {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-width: 0;
+}
+.engine-toolbar input, .engine-toolbar select,
+.engine-toolbar textarea {
+  min-height: var(--pf-control-height);
+}
+.engine-toolbar input[type="search"] { min-width: min(100%, 220px); }
+.engine-toolbar button, .engine-toolbar .btn { white-space: nowrap; }
+
+/* Formulários gerados pelo Engine */
+.engine-form-wrapper {
+  padding: clamp(16px, 2vw, 24px);
+  background: var(--pf-surface);
+  border: 1px solid var(--pf-border);
+  border-radius: var(--pf-radius);
+  box-shadow: var(--pf-shadow);
+  color: var(--pf-text);
+}
+.engine-form-header {
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--pf-border);
+}
+.engine-form-header h2, .engine-form-header h3 {
+  color: #172554;
+  font-weight: 750;
+}
+.engine-form-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+  min-width: 0;
+}
+.engine-field { min-width: 0; }
+.engine-field label {
+  display: block;
+  margin-bottom: 6px;
+  color: #334155;
+  font-size: .85rem;
+  font-weight: 650;
+}
+.engine-field input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.engine-field select, .engine-field textarea {
+  width: 100%;
+  min-height: var(--pf-control-height);
+  padding: 9px 11px;
+}
+.engine-field textarea { min-height: 88px; resize: vertical; }
+.engine-field input[readonly], .engine-field textarea[readonly] {
+  background: var(--pf-surface-soft);
+  color: var(--pf-text);
+}
+.engine-required { color: var(--pf-danger); }
+.engine-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.engine-form-empty, .engine-empty {
+  padding: 24px;
+  border: 1px dashed var(--pf-border-strong);
+  border-radius: var(--pf-radius-sm);
+  background: var(--pf-surface-soft);
+  color: var(--pf-muted);
+  text-align: center;
+}
+
+/* Botões — padrão único, preservando as variantes semânticas */
+.btn, .engine-btn, .btn-table, .agenda-action,
+.engine-form-actions button, .relatorio-acoes button, .ruv-acoes button {
+  min-height: 36px;
+  border-radius: var(--pf-radius-sm);
+  font-family: inherit;
+  font-weight: 650;
+  line-height: 1.2;
+  transition: background-color .16s ease, border-color .16s ease,
+              box-shadow .16s ease, transform .12s ease;
+}
+.btn:focus-visible, .engine-btn:focus-visible, .btn-table:focus-visible,
+button:focus-visible, a:focus-visible {
+  outline: 3px solid rgb(59 130 246 / 30%);
+  outline-offset: 2px;
+}
+.btn-primary, .btn.btn-primary { background: var(--pf-primary); border-color: var(--pf-primary); }
+.btn-primary:hover, .btn.btn-primary:hover { background: var(--pf-primary-hover); border-color: var(--pf-primary-hover); }
+.btn-secondary, .btn.btn-secondary {
+  background: var(--pf-surface);
+  border: 1px solid var(--pf-border-strong);
+  color: var(--pf-text);
+}
+.btn-secondary:hover, .btn.btn-secondary:hover { background: var(--pf-surface-soft); }
+.btn-danger { background: #dc2626; border-color: #dc2626; color: #fff; }
+.btn-success { background: #15803d; border-color: #15803d; color: #fff; }
+
+/* Tabelas e listagens do Engine e módulos */
+.engine-table-wrapper, .engine-table-container, .agenda-table-wrap,
+.view-table-wrap, .dashboard-table-container, .relatorio-tabela-wrap,
+.ruv-tabela-wrap {
+  width: 100%;
+  max-width: 100%;
+  overflow: auto;
+  border: 1px solid var(--pf-border);
+  border-radius: var(--pf-radius);
+  background: var(--pf-surface);
+  box-shadow: var(--pf-shadow);
+}
+.engine-table, .agenda-table, .view-table,
+.relatorio-tabela, .ruv-tabela, .dashboard-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.engine-table { min-width: 680px; }
+.engine-table thead th, .agenda-table thead th,
+.view-table thead th, .relatorio-tabela thead th,
+.ruv-tabela thead th, .dashboard-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 11px 13px;
+  background: #eef2f7;
+  color: #334155;
+  border-bottom: 1px solid var(--pf-border);
+  font-size: .78rem;
+  font-weight: 750;
+  text-align: left;
+  white-space: nowrap;
+}
+.engine-table tbody td, .agenda-table tbody td,
+.view-table tbody td, .relatorio-tabela tbody td,
+.ruv-tabela tbody td, .dashboard-table tbody td {
+  padding: 10px 13px;
+  color: var(--pf-text);
+  border-bottom: 1px solid #edf1f5;
+  font-size: .84rem;
+  vertical-align: middle;
+}
+.engine-table tbody tr:nth-child(even),
+.agenda-table tbody tr:nth-child(even),
+.view-table tbody tr:nth-child(even) { background: #fafbfd; }
+.engine-table tbody tr:hover, .agenda-table tbody tr:hover,
+.view-table tbody tr:hover { background: #eff6ff; }
+.engine-table tbody tr:last-child td, .agenda-table tbody tr:last-child td,
+.view-table tbody tr:last-child td { border-bottom: 0; }
+.engine-table .engine-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.engine-table .engine-btn {
+  padding: 6px 10px;
+  border: 1px solid var(--pf-border-strong);
+  background: var(--pf-surface);
+  color: var(--pf-text);
+  cursor: pointer;
+}
+.engine-table .engine-btn-editar { color: #1d4ed8; border-color: #bfdbfe; }
+.engine-table .engine-btn-excluir { color: #b91c1c; border-color: #fecaca; }
+.engine-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--pf-border);
+  background: var(--pf-surface);
+}
+.engine-pagination button {
+  min-height: 34px;
+  padding: 6px 11px;
+  border: 1px solid var(--pf-border-strong);
+  border-radius: 7px;
+  background: var(--pf-surface);
+  color: var(--pf-text);
+  cursor: pointer;
+}
+.engine-pagination button:disabled { opacity: .45; cursor: not-allowed; }
+.status-badge, .status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: .74rem;
+  font-weight: 750;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* Alertas, mensagens e feedback */
+.toast, .agenda-message, .relatorio-mensagem, .ruv-status,
+.engine-error, [role="alert"], [role="status"] {
+  border-radius: var(--pf-radius-sm);
+  line-height: 1.45;
+}
+.engine-error, .relatorio-erro, .ruv-status.erro,
+.agenda-message.erro, [role="alert"].erro {
+  padding: 10px 12px;
+  color: var(--pf-danger);
+  background: var(--pf-danger-soft);
+  border: 1px solid #fecaca;
+}
+.relatorio-mensagem, .ruv-status.sucesso,
+.agenda-message.sucesso, [role="status"].sucesso {
+  padding: 10px 12px;
+  color: var(--pf-success);
+  background: var(--pf-success-soft);
+  border: 1px solid #bbf7d0;
+}
+.alerta, .aviso, .message-warning, .ruv-status.aviso {
+  padding: 10px 12px;
+  color: var(--pf-warning);
+  background: var(--pf-warning-soft);
+  border: 1px solid #fde68a;
+}
+
+/* Filtros e formulários específicos de relatório/RUV/agenda */
+.relatorio-filtros, .ruv-filtros, .agenda-form,
+.relatorio-tabela-section, .ruv-tabela-section {
+  border: 1px solid var(--pf-border);
+  border-radius: var(--pf-radius);
+  background: var(--pf-surface);
+  box-shadow: var(--pf-shadow);
+}
+.relatorio-filtros-grid, .ruv-filtros-grid { align-items: end; }
+.relatorio-filtros-grid input, .relatorio-filtros-grid select,
+.ruv-filtros-grid input, .ruv-filtros-grid select,
+.agenda-fields input, .agenda-fields select, .agenda-fields textarea {
+  min-height: var(--pf-control-height);
+  box-sizing: border-box;
+}
+.relatorio-card, .ruv-card {
+  border: 1px solid var(--pf-border);
+  border-radius: var(--pf-radius);
+  background: var(--pf-surface);
+  box-shadow: var(--pf-shadow);
+}
+.relatorio-card span, .ruv-card span { color: var(--pf-muted); }
+.relatorio-card strong, .ruv-card strong { color: var(--pf-text); }
+
+/* Informações somente leitura, indicadores e estados */
+input[readonly], textarea[readonly], .campo-informativo,
+.info-field, .field-readonly {
+  color: var(--pf-text);
+}
+.campo-informativo, .info-field, .field-readonly {
+  padding: 9px 11px;
+  border: 1px solid var(--pf-border);
+  border-radius: var(--pf-radius-sm);
+  background: var(--pf-surface-soft);
+  overflow-wrap: anywhere;
+}
+
+/* Tema escuro — contraste uniforme nos componentes dinâmicos */
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .engine-form-wrapper,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .engine-table-wrapper,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .engine-table-container {
+  background: var(--pf-surface);
+  border-color: var(--pf-border);
+  color: var(--pf-text);
+}
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .engine-table thead th,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .agenda-table thead th {
+  background: var(--pf-surface-soft);
+  color: var(--pf-text);
+  border-color: var(--pf-border);
+}
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .engine-table tbody td,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .agenda-table tbody td {
+  color: var(--pf-text);
+  border-color: var(--pf-border);
+}
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .engine-table tbody tr:nth-child(even),
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .agenda-table tbody tr:nth-child(even) {
+  background: var(--pf-surface-soft);
+}
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .engine-field label,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .engine-header h1,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark,
+html.dark-mode, body.dark-mode, body.theme-dark) .engine-header h2 {
+  color: var(--pf-text);
+}
+
+/* Responsividade */
+@media (max-width: 760px) {
+  .engine-form-fields { grid-template-columns: minmax(0, 1fr); }
+  .engine-form-actions { justify-content: stretch; }
+  .engine-form-actions .btn { flex: 1 1 140px; }
+  .relatorio-filtros-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ruv-filtros-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .relatorio-resumo, .ruv-resumo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .engine-form-fields, .relatorio-filtros-grid, .ruv-filtros-grid,
+  .relatorio-resumo, .ruv-resumo { grid-template-columns: minmax(0, 1fr); }
+  .engine-toolbar { align-items: stretch; }
+  .engine-toolbar > * { flex: 1 1 100%; }
+  .engine-toolbar button { width: 100%; }
+  .engine-pagination { justify-content: center; }
+}
