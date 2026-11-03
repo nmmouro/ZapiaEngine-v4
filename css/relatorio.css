@@ -457,3 +457,29 @@
 :where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) :where(.relatorio-page, .ruv-page) :is(tr:hover td, .ruv-tabela tbody tr:hover td) {
   background-color: var(--pf-surface-soft, #303846);
 }
+
+
+/* ============================================================
+   LISTAGEM DE OCORRÊNCIAS — TEXTO BRANCO COM ALTO CONTRASTE
+   Mantém o conteúdo da tabela legível sobre fundo escuro.
+   ============================================================ */
+.relatorio-tabela tbody td {
+    color: #ffffff !important;
+    background-color: #263244;
+}
+
+.relatorio-tabela tbody tr:nth-child(even) td {
+    background-color: #303d50;
+}
+
+.relatorio-tabela tbody tr:hover td {
+    color: #ffffff !important;
+    background-color: #3b4b63;
+}
+
+@media print {
+    .relatorio-tabela tbody td {
+        color: #111827 !important;
+        background: #ffffff !important;
+    }
+}
