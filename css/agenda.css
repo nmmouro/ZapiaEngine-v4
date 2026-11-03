@@ -13,13 +13,47 @@
 .agenda-fields input:focus,.agenda-fields select:focus,.agenda-fields textarea:focus{outline:none;border-color:var(--pf-primary,#1d4ed8);box-shadow:var(--pf-focus,0 0 0 3px rgb(37 99 235 / 14%))}
 .agenda-fields input:disabled,.agenda-fields select:disabled,.agenda-fields textarea:disabled{background:var(--pf-surface-soft,#f8fafc);color:var(--pf-muted,#64748b);cursor:not-allowed}
 .agenda-wide{grid-column:span 2}
-.agenda-form-actions{display:flex;gap:10px;margin-top:16px}
-.agenda-form-actions button,.agenda-heading button,.agenda-action{cursor:pointer;min-height:36px;border-radius:var(--pf-radius-sm,8px);padding:8px 13px;border:1px solid var(--pf-border-strong,#cbd5e1);font:inherit;font-size:.875rem;font-weight:650;transition:background .18s ease,border-color .18s ease,box-shadow .18s ease}
-.agenda-form-actions button:not(.btn-primary),.agenda-heading button:not(.btn-primary),.agenda-action{background:var(--pf-surface,#fff);color:var(--pf-text,#1f2937)}
-.agenda-form-actions button:not(.btn-primary):hover,.agenda-heading button:not(.btn-primary):hover,.agenda-action:hover{background:var(--pf-surface-soft,#f8fafc);border-color:var(--pf-border-strong,#cbd5e1)}
-.agenda-form-actions .btn-primary,.agenda-heading .btn-primary{background:var(--pf-primary,#1d4ed8);border-color:var(--pf-primary,#1d4ed8);color:#fff}
-.agenda-form-actions .btn-primary:hover,.agenda-heading .btn-primary:hover{background:var(--pf-primary-hover,#1e40af);border-color:var(--pf-primary-hover,#1e40af)}
-.agenda-message{display:none;padding:10px 12px;border:1px solid transparent;border-radius:var(--pf-radius-sm,8px)}
+.agenda-form-actions{
+   display:flex;
+   gap:10px;
+   margin-top:16px
+}
+.agenda-form-actions button,.agenda-heading button,.agenda-action{
+   cursor:pointer;
+   min-height:36px;
+   border-radius:var(--pf-radius-sm,8px);
+   padding:8px 13px;
+   border:1px solid var(--pf-border-strong,#cbd5e1);
+   font:inherit;
+   font-size:.875rem;
+   font-weight:650;
+   transition:background .18s ease,border-color .18s ease,box-shadow .18s ease
+}
+.agenda-form-actions button:not(.btn-primary),
+.agenda-heading button:not(.btn-primary),
+.agenda-action{
+   background:var(--pf-surface,#fff);
+   color:var(--pf-text,#1f2937)
+}
+.agenda-form-actions button:not(.btn-primary):hover,
+.agenda-heading button:not(.btn-primary):hover,
+.agenda-action:hover{
+   background:var(--pf-surface-soft,#f8fafc);
+   border-color:var(--pf-border-strong,#cbd5e1)
+}
+.agenda-form-actions .btn-primary,
+.agenda-heading .btn-primary{
+   background:var(--pf-primary,#1d4ed8);
+   border-color:var(--pf-primary,#1d4ed8);
+   color:#fff
+}
+.agenda-form-actions .btn-primary:hover,
+.agenda-heading .btn-primary:hover{background:var(--pf-primary-hover,#1e40af);
+   border-color:var(--pf-primary-hover,#1e40af)
+}
+.agenda-message{display:none;padding:10px 12px;
+   border:1px solid transparent;border-radius:var(--pf-radius-sm,8px)
+}
 .agenda-message.is-visible{display:block}
 .agenda-message.is-error{background:#fef2f2;color:#991b1b;border-color:#fecaca}
 .agenda-message.is-success{background:#f0fdf4;color:#166534;border-color:#bbf7d0}
