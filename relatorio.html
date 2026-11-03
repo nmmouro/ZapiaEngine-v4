@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Painel Frota - Relatório de ocorrências">
     <title>Relatório de ocorrências - Painel Frota</title>
-    <link rel="stylesheet" href="css/style.css?v=20261102-pf-colors">
-    <link rel="stylesheet" href="css/components.css?v=20261102-pf-colors">
-    <link rel="stylesheet" href="./css/padrao-visual.css?v=20261103-padronizacao-geral">
+    
+    
+    
     <style>
         .relatorio-page{padding:20px;max-width:100%;box-sizing:border-box}
         .relatorio-cabecalho{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:18px}
@@ -22,6 +22,19 @@
         @media(max-width:650px){.relatorio-filtros{grid-template-columns:1fr}.relatorio-resumo{flex-direction:column}}
         @media print{header,.relatorio-acoes,.relatorio-filtros,.relatorio-mensagem{display:none!important}.relatorio-page{padding:0}.relatorio-tabela{font-size:8px}.relatorio-tabela th{position:static}.relatorio-tabela-wrap{border:0;overflow:visible}}
     </style>
+
+    <!-- Folhas exclusivas do tema escuro; só atuam quando html[data-theme="escuro"] -->
+    
+    
+    
+    <!-- CSS organizado: tema claro, componentes compartilhados e tema escuro -->
+    <link rel="stylesheet" href="css/style.css?v=20261102-pf-colors">
+    <link rel="stylesheet" href="./css/relatorio.css?v=20261103-light-v2">
+    <link rel="stylesheet" href="css/components.css?v=20261102-pf-colors">
+    <link rel="stylesheet" href="./css/style-escuro.css?v=20261103-dark-v1">
+    <link rel="stylesheet" href="./css/components-escuro.css?v=20261103-dark-v1">
+    <link rel="stylesheet" href="./css/relatorio-escuro.css?v=20261103-dark-v1">
+    
 </head>
 <body data-page="relatorio" data-page-title="Relatório de Ocorrências">
     <header data-header class="app-header"></header>
