@@ -7,6 +7,49 @@ let editando = false;
 let abrindoAgendamento = false;
 
 export async function iniciarAgenda() {
+  // A estrutura visual da Agenda é criada pelo módulo, mantendo o HTML
+  // principal enxuto e seguindo o padrão de inicialização do Engine.
+  const app = document.querySelector("#app");
+  if (!app) throw new Error("Contêiner #app não encontrado na página Agenda.");
+
+  if (!document.querySelector("#agenda-form")) {
+    app.innerHTML = `
+      <section class="agenda-page">
+        <div class="agenda-heading">
+          <div>
+            <h2>Agenda</h2>
+            <p>Cadastre e gerencie os agendamentos. Clique em uma linha para iniciar uma nova ocorrência com os dados do agendamento.</p>
+          </div>
+          <button type="button" id="agenda-novo" class="btn btn-primary">Novo agendamento</button>
+        </div>
+        <div id="agenda-mensagem" class="agenda-message" role="status" aria-live="polite"></div>
+        <form id="agenda-form" class="agenda-form" hidden>
+          <input type="hidden" name="id">
+          <div class="agenda-fields">
+            <label>Data<input name="data" type="date" required></label>
+            <label>Hora<input name="hora" type="time" required></label>
+            <label>Passageiro<input name="passageiro" type="text" maxlength="180" required></label>
+            <label>Setor<input name="setor" type="text" maxlength="120" required></label>
+            <label>Motivo<input name="motivo" type="text" maxlength="240" required></label>
+            <label class="agenda-wide">Itinerário<input name="itinerario" type="text" maxlength="500" required></label>
+            <label>Status<select name="status" required><option value="AGENDADO">AGENDADO</option><option value="ATENDIDO">ATENDIDO</option><option value="CANCELADO">CANCELADO</option></select></label>
+          </div>
+          <div class="agenda-form-actions">
+            <button type="submit" class="btn btn-primary" id="agenda-salvar">Salvar agendamento</button>
+            <button type="button" class="btn" id="agenda-cancelar">Cancelar</button>
+          </div>
+        </form>
+        <div class="agenda-table-wrap">
+          <table class="agenda-table">
+            <thead><tr><th>Data</th><th>Hora</th><th>Passageiro</th><th>Setor</th><th>Motivo</th><th>Itinerário</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="agenda-lista"><tr><td colspan="8">Carregando agendamentos...</td></tr></tbody>
+          </table>
+        </div>
+        <p class="agenda-hint">Para abrir uma nova ocorrência, clique em qualquer parte da linha do agendamento. Os botões Editar e Excluir não abrem a ocorrência.</p>
+      </section>
+    `;
+  }
+
   const form = document.querySelector("#agenda-form");
   const lista = document.querySelector("#agenda-lista");
   const mensagem = document.querySelector("#agenda-mensagem");
