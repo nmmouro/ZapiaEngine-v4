@@ -507,3 +507,96 @@ html.dark-mode, body.dark-mode, body.theme-dark) .view-page .view-document-icon 
   .view-page .view-fields { grid-template-columns: minmax(0, 1fr); }
   .view-page .view-cards { grid-template-columns: minmax(0, 1fr); }
 }
+
+
+/* ============================================================
+   CORREÇÃO DE CONTRASTE — RELATÓRIO DE OCORRÊNCIAS
+   Usa as variáveis centrais de padrao-visual.css para manter
+   cabeçalhos, filtros e resumo legíveis nos temas claro e escuro.
+   ============================================================ */
+.relatorio-page .relatorio-filtros {
+  background: var(--pf-surface, #ffffff) !important;
+  color: var(--pf-text, #1f2937);
+  border-color: var(--pf-border, #dbe2ea) !important;
+}
+.relatorio-page .relatorio-filtros .campo-relatorio label {
+  color: var(--pf-text, #1f2937) !important;
+  font-weight: 650;
+}
+.relatorio-page .relatorio-filtros input,
+.relatorio-page .relatorio-filtros select,
+.relatorio-page .relatorio-filtros textarea {
+  color: var(--pf-text, #1f2937) !important;
+  background-color: var(--pf-surface, #ffffff) !important;
+  border-color: var(--pf-border-strong, #cbd5e1) !important;
+}
+.relatorio-page .relatorio-filtros input::placeholder {
+  color: var(--pf-muted, #64748b);
+  opacity: 1;
+}
+.relatorio-page .relatorio-tabela-wrap {
+  background: var(--pf-surface, #ffffff) !important;
+  border-color: var(--pf-border, #dbe2ea) !important;
+}
+.relatorio-page .relatorio-tabela thead th {
+  color: var(--pf-text, #1f2937) !important;
+  background: var(--pf-surface-soft, #f8fafc) !important;
+  border-color: var(--pf-border, #dbe2ea) !important;
+  font-weight: 750;
+}
+.relatorio-page .relatorio-tabela tbody td {
+  color: var(--pf-text, #1f2937);
+  border-color: var(--pf-border, #dbe2ea);
+}
+.relatorio-page .relatorio-resumo > div {
+  color: var(--pf-text, #1f2937);
+  background: var(--pf-surface, #ffffff) !important;
+  border-color: var(--pf-border, #dbe2ea) !important;
+}
+.relatorio-page .relatorio-resumo span {
+  color: var(--pf-muted, #64748b) !important;
+  opacity: 1 !important;
+}
+.relatorio-page .relatorio-resumo strong {
+  color: var(--pf-text, #1f2937) !important;
+}
+.relatorio-page .relatorio-mensagem {
+  color: var(--pf-text, #1f2937);
+  border: 1px solid var(--pf-border, #dbe2ea);
+}
+
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) .relatorio-page .relatorio-filtros {
+  background: var(--pf-surface, #252b35) !important;
+  color: var(--pf-text, #e5e7eb) !important;
+}
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) .relatorio-page .relatorio-filtros .campo-relatorio label,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) .relatorio-page .relatorio-resumo > div,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) .relatorio-page .relatorio-resumo strong,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) .relatorio-page .relatorio-tabela thead th,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) .relatorio-page .relatorio-tabela tbody td {
+  color: var(--pf-text, #e5e7eb) !important;
+}
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) .relatorio-page .relatorio-filtros input,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) .relatorio-page .relatorio-filtros select,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) .relatorio-page .relatorio-filtros textarea {
+  color: var(--pf-text, #e5e7eb) !important;
+  background-color: var(--pf-surface, #252b35) !important;
+  border-color: var(--pf-border-strong, #64748b) !important;
+  color-scheme: dark;
+}
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) .relatorio-page .relatorio-tabela-wrap,
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) .relatorio-page .relatorio-resumo > div {
+  background: var(--pf-surface, #252b35) !important;
+  border-color: var(--pf-border, #475569) !important;
+}
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) .relatorio-page .relatorio-tabela thead th {
+  background: var(--pf-surface-soft, #303846) !important;
+  border-color: var(--pf-border, #475569) !important;
+}
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) .relatorio-page .relatorio-tabela tbody td {
+  background: var(--pf-surface, #252b35);
+  border-color: var(--pf-border, #475569) !important;
+}
+:where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) .relatorio-page .relatorio-resumo span {
+  color: var(--pf-muted, #aab4c3) !important;
+}
