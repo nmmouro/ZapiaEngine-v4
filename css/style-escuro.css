@@ -1,0 +1,17 @@
+/* PAINEL FROTA — TEMA ESCURO | estrutura global */
+html[data-theme="escuro"] body { background: var(--pf-page) !important; color: var(--pf-text) !important; }
+html[data-theme="escuro"] :where(.app-header, header.app-header) {
+  background: #151e2b !important; color: var(--pf-text) !important;
+  border-bottom: 1px solid var(--pf-border) !important; box-shadow: 0 3px 12px rgb(0 0 0 / 25%) !important;
+}
+html[data-theme="escuro"] :where(.app-header h1, .app-header h2, .app-header .header-titulo h1, .app-header .header-hora, .page-title, h1, h2, h3) { color: #f9fafb; }
+html[data-theme="escuro"] :where(.app-header .header-data, .app-header .header-separador, .app-header p) { color: #cbd5e1; }
+html[data-theme="escuro"] :where(.engine-toolbar, .engine-form-wrapper, .card, .menu-card, .page-card, .panel, .modal-content, .app-container section.card, .view-section, .view-card, .view-field) {
+  background: var(--pf-surface) !important; color: var(--pf-text) !important; border-color: var(--pf-border) !important; box-shadow: var(--pf-shadow);
+}
+html[data-theme="escuro"] :where(.engine-form-header, .engine-form-actions, .view-section h2) { border-color: var(--pf-border) !important; }
+html[data-theme="escuro"] :where(.engine-form-header h2, .engine-field label, .menu-card-title, .menu-card-description, .view-field label, .view-field strong) { color: var(--pf-text) !important; }
+html[data-theme="escuro"] :where(.header-theme-toggle, .app-header .header-fullscreen, .btn-fullscreen) { background: #263447 !important; border-color: #64748b !important; color: #f3f4f6 !important; }
+html[data-theme="escuro"] :where(.header-theme-toggle:hover, .app-header .header-fullscreen:hover, .btn-fullscreen:hover) { background: #3a4a60 !important; }
+html[data-theme="escuro"] .loading-overlay { background: rgb(17 24 39 / 78%); }
+html[data-theme="escuro"] ::selection { background: #1d4ed8; color: #fff; }

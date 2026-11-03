@@ -1,0 +1,7 @@
+/* EMPREGADOS — TEMA ESCURO */
+html[data-theme="escuro"] :where(.empregados-page, .empregados-container, #empregados, .engine-page) { color: var(--pf-text); }
+html[data-theme="escuro"] :where(.empregados-page .card, .empregados-page .panel, .empregados-page .engine-toolbar, .empregados-page .engine-form-wrapper, .empregados-page .table-responsive, .empregados-page .view-section) { background: var(--pf-surface) !important; color: var(--pf-text) !important; border-color: var(--pf-border) !important; }
+html[data-theme="escuro"] :where(.empregados-page table th, .empregados-page thead th) { background: #303c4e !important; color: #f9fafb !important; }
+html[data-theme="escuro"] :where(.empregados-page table td) { background: var(--pf-surface) !important; color: var(--pf-text) !important; }
+html[data-theme="escuro"] .empregados-page table tbody tr:nth-child(even) td { background: #243244 !important; }
+html[data-theme="escuro"] .empregados-page table tbody tr:hover td { background: #334155 !important; }

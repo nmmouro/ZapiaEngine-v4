@@ -1,0 +1,14 @@
+/* AGENDA — TEMA ESCURO */
+html[data-theme="escuro"] :where(.agenda-page, .agenda-heading, .agenda-heading h2) { color: var(--pf-text); }
+html[data-theme="escuro"] :where(.agenda-form, .agenda-table-wrap) { background: var(--pf-surface) !important; border-color: var(--pf-border) !important; color: var(--pf-text); box-shadow: var(--pf-shadow); }
+html[data-theme="escuro"] .agenda-table { background: var(--pf-surface) !important; color: var(--pf-text); }
+html[data-theme="escuro"] .agenda-table th { background: #303c4e !important; color: #f9fafb !important; border-color: var(--pf-border) !important; }
+html[data-theme="escuro"] .agenda-table td { background: var(--pf-surface) !important; color: var(--pf-text) !important; border-color: var(--pf-border) !important; }
+html[data-theme="escuro"] .agenda-table tbody tr.agenda-row:nth-child(even) td { background: #243244 !important; }
+html[data-theme="escuro"] .agenda-table tbody tr.agenda-row:hover td { background: #334155 !important; }
+html[data-theme="escuro"] :where(.agenda-form-actions button:not(.btn-primary), .agenda-heading button:not(.btn-primary), .agenda-action) { background: #303b4b !important; color: #f3f4f6 !important; border-color: #64748b !important; }
+html[data-theme="escuro"] :where(.agenda-action.edit) { color: #93c5fd !important; }
+html[data-theme="escuro"] .agenda-action.delete { color: #fca5a5 !important; }
+html[data-theme="escuro"] .agenda-message.is-error { background: #451a1a !important; color: #fecaca !important; border-color: #7f1d1d !important; }
+html[data-theme="escuro"] .agenda-message.is-success { background: #143323 !important; color: #bbf7d0 !important; border-color: #166534 !important; }
+html[data-theme="escuro"] .agenda-hint { color: var(--pf-muted); }

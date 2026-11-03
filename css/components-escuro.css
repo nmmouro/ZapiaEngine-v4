@@ -1,0 +1,50 @@
+/* PAINEL FROTA — TEMA ESCURO | tokens e componentes compartilhados */
+html[data-theme="escuro"] {
+  color-scheme: dark;
+  --pf-page: #111827;
+  --pf-surface: #1f2937;
+  --pf-surface-soft: #273449;
+  --pf-surface-hover: #334155;
+  --pf-text: #f3f4f6;
+  --pf-muted: #c0cad7;
+  --pf-border: #3f4b5d;
+  --pf-border-strong: #64748b;
+  --pf-primary: #60a5fa;
+  --pf-primary-hover: #3b82f6;
+  --pf-primary-soft: #1e3a5f;
+  --pf-focus: 0 0 0 3px rgb(96 165 250 / 24%);
+  --pf-shadow: 0 4px 16px rgb(0 0 0 / 22%);
+}
+html[data-theme="escuro"] :where(button, input, select, textarea) { color-scheme: dark; }
+html[data-theme="escuro"] :where(label, legend, .text-muted, small, .muted, .form-text, .field-hint) { color: var(--pf-muted); }
+html[data-theme="escuro"] :where(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  background: #111827 !important; color: var(--pf-text) !important;
+  border: 1px solid var(--pf-border-strong) !important; border-radius: 8px;
+}
+html[data-theme="escuro"] :where(input, select, textarea)::placeholder { color: #9ca3af !important; opacity: 1; }
+html[data-theme="escuro"] :where(input, select, textarea):focus {
+  outline: none; border-color: var(--pf-primary) !important; box-shadow: var(--pf-focus) !important;
+}
+html[data-theme="escuro"] :where(input, select, textarea):disabled { background: #303b4b !important; color: #aeb8c6 !important; opacity: 1; }
+html[data-theme="escuro"] :where(table) { color: var(--pf-text); border-color: var(--pf-border); }
+html[data-theme="escuro"] :where(table th, thead th) {
+  background: #303c4e !important; color: #f9fafb !important; border-color: var(--pf-border) !important;
+}
+html[data-theme="escuro"] :where(table td) { background: #1f2937; color: #e5e7eb; border-color: var(--pf-border) !important; }
+html[data-theme="escuro"] :where(table tbody tr:nth-child(even) td) { background: #243244; }
+html[data-theme="escuro"] :where(table tbody tr:hover td) { background: #334155 !important; }
+html[data-theme="escuro"] :where(.table-responsive, .table-wrapper, .table-container, .table-wrap) {
+  background: var(--pf-surface); border-color: var(--pf-border); color: var(--pf-text);
+}
+html[data-theme="escuro"] :where(.alert, .alert-info, .alert-warning, .alert-danger, .alert-success, .message, .mensagem, .empty-state, .estado-vazio) {
+  color: var(--pf-text); border-color: var(--pf-border);
+}
+html[data-theme="escuro"] :where(.modal-content, .modal-dialog, .dropdown-menu, .popover, .tooltip-inner) {
+  background: var(--pf-surface) !important; color: var(--pf-text) !important; border-color: var(--pf-border) !important;
+}
+html[data-theme="escuro"] :where(.btn-secondary, .btn-outline, .btn-light, .btn-default) {
+  background: #303b4b !important; color: #f3f4f6 !important; border-color: #64748b !important;
+}
+html[data-theme="escuro"] :where(.btn-secondary, .btn-outline, .btn-light, .btn-default):hover { background: #405069 !important; }
+html[data-theme="escuro"] :where(hr, .divider) { border-color: var(--pf-border); }
+html[data-theme="escuro"] a:not(.btn):not(.menu-card) { color: #93c5fd; }
