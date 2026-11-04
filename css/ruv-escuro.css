@@ -1,9 +1,30 @@
 /* RUV — TEMA ESCURO */
-html[data-theme="escuro"] .ruv-page { color: var(--pf-text); }
-html[data-theme="escuro"] :where(.ruv-veiculo-selecionado, .ruv-km-atual, .ruv-card, .ruv-filtros, .ruv-tabela-wrap, .ruv-resumo, .ruv-info) { background: var(--pf-surface) !important; color: var(--pf-text) !important; border-color: var(--pf-border) !important; }
-html[data-theme="escuro"] .ruv-page :where(h1,h2,h3,strong,.ruv-veiculo-selecionado strong) { color: var(--pf-text) !important; }
-html[data-theme="escuro"] .ruv-page :where(.ruv-tabela th, thead th, tfoot th) { background: #303c4e !important; color: #f9fafb !important; border-color: var(--pf-border) !important; }
-html[data-theme="escuro"] .ruv-page :where(.ruv-tabela td, tbody td) { background: var(--pf-surface) !important; color: var(--pf-text) !important; border-color: var(--pf-border) !important; }
-html[data-theme="escuro"] .ruv-page .ruv-tabela tbody tr:nth-child(even) td { background: #243244 !important; }
-html[data-theme="escuro"] .ruv-page .ruv-tabela tbody tr:hover td { background: #334155 !important; }
-html[data-theme="escuro"] .ruv-page :where(label, .ruv-kicker, .ruv-veiculo-selecionado span, .ruv-km-atual span) { color: var(--pf-muted) !important; }
+html[data-theme="escuro"] .ruv-page {
+  color: var(--pf-text);
+}
+html[data-theme="escuro"] :where(.ruv-veiculo-selecionado, .ruv-km-atual, .ruv-card, .ruv-filtros, .ruv-tabela-wrap, .ruv-resumo, .ruv-info) {
+  background: var(--pf-surface) !important;
+  color: var(--pf-text) !important;
+  border-color: var(--pf-border) !important;
+}
+html[data-theme="escuro"] .ruv-page :where(h1,h2,h3,strong,.ruv-veiculo-selecionado strong) {
+  color: var(--pf-text) !important;
+}
+html[data-theme="escuro"] .ruv-page :where(.ruv-tabela th, thead th, tfoot th) {
+  background: #303c4e !important; color: #f9fafb !important;
+  border-color: var(--pf-border) !important;
+}
+html[data-theme="escuro"] .ruv-page :where(.ruv-tabela td, tbody td) {
+  background: var(--pf-surface) !important;
+  color: var(--pf-text) !important;
+  border-color: var(--pf-border) !important;
+}
+html[data-theme="escuro"] .ruv-page .ruv-tabela tbody tr:nth-child(even) td {
+  background: #243244 !important;
+}
+html[data-theme="escuro"] .ruv-page .ruv-tabela tbody tr:hover td {
+  background: #334155 !important;
+}
+html[data-theme="escuro"] .ruv-page :where(label, .ruv-kicker, .ruv-veiculo-selecionado span, .ruv-km-atual span) {
+  color: var(--pf-muted) !important;
+}
