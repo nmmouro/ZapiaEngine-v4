@@ -2275,3 +2275,54 @@ html.dark-mode, body.dark-mode, body.theme-dark) .view-page .view-document-icon 
   min-width: 0;
   box-sizing: border-box;
 }
+
+
+/* ============================================================
+   AGENDA — INTEGRAÇÃO AO CSS GLOBAL (TEMA CLARO)
+   Regras originalmente em agenda.css; mantidas sob classes próprias
+   para não alterar a apresentação dos demais módulos.
+   ============================================================ */
+/* ============================================================
+   AGENDA — cores alinhadas ao css/padrao-visual.css
+   Mantém estrutura, classes e comportamento da página.
+   ============================================================ */
+.agenda-page{width:100%;display:flex;flex-direction:column;gap:16px;color:var(--pf-text,#1f2937)}
+.agenda-heading{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.agenda-heading h2{margin:0 0 6px;color:var(--pf-text,#1f2937)}
+.agenda-heading p{margin:0;color:var(--pf-muted,#64748b)}
+.agenda-form{padding:18px;border:1px solid var(--pf-border,#dbe2ea);border-radius:var(--pf-radius,12px);background:var(--pf-surface,#fff);box-shadow:var(--pf-shadow,0 2px 10px rgb(15 23 42 / 5%))}
+.agenda-fields{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:14px}
+.agenda-fields label{display:flex;flex-direction:column;gap:6px;font-weight:650;font-size:.9rem;color:var(--pf-text,#1f2937)}
+.agenda-fields input,.agenda-fields select,.agenda-fields textarea{min-width:0;width:100%;box-sizing:border-box;min-height:40px;padding:9px 11px;border:1px solid var(--pf-border-strong,#cbd5e1);border-radius:var(--pf-radius-sm,8px);background:var(--pf-surface,#fff);color:var(--pf-text,#1f2937);font:inherit;font-weight:400;transition:border-color .16s ease,box-shadow .16s ease,background-color .16s ease}
+.agenda-fields input:focus,.agenda-fields select:focus,.agenda-fields textarea:focus{outline:none;border-color:var(--pf-primary,#1d4ed8);box-shadow:var(--pf-focus,0 0 0 3px rgb(37 99 235 / 14%))}
+.agenda-fields input:disabled,.agenda-fields select:disabled,.agenda-fields textarea:disabled{background:var(--pf-surface-soft,#f8fafc);color:var(--pf-muted,#64748b);cursor:not-allowed}
+.agenda-wide{grid-column:span 2}
+.agenda-form-actions{display:flex;gap:10px;margin-top:16px}
+.agenda-form-actions button,.agenda-heading button,.agenda-action{cursor:pointer;min-height:36px;border-radius:var(--pf-radius-sm,8px);padding:8px 13px;border:1px solid var(--pf-border-strong,#cbd5e1);font:inherit;font-size:.875rem;font-weight:650;transition:background .18s ease,border-color .18s ease,box-shadow .18s ease}
+.agenda-form-actions button:not(.btn-primary),.agenda-heading button:not(.btn-primary),.agenda-action{background:var(--pf-surface,#fff);color:var(--pf-text,#1f2937)}
+.agenda-form-actions button:not(.btn-primary):hover,.agenda-heading button:not(.btn-primary):hover,.agenda-action:hover{background:var(--pf-surface-soft,#f8fafc);border-color:var(--pf-border-strong,#cbd5e1)}
+.agenda-form-actions .btn-primary,.agenda-heading .btn-primary{background:var(--pf-primary,#1d4ed8);border-color:var(--pf-primary,#1d4ed8);color:#fff}
+.agenda-form-actions .btn-primary:hover,.agenda-heading .btn-primary:hover{background:var(--pf-primary-hover,#1e40af);border-color:var(--pf-primary-hover,#1e40af)}
+.agenda-message{display:none;padding:10px 12px;border:1px solid transparent;border-radius:var(--pf-radius-sm,8px)}
+.agenda-message.is-visible{display:block}
+.agenda-message.is-error{background:#fef2f2;color:#991b1b;border-color:#fecaca}
+.agenda-message.is-success{background:#f0fdf4;color:#166534;border-color:#bbf7d0}
+.agenda-table-wrap{width:100%;overflow:auto;border:1px solid var(--pf-border,#dbe2ea);border-radius:var(--pf-radius,12px);background:var(--pf-surface,#fff);box-shadow:var(--pf-shadow,0 2px 10px rgb(15 23 42 / 5%))}
+.agenda-table{width:100%;border-collapse:separate;border-spacing:0;min-width:900px;background:var(--pf-surface,#fff);color:var(--pf-text,#1f2937)}
+.agenda-table th,.agenda-table td{padding:11px 12px;text-align:left;border-bottom:1px solid var(--pf-border,#dbe2ea);vertical-align:middle}
+.agenda-table th{background:var(--pf-surface-soft,#f8fafc);color:var(--pf-text,#334155);font-size:.82rem;font-weight:750;white-space:nowrap}
+.agenda-table td{color:var(--pf-text,#334155)}
+.agenda-table tbody tr.agenda-row{cursor:pointer;transition:background .15s}
+.agenda-table tbody tr.agenda-row:nth-child(even){background:var(--pf-surface-soft,#f8fafc)}
+.agenda-table tbody tr.agenda-row:hover{background:var(--pf-primary-soft,#eff6ff)}
+.agenda-table tbody tr:last-child td{border-bottom:0}
+.agenda-actions{display:flex;gap:6px;white-space:nowrap}
+.agenda-action{padding:6px 9px;font-size:.8rem}
+.agenda-action.edit{color:var(--pf-primary,#1d4ed8)}
+.agenda-action.delete{color:#b42318}
+.agenda-status{font-size:.78rem;font-weight:700;white-space:nowrap}
+.agenda-hint{margin:0;font-size:.88rem;color:var(--pf-muted,#64748b)}
+:where(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,body.theme-dark) .agenda-message.is-error{background:#451a1a;color:#fecaca;border-color:#7f1d1d}
+:where(html[data-theme="dark"],body[data-theme="dark"],html.dark,body.dark,html.dark-mode,body.dark-mode,body.theme-dark) .agenda-message.is-success{background:#143323;color:#bbf7d0;border-color:#166534}
+@media(max-width:900px){.agenda-fields{grid-template-columns:repeat(2,minmax(140px,1fr))}}
+@media(max-width:520px){.agenda-fields{grid-template-columns:1fr}.agenda-wide{grid-column:auto}.agenda-form-actions{flex-wrap:wrap}}
