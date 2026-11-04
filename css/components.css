@@ -2253,3 +2253,25 @@ html.dark-mode, body.dark-mode, body.theme-dark) .view-page .view-document-icon 
 :where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) .relatorio-page .relatorio-resumo span {
   color: var(--pf-muted, #aab4c3) !important;
 }
+
+
+/* ============================================================
+   ESTRUTURA GLOBAL — FORMULÁRIOS E TABELAS DO ENGINE
+   Compartilhado por Veículos, Empregados e demais módulos.
+   ============================================================ */
+:where(.engine-form-container, .engine-table-container, .engine-list-container) {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+:where(.engine-table-container, .table-responsive) {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+:where(.engine-form-container, .engine-form-wrapper) :where(input, select, textarea) {
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}

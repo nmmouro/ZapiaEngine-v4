@@ -975,3 +975,34 @@ html[data-theme="escuro"] ::selection {
 :where(html[data-theme="dark"], body[data-theme="dark"], html.dark, body.dark, html.dark-mode, body.dark-mode, body.theme-dark) :where(.relatorio-page, .ruv-page) :is(tr:hover td, .ruv-tabela tbody tr:hover td) {
   background-color: var(--pf-surface-soft, #303846);
 }
+
+
+/* ============================================================
+   TEMA ESCURO GLOBAL — CONTÊINERES DE TABELAS E FORMULÁRIOS
+   Regras compartilhadas; não dependem de classes específicas
+   de uma página.
+   ============================================================ */
+html[data-theme="escuro"] :where(
+  .engine-form-container,
+  .engine-table-container,
+  .engine-list-container,
+  .table-responsive,
+  .table-wrapper,
+  .table-container,
+  .table-wrap
+) {
+  background-color: var(--pf-surface, #1f2937);
+  color: var(--pf-text, #f3f4f6);
+  border-color: var(--pf-border, #3f4b5d);
+}
+
+html[data-theme="escuro"] :where(
+  .engine-form-container,
+  .engine-form-wrapper,
+  .engine-table-container,
+  .engine-list-container,
+  .table-responsive
+) :where(input, select, textarea) {
+  max-width: 100%;
+  color-scheme: dark;
+}
