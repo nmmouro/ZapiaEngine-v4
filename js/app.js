@@ -83,29 +83,6 @@
         );
 
 
-        const paginaInicial = detectarPagina();
-
-if (!window.PainelFrotaAuth) {
-  console.error("AUTH → arquivo js/auth.js não carregado.");
-
-  const app = document.querySelector("#app");
-  if (app) {
-    app.innerHTML = `
-      <p style="padding:20px;color:#b91c1c">
-        Não foi possível iniciar a autenticação.
-        Recarregue a página.
-      </p>
-    `;
-  }
-
-  return;
-}
-
-        // A autenticação é inicializada uma única vez por js/auth.js.
-        // Aguarda a validação antes de iniciar módulos e consultas de dados.
-        const acessoPermitido = await window.PainelFrotaAuth.ready();
-        if (!acessoPermitido) return;
-
         /*
          * ----------------------------------------------------
          * CONTAINER
@@ -366,17 +343,6 @@ if (!window.PainelFrotaAuth) {
         ) {
 
             return "dashboard";
-
-        }
-
-
-        if (
-            caminho.endsWith(
-                "/usuarios.html"
-            )
-        ) {
-
-            return "usuarios";
 
         }
 
@@ -644,19 +610,6 @@ if (!window.PainelFrotaAuth) {
 
 
             /* =================================================
-               AGENDA
-            ================================================= */
-
-            case "agenda": {
-
-                console.log("APP → CARREGANDO AGENDA");
-                const modulo = await import("./pages/agenda.js");
-                return executarModulo(modulo, "AGENDA");
-
-            }
-
-
-            /* =================================================
                RELATÓRIO DE OCORRÊNCIAS
             ================================================= */
 
@@ -697,28 +650,6 @@ if (!window.PainelFrotaAuth) {
                 return executarModulo(
                     modulo,
                     "RUV"
-                );
-
-            }
-
-
-            /* =================================================
-               GERENCIAR ACESSOS / USUÁRIOS
-            ================================================= */
-
-            case "usuarios": {
-
-                console.log(
-                    "APP → CARREGANDO GERENCIAR ACESSOS"
-                );
-
-                const modulo = await import(
-                    "./pages/usuarios.js"
-                );
-
-                return executarModulo(
-                    modulo,
-                    "GERENCIAR ACESSOS"
                 );
 
             }

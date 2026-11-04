@@ -13,7 +13,7 @@
  */
 import { createModule } from "../engine/module.js";
 import { SCHEMA_LANCAMENTOS } from "../schemas/lancamentos.js";
-import { listar, atualizar, obter } from "../services/crudService.js";
+import { listar, atualizar } from "../services/crudService.js";
 import { obterLocalizacao } from "../utils/geolocalizacao.js";
 import {
     obterUltimoKmVeiculo,
@@ -26,14 +26,6 @@ let modulo = null;
 let modo = "abertura";
 let preparando = false;
 let vehicleListenerRegistrado = false;
-let agendamentoPendente = null;
-
-// Rascunho temporário usado quando o usuário sai para preencher dados
-// complementares e retorna à mesma ocorrência sem salvar a conclusão.
-const CHAVE_RASCUNHO_LANCAMENTO = "painelFrota:lancamentoRascunhoConclusao";
-const CAMPOS_NAO_RESTAURAR_RASCUNHO = new Set([
-    "status", "distancia_percorrida", "duracao_atendimento"
-]);
 
 const CAMPOS_ABERTURA = [
     "data", "hora", "id_empregado", "id_veiculo",
@@ -129,110 +121,6 @@ modulo.abrirManutencao =
 // =================================================================================================================================
 // FORMULÁRIOS RELACIONADOS
 // ============================================================
-
-function preservarRascunhoLancamento(idLancamento) {
-    const id = String(idLancamento || "").trim();
-    const form = modulo?.form?.formulario || document.querySelector("#app form");
-    if (!id || !form) {
-        console.warn("LANÇAMENTOS → RASCUNHO NÃO PRESERVADO: ID ou formulário ausente.", {
-            id,
-            formularioEncontrado: Boolean(form)
-        });
-        return;
-    }
-
-    try {
-        const campos = {};
-        for (const campo of Array.from(form.elements || [])) {
-            const nome = campo?.name;
-            if (!nome || campo.disabled || CAMPOS_NAO_RESTAURAR_RASCUNHO.has(nome)) continue;
-            if (campo.type === "checkbox") {
-                if (!Array.isArray(campos[nome])) campos[nome] = [];
-                if (campo.checked) campos[nome].push(campo.value);
-            } else if (campo.type === "radio") {
-                if (campo.checked) campos[nome] = campo.value;
-                else if (!(nome in campos)) campos[nome] = null;
-            } else if (campo.tagName === "SELECT" && campo.multiple) {
-                campos[nome] = Array.from(campo.selectedOptions, opcao => opcao.value);
-            } else {
-                campos[nome] = campo.value;
-            }
-        }
-
-        sessionStorage.setItem(CHAVE_RASCUNHO_LANCAMENTO, JSON.stringify({
-            id, salvoEm: Date.now(), campos
-        }));
-        console.log("LANÇAMENTOS → RASCUNHO PRESERVADO:", id);
-    } catch (erro) {
-        console.error("LANÇAMENTOS → NÃO FOI POSSÍVEL PRESERVAR O RASCUNHO:", erro);
-        alert("Não foi possível preservar os campos digitados. Não feche esta página antes de anotar os valores.");
-        throw erro;
-    }
-}
-
-function restaurarRascunhoLancamento(idLancamento) {
-    const id = String(idLancamento || "").trim();
-    const form = modulo?.form?.formulario || document.querySelector("#app form");
-    if (!id || !form) {
-        console.warn("LANÇAMENTOS → RASCUNHO NÃO RESTAURADO: ID ou formulário ausente.", {
-            id,
-            formularioEncontrado: Boolean(form)
-        });
-        return;
-    }
-
-    let rascunho;
-    try {
-        rascunho = JSON.parse(sessionStorage.getItem(CHAVE_RASCUNHO_LANCAMENTO) || "null");
-    } catch (erro) {
-        console.warn("LANÇAMENTOS → RASCUNHO INVÁLIDO; ignorando.", erro);
-        sessionStorage.removeItem(CHAVE_RASCUNHO_LANCAMENTO);
-        return;
-    }
-
-    if (!rascunho || rascunho.id !== id || !rascunho.campos) return;
-    // Evita reaplicar rascunhos muito antigos caso o usuário deixe a aba aberta.
-    if (!Number.isFinite(rascunho.salvoEm) || Date.now() - rascunho.salvoEm > 4 * 60 * 60 * 1000) {
-        sessionStorage.removeItem(CHAVE_RASCUNHO_LANCAMENTO);
-        return;
-    }
-
-    for (const [nome, valor] of Object.entries(rascunho.campos)) {
-        if (CAMPOS_NAO_RESTAURAR_RASCUNHO.has(nome)) continue;
-        const elemento = form.elements.namedItem(nome);
-        if (!elemento) continue;
-        const controles = typeof elemento.length === "number" && !elemento.tagName
-            ? Array.from(elemento) : [elemento];
-
-        if (controles.length > 1 && controles.every(c => c.type === "checkbox")) {
-            const marcados = new Set(Array.isArray(valor) ? valor : []);
-            controles.forEach(c => { c.checked = marcados.has(c.value); });
-        } else if (controles.length > 1 && controles.every(c => c.type === "radio")) {
-            controles.forEach(c => { c.checked = c.value === valor; });
-        } else {
-            const campo = controles[0];
-            if (!campo) continue;
-            if (campo.type === "checkbox") campo.checked = Array.isArray(valor) && valor.includes(campo.value);
-            else if (campo.tagName === "SELECT" && campo.multiple) {
-                const selecionados = new Set(Array.isArray(valor) ? valor : []);
-                Array.from(campo.options).forEach(opcao => { opcao.selected = selecionados.has(opcao.value); });
-            } else if (valor !== null && valor !== undefined) campo.value = valor;
-        }
-    }
-
-    console.log("LANÇAMENTOS → RASCUNHO RESTAURADO:", id);
-}
-
-function limparRascunhoLancamento(idLancamento) {
-    try {
-        const rascunho = JSON.parse(sessionStorage.getItem(CHAVE_RASCUNHO_LANCAMENTO) || "null");
-        if (!idLancamento || !rascunho || rascunho.id === String(idLancamento).trim()) {
-            sessionStorage.removeItem(CHAVE_RASCUNHO_LANCAMENTO);
-        }
-    } catch {
-        sessionStorage.removeItem(CHAVE_RASCUNHO_LANCAMENTO);
-    }
-}
 
 function obterLancamentoAtual() {
 
@@ -371,8 +259,6 @@ function abrirChecklist() {
             contexto
         );
 
-        preservarRascunhoLancamento(contexto.id_lancamento);
-
         const url =
             `checklist.html?lancamento=${encodeURIComponent(
                 contexto.id_lancamento
@@ -401,7 +287,6 @@ function abrirAbastecimento() {
     try {
         const contexto = obterContextoLancamento();
         const id = String(contexto.id_lancamento || "").trim();
-        preservarRascunhoLancamento(id);
         sessionStorage.setItem("painelFrota:lancamentoAtual", id);
         localStorage.setItem("painelFrota:lancamentoAtual", id);
         const url = `abastecimentos.html?lancamento=${encodeURIComponent(id)}`;
@@ -418,7 +303,6 @@ function abrirAvarias() {
 
     try {
         const contexto = obterContextoLancamento();
-        preservarRascunhoLancamento(contexto.id_lancamento);
         const url = `avarias.html?lancamento=${encodeURIComponent(contexto.id_lancamento)}`;
         console.log("LANÇAMENTOS → ABRIR AVARIAS:", contexto);
         window.location.href = url;
@@ -432,7 +316,6 @@ function abrirAvarias() {
 function abrirManutencao() {
     try {
         const contexto = obterContextoLancamento();
-        preservarRascunhoLancamento(contexto.id_lancamento);
         const url = `manutencao.html?lancamento=${encodeURIComponent(contexto.id_lancamento)}`;
         console.log("LANÇAMENTOS → ABRIR MANUTENÇÃO:", contexto);
         window.location.href = url;
@@ -447,7 +330,6 @@ function abrirLavaCar() {
 
     try {
         const contexto = obterContextoLancamento();
-        preservarRascunhoLancamento(contexto.id_lancamento);
         const url = `lava_car.html?lancamento=${encodeURIComponent(contexto.id_lancamento)}`;
         console.log("LANÇAMENTOS → ABRIR LAVA-CAR:", contexto);
         window.location.href = url;
@@ -476,32 +358,6 @@ function abrirLavaCar() {
     await modulo.iniciar();
     instalarControlesDoCiclo();
 
-    const paramsIniciais = new URLSearchParams(window.location.search);
-    const idAgendamento = paramsIniciais.get("agenda");
-    if (idAgendamento) {
-        try {
-            const resultado = await obter("agenda", idAgendamento);
-            agendamentoPendente = Array.isArray(resultado)
-                ? resultado[0]
-                : (resultado?.data && typeof resultado.data === "object"
-                    ? (Array.isArray(resultado.data) ? resultado.data[0] : resultado.data)
-                    : resultado);
-            if (agendamentoPendente && typeof agendamentoPendente === "object") {
-                const botaoNovo = [...document.querySelectorAll("button")].find(b => /novo/i.test((b.textContent || "").trim()));
-                if (botaoNovo) {
-                    botaoNovo.click();
-                } else {
-                    console.warn("LANÇAMENTOS → botão Novo não localizado para carregar o agendamento.");
-                }
-            } else {
-                console.warn("LANÇAMENTOS → agendamento não encontrado:", idAgendamento);
-            }
-        } catch (erroAgenda) {
-            console.error("LANÇAMENTOS → erro ao carregar agendamento:", erroAgenda);
-            alert("Não foi possível carregar os dados do agendamento. Verifique se ele ainda existe.");
-        }
-    }
-
     const idRetorno =
         new URLSearchParams(window.location.search).get("editar");
 
@@ -513,18 +369,6 @@ function abrirLavaCar() {
 
         try {
             await modulo.editar(idRetorno);
-
-            // O Engine pode terminar de preencher/renderizar o formulário
-            // depois de disparar o evento "form:editar". Por isso, a restauração
-            // também é feita após o retorno de modulo.editar(), para que o
-            // rascunho tenha prioridade sobre os valores recarregados do Supabase.
-            restaurarRascunhoLancamento(idRetorno);
-
-            // Alguns controles do Engine são sincronizados de forma assíncrona.
-            // Reaplicamos o rascunho no próximo ciclo de renderização também.
-            requestAnimationFrame(() => {
-                restaurarRascunhoLancamento(idRetorno);
-            });
         } catch (erro) {
             console.error(
                 "LANÇAMENTOS → NÃO FOI POSSÍVEL REABRIR A OCORRÊNCIA:",
@@ -679,19 +523,10 @@ function instalarControlesDoCiclo() {
         // depois do clique em "INICIAR OCORRÊNCIA".
         limparDadosParaNovaOcorrencia();
 
-        // Registra no lançamento o empregado autenticado (motorista,
-        // administrador ou usuário), independentemente do empregado/veículo
-        // escolhido para a ocorrência.
-        preencherUsuarioConectado();
-
         configurarAbertura();
         adicionarBotoesAuxiliares();
         resetarIndicadoresAuxiliares();
         setValor("status", "EM ANDAMENTO");
-        if (agendamentoPendente) {
-            aplicarDadosAgendamento(agendamentoPendente);
-            agendamentoPendente = null;
-        }
         await capturarGPS("localizacao");
         instalarListenerVeiculo();
     });
@@ -725,11 +560,6 @@ function instalarControlesDoCiclo() {
             setValor("status", statusPersistido === "CONCLUÍDO" ? "CONCLUÍDO" : "EM ANDAMENTO");
             await atualizarIndicadoresRelacionados(registro.id);
         }
-
-        // Os valores digitados antes de navegar para um formulário relacionado
-        // prevalecem sobre o snapshot antigo carregado do banco. O rascunho só
-        // é aplicado à mesma ocorrência e é removido após salvar a ocorrência.
-        restaurarRascunhoLancamento(registro.id);
     });
 
     
@@ -816,7 +646,6 @@ function instalarControlesDoCiclo() {
         );
 
         modo = "edicao";
-        limparRascunhoLancamento(id);
 
         // Agora que o registro foi efetivamente salvo como
         // CONCLUÍDO, os campos calculados podem ser exibidos.
@@ -843,11 +672,6 @@ function instalarControlesDoCiclo() {
 
         return;
     }
-
-    // Uma atualização concluída com sucesso também encerra o rascunho.
-    if (modo === "edicao") {
-        limparRascunhoLancamento(id || modulo?.engine?.state?.registroEditando?.id);
-    }
 });
 
 
@@ -856,92 +680,6 @@ function instalarControlesDoCiclo() {
 
 
     
-}
-
-function aplicarDadosAgendamento(agendamento) {
-    const valor = nome => {
-        const campo = modulo?.form?.formulario?.querySelector(`[name="${nome}"]`);
-        if (!campo) return;
-        const v = agendamento?.[nome];
-        if (v !== undefined && v !== null) campo.value = String(v);
-        campo.dispatchEvent(new Event("input", { bubbles: true }));
-        campo.dispatchEvent(new Event("change", { bubbles: true }));
-    };
-
-    valor("data");
-    valor("hora");
-    valor("itinerario");
-    const partes = [agendamento?.passageiro, agendamento?.setor, agendamento?.motivo]
-        .map(v => String(v ?? "").trim()).filter(Boolean);
-    const combinado = modulo?.form?.formulario?.querySelector('[name="passageiro_setor_motivo"]');
-    if (combinado) {
-        combinado.value = partes.join(" / ");
-        combinado.dispatchEvent(new Event("input", { bubbles: true }));
-        combinado.dispatchEvent(new Event("change", { bubbles: true }));
-    }
-    console.log("LANÇAMENTOS → DADOS DO AGENDAMENTO APLICADOS; selecionar empregado e veículo.", agendamento?.id);
-}
-
-
-function preencherUsuarioConectado() {
-    const auth = window.PainelFrotaAuth;
-    const usuario = typeof auth?.usuario === "function" ? auth.usuario() : null;
-    const nome = String(
-        usuario?.nome || usuario?.empregado || usuario?.name || usuario?.matricula || ""
-    ).trim();
-    const matricula = String(usuario?.matricula || "").trim();
-    const idEmpregado = String(usuario?.employeeId || usuario?.id_empregado || "").trim();
-    const rotuloEmpregado = [nome, matricula].filter(Boolean).join(" / ");
-
-    // Nome da conta que iniciou a sessão (motorista, administrador ou usuário).
-    if (nome) {
-        setValor("usuario", nome);
-    } else {
-        console.warn("LANÇAMENTOS → não foi possível obter o nome do usuário autenticado.");
-    }
-
-    // Empregado/Matrícula deve representar a pessoa autenticada, não uma pessoa
-    // escolhida manualmente. Mantemos o select habilitado para que seja enviado
-    // no FormData, mas bloqueamos interação e substituição por outra pessoa.
-    const selectEmpregado = modulo?.form?.formulario?.querySelector('[name="id_empregado"]');
-    if (selectEmpregado && idEmpregado) {
-        let opcao = Array.from(selectEmpregado.options).find(o => o.value === idEmpregado);
-        if (!opcao) {
-            opcao = new Option(rotuloEmpregado || idEmpregado, idEmpregado, true, true);
-            selectEmpregado.add(opcao);
-        } else if (rotuloEmpregado) {
-            opcao.textContent = rotuloEmpregado;
-        }
-
-        selectEmpregado.value = idEmpregado;
-        selectEmpregado.dataset.usuarioConectado = "true";
-        selectEmpregado.setAttribute("aria-readonly", "true");
-        selectEmpregado.title = "Preenchido automaticamente conforme o usuário conectado";
-        selectEmpregado.style.pointerEvents = "none";
-        selectEmpregado.style.backgroundColor = "#f1f5f9";
-        selectEmpregado.style.color = "#475569";
-        selectEmpregado.tabIndex = -1;
-
-        // Impede mudanças via teclado/script de interação; reafirma o valor da sessão.
-        if (!selectEmpregado.dataset.usuarioConectadoProtegido) {
-            selectEmpregado.addEventListener("change", () => {
-                if (selectEmpregado.value !== idEmpregado) selectEmpregado.value = idEmpregado;
-                setValor("empregado_matricula", rotuloEmpregado);
-            });
-            selectEmpregado.addEventListener("keydown", evento => evento.preventDefault());
-            selectEmpregado.dataset.usuarioConectadoProtegido = "true";
-        }
-
-        setValor("empregado_matricula", rotuloEmpregado);
-        selectEmpregado.dispatchEvent(new Event("change", { bubbles: true }));
-        // A sincronização do select pode atualizar o snapshot; reafirma o rótulo correto.
-        setValor("empregado_matricula", rotuloEmpregado);
-        console.log("LANÇAMENTOS → EMPREGADO/MATRÍCULA DA SESSÃO:", rotuloEmpregado, idEmpregado);
-    } else {
-        console.warn("LANÇAMENTOS → não foi possível preencher Empregado/Matrícula; perfil sem employeeId/id_empregado.");
-    }
-
-    if (nome) console.log("LANÇAMENTOS → USUÁRIO RESPONSÁVEL:", nome);
 }
 
 function limparDadosParaNovaOcorrencia() {
@@ -1129,9 +867,6 @@ async function interceptarESalvarComCalculados(evento) {
     if (preparando || modulo?.form?.salvando) return;
 
     if (modo === "abertura") {
-        // Reaplica imediatamente antes de salvar para que o nome não seja
-        // perdido por resets ou alterações no formulário.
-        preencherUsuarioConectado();
         await validarAntesDeSalvar(evento);
         return;
     }

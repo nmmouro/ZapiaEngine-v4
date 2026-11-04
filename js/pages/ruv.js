@@ -15,19 +15,17 @@ let filtrados = [];
 
 const COLUNAS = [
     ["data", "Data"],
-    ["empregado_matricula", "Empregado / Matrícula"],
+    ["id", "ID"],
     ["placa_modelo", "Placa / Modelo"],
-    ["passageiro_setor_motivo", "Passageiro / Setor / Motivo"],
-    ["itinerario", "Itinerário"],
     ["horario_inicial", "Horário Inicial"],
     ["horario_final", "Horário Final"],
     ["km_inicial", "Km Inicial"],
     ["km_final", "Km Final"],
     ["distancia_percorrida", "Distância Percorrida"],
     ["media_consumo_combustivel", "Média de Consumo"],
-    ["valor_higienizacao", "Higienização (R$)"],
-    ["notas_abastecimento", "Abastecimento (R$)"],
-    ["notas_manutencao", "Manutenção (R$)"]
+    ["valor_higienizacao", "Valor Higienização"],
+    ["notas_abastecimento", "Notas Abastecimento"],
+    ["notas_manutencao", "Notas Manutenção"]
 ];
 
 export async function iniciar() {
@@ -55,10 +53,6 @@ function montarInterface(app) {
                     <div class="ruv-veiculo-selecionado">
                         <span>Veículo selecionado</span>
                         <strong id="ruvVeiculoSelecionado">Todos os veículos</strong>
-                    </div>
-                    <div class="ruv-km-atual">
-                        <span>Km Atual</span>
-                        <strong id="ruvKmAtual"></strong>
                     </div>
                 </div>
                 <div class="ruv-acoes">
@@ -91,7 +85,7 @@ function montarInterface(app) {
 
             <section class="ruv-resumo" aria-label="Resumo do relatório">
                 <div class="ruv-card"><span>Ocorrências</span><strong id="ruvTotalRegistros">0</strong></div>
-                <div class="ruv-card"><span>Distância total</span><strong id="ruvTotalDistancia">0 km</strong></div>
+                <div class="ruv-card"><span>Distância total</span><strong id="ruvTotalDistancia">0,00 km</strong></div>
                 <div class="ruv-card"><span>Valor total</span><strong id="ruvTotalValor">R$ 0,00</strong></div>
                 <div class="ruv-card"><span>Média geral de consumo</span><strong id="ruvMediaConsumo">—</strong></div>
             </section>
@@ -216,42 +210,10 @@ function aplicarFiltros() {
 function atualizarVeiculoSelecionado() {
     const select = document.querySelector("#ruvVeiculo");
     const campo = document.querySelector("#ruvVeiculoSelecionado");
-    const campoKm = document.querySelector("#ruvKmAtual");
-    if (!select || !campo || !campoKm) return;
+    if (!select || !campo) return;
 
     const opcao = select.options[select.selectedIndex];
-    const valorSelecionado = valorTexto(select.value);
-    const textoSelecionado = valorTexto(opcao?.textContent);
-
-    // Sem veículo selecionado: mantém o Km Atual completamente limpo.
-    if (!valorSelecionado) {
-        campo.textContent = "Todos os veículos";
-        campoKm.textContent = "";
-        return;
-    }
-
-    campo.textContent = textoSelecionado || valorSelecionado;
-
-    // O select normalmente usa o ID do veículo. O fallback por
-    // Placa / Modelo mantém o funcionamento mesmo quando não houver ID.
-    const veiculo = veiculos.find(item => {
-        const id = valorTexto(item.id);
-        const placaModelo = obterPlacaModelo(item);
-        return (id && id === valorSelecionado) ||
-            (normalizarTexto(placaModelo) === normalizarTexto(textoSelecionado));
-    });
-
-    const kmAtual = veiculo?.km_atual;
-
-    if (kmAtual === null || kmAtual === undefined || String(kmAtual).trim() === "") {
-        campoKm.textContent = "";
-        return;
-    }
-
-    const numeroKm = Number(String(kmAtual).replace(",", "."));
-    campoKm.textContent = Number.isFinite(numeroKm)
-        ? `${formatarQuilometragem(numeroKm)} km`
-        : String(kmAtual).trim();
+    campo.textContent = opcao?.textContent?.trim() || "Todos os veículos";
 }
 
 function correspondeVeiculo(registro, filtro) {
@@ -307,8 +269,8 @@ function calcularTotais(lista) {
 
 function montarRodape(totais) {
     return `<tr class="ruv-total">
-        <th colspan="9">TOTAL / MÉDIA GERAL</th>
-        <th>${formatarQuilometragem(totais.distancia_percorrida)} km</th>
+        <th colspan="7">TOTAL / MÉDIA GERAL</th>
+        <th>${formatarNumero(totais.distancia_percorrida)} km</th>
         <th>${totais.media_consumo_combustivel == null ? "—" : `${formatarNumero(totais.media_consumo_combustivel)} km/L`}</th>
         <th>${formatarMoeda(totais.valor_higienizacao)}</th>
         <th>${formatarMoeda(totais.notas_abastecimento)}</th>
@@ -321,14 +283,14 @@ function atualizarResumo(dataInicial, dataFinal) {
     const valorTotal = totais.total_valores || 0;
 
     document.querySelector("#ruvTotalRegistros").textContent = filtrados.length.toLocaleString("pt-BR");
-    document.querySelector("#ruvTotalDistancia").textContent = `${formatarQuilometragem(totais.distancia_percorrida)} km`;
+    document.querySelector("#ruvTotalDistancia").textContent = `${formatarNumero(totais.distancia_percorrida)} km`;
     document.querySelector("#ruvTotalValor").textContent = formatarMoeda(valorTotal);
     document.querySelector("#ruvMediaConsumo").textContent = totais.media_consumo_combustivel == null
         ? "—"
         : `${formatarNumero(totais.media_consumo_combustivel)} km/L`;
 
     const periodo = dataInicial || dataFinal
-        ? `${formatarDataPeriodo(dataInicial) || "..."} até ${formatarDataPeriodo(dataFinal) || "..."}`
+        ? `${dataInicial || "..."} até ${dataFinal || "..."}`
         : "Todos os registros";
     document.querySelector("#ruvPeriodoResumo").textContent = periodo;
 }
@@ -353,7 +315,7 @@ function exportarCSV() {
 
     const totais = calcularTotais(filtrados);
     linhas.push([]);
-    linhas.push(["TOTAL / MÉDIA GERAL", "", "", "", "", "", "", "", "", totais.distancia_percorrida, totais.media_consumo_combustivel ?? "", totais.valor_higienizacao, totais.notas_abastecimento, totais.notas_manutencao]);
+    linhas.push(["TOTAL / MÉDIA GERAL", "", "", "", "", "", "", totais.distancia_percorrida, totais.media_consumo_combustivel ?? "", totais.valor_higienizacao, totais.notas_abastecimento, totais.notas_manutencao]);
 
     const csv = "\uFEFF" + linhas.map(linha => linha.map(textoCSV).join(";")).join("\r\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -367,7 +329,7 @@ function exportarCSV() {
 
 function formatarCampo(campo, valor, registro) {
     if (campo === "data") return formatarData(valor);
-    if (["km_inicial", "km_final", "distancia_percorrida"].includes(campo)) return valor == null || valor === "" ? "—" : formatarQuilometragem(numero(valor));
+    if (["km_inicial", "km_final", "distancia_percorrida"].includes(campo)) return valor == null || valor === "" ? "—" : formatarNumero(numero(valor));
     if (campo === "media_consumo_combustivel") return valor == null || valor === "" ? "—" : `${formatarNumero(numero(valor))} km/L`;
     if (["valor_higienizacao", "notas_abastecimento", "notas_manutencao"].includes(campo)) return formatarMoeda(numero(valor));
     if (campo === "placa_modelo") return escaparHTML(obterPlacaModelo(registro) || "—");
@@ -402,19 +364,8 @@ function formatarNumero(valor) {
     return Number(valor || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function formatarQuilometragem(valor) {
-    return Number(valor || 0).toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-}
-
 function formatarMoeda(valor) {
     return Number(valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
-
-function formatarDataPeriodo(valor) {
-    const data = extrairData(valor);
-    if (!data) return "";
-    const [ano, mes, dia] = data.split("-");
-    return `${dia}-${mes}-${ano}`;
 }
 
 function formatarData(valor) {
