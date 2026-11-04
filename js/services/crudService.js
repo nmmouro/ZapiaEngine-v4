@@ -299,125 +299,31 @@ async function criarErroHTTP(
 // EXECUTAR REQUEST
 // ============================================================
 
-async function request(
-    url,
-    options = {}
-) {
-
-    validarAPI();
-
-
-    console.log(
-        "CRUD SERVICE → MÉTODO:",
-        options.method || "GET"
-    );
-
-
-    console.log(
-        "CRUD SERVICE → URL:",
-        url
-    );
-
-
-    console.log(
-        "CRUD SERVICE → API KEY:",
-        API_KEY
-            ? "ENVIADA"
-            : "NÃO ENVIADA"
-    );
-
-
-    const resposta =
-        await fetch(
-            url,
-            {
-
-                ...options,
-
-                headers: {
-
-                    ...obterHeaders(
-                        Boolean(
-                            options.body
-                        )
-                    ),
-
-                    ...(options.headers || {})
-
-                }
-
-            }
-        );
-
-
-    console.log(
-        "CRUD SERVICE → RESPOSTA HTTP:",
-        resposta.status
-    );
-
-
-    if (
-        !resposta.ok
-    ) {
-
-        const erro =
-            await criarErroHTTP(
-                resposta
-            );
-
-
-        console.error(
-            "CRUD SERVICE → ERRO HTTP:",
-            erro
-        );
-
-
-        throw erro;
-
+async function request(url, options = {}) {
+    const auth = window.PainelFrotaAuth;
+    const token = auth?.token?.();
+    if (!token) throw new Error("Sessão não iniciada. Entre novamente no Painel Frota.");
+    const apiBase = String(CONFIG?.api?.url || "").trim().replace(/\/+$/, "");
+    const apiKey = String(CONFIG?.api?.key || "").trim();
+    if (!apiBase || !apiKey || /SEU-PROJETO|SUA_CHAVE_PUBLICA/.test(apiBase + apiKey)) {
+        throw new Error("Configure a URL REST e a chave pública do Supabase em js/config/config.js.");
     }
-
-
-    /*
-     * DELETE pode retornar
-     * resposta vazia.
-     */
-
-    if (
-        resposta.status === 204
-    ) {
-
-        return null;
-
+    const original = new URL(url, location.href);
+    const parts = original.pathname.split("/").filter(Boolean);
+    const tabela = parts[parts.length - 1];
+    const target = new URL(`${apiBase}/${encodeURIComponent(tabela)}`);
+    original.searchParams.forEach((v, k) => target.searchParams.append(k, v));
+    const headers = { apikey: apiKey, Authorization: `Bearer ${token}` };
+    if (options.body) { headers["Content-Type"] = "application/json"; headers.Prefer = "return=representation"; }
+    if (options.headers?.Prefer) headers.Prefer = options.headers.Prefer;
+    const resposta = await fetch(target.toString(), { ...options, headers: { ...headers, ...(options.headers || {}) } });
+    if (!resposta.ok) {
+        let detalhe = ""; try { const body = await resposta.json(); detalhe = body.message || body.details || body.hint || body.error || JSON.stringify(body); } catch { try { detalhe = await resposta.text(); } catch {} }
+        const erro = new Error(detalhe || `Erro HTTP ${resposta.status}`); erro.status = resposta.status; erro.statusText = resposta.statusText; erro.url = target.toString(); throw erro;
     }
-
-
-    const texto =
-        await resposta.text();
-
-
-    if (
-        !texto
-    ) {
-
-        return null;
-
-    }
-
-
-    try {
-
-        return JSON.parse(
-            texto
-        );
-
-    }
-
-    catch {
-
-        return texto;
-
-    }
-
+    if (resposta.status === 204) return null;
+    const texto = await resposta.text(); if (!texto) return null;
+    try { return JSON.parse(texto); } catch { return texto; }
 }
 
 
@@ -851,6 +757,31 @@ export async function criar(
             payload
         );
 
+    // Em uma NOVA ocorrência, define o responsável diretamente no payload
+    // enviado ao Supabase. Assim, o valor não depende apenas do campo oculto
+    // do formulário, que pode ser ignorado ou alterado antes da serialização.
+    if (String(entity || "").toLowerCase() === "lancamentos") {
+        const auth = window.PainelFrotaAuth;
+        const usuarioConectado = typeof auth?.usuario === "function"
+            ? auth.usuario()
+            : null;
+        const nomeConectado = String(
+            usuarioConectado?.nome ||
+            usuarioConectado?.empregado ||
+            usuarioConectado?.name ||
+            usuarioConectado?.matricula ||
+            ""
+        ).trim();
+
+        if (nomeConectado) {
+            payload.usuario = nomeConectado;
+        } else {
+            console.warn(
+                "CRUD SERVICE → nova ocorrência sem nome do usuário autenticado; confira PainelFrotaAuth.usuario()."
+            );
+        }
+    }
+
     console.log(
         "CRUD SERVICE → CRIAR → PAYLOAD FINAL:",
         JSON.stringify(payload, null, 2)
@@ -1150,6 +1081,16 @@ function prepararDados(
 function normalizarPayloadEntidade(entity, payload) {
 
     const entidade = String(entity || "").toLowerCase();
+
+    // Normaliza e-mails antes de qualquer INSERT/UPDATE de empregados.
+    // A proteção no banco (trigger) também garante a regra para outros clientes.
+    if (entidade === "empregados") {
+        const resultado = { ...payload };
+        if (typeof resultado.email === "string") {
+            resultado.email = resultado.email.trim().toLowerCase();
+        }
+        return resultado;
+    }
 
     if (entidade === "abastecimento") {
         // public.abastecimento usa os nomes próprios do formulário.

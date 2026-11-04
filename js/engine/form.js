@@ -639,14 +639,22 @@ if (campoHorarioInicial) {
                         valor = obterValorCampo(campo);
                     }
 
-                    // Campos de texto do formulário são exibidos
-                    // e enviados em CAIXA ALTA.
+                    // Respeita a configuração `uppercase` do schema.
+                    // E-mails são sempre normalizados para minúsculas.
                     if (
                         campo.tagName === "INPUT" &&
                         campo.type === "text"
                     ) {
-                        valor = String(valor ?? "")
-                            .toLocaleUpperCase("pt-BR");
+                        const definicaoCampo = obterFields().find(
+                            item => obterNomeCampo(item) === nome
+                        ) || {};
+
+                        if (nome.toLowerCase() === "email") {
+                            valor = String(valor ?? "").trim().toLowerCase();
+                        } else if (definicaoCampo.uppercase !== false) {
+                            valor = String(valor ?? "")
+                                .toLocaleUpperCase("pt-BR");
+                        }
 
                         campo.value = valor;
                     }
