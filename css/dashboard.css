@@ -14,7 +14,7 @@ body[data-page="dashboard"] #app.dashboard-container {
 }
 
 .dashboard-page table {
-    font-size: 18px;
+    font-size: 22px;
 }
 
 .dashboard {
@@ -98,4 +98,72 @@ body[data-page="dashboard"] #app.dashboard-container {
     .dashboard-top-row {
         grid-template-columns: 1fr;
     }
+}
+
+
+/* Painel de agendamentos do dia no Dashboard */
+.dashboard-agendamentos-card { margin-bottom: 2px; }
+.dashboard-agendamentos-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.dashboard-ver-agenda {
+    color: inherit;
+    font-size: .78rem;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    white-space: nowrap;
+}
+.dashboard-table-agendamentos { min-width: 760px; }
+.dashboard-agendamento-row { cursor: pointer; transition: background-color .12s ease; }
+.dashboard-agendamento-row:hover,
+.dashboard-agendamento-row:focus-visible {
+    background: rgba(85, 155, 235, .14);
+    outline: 2px solid rgba(85, 155, 235, .8);
+    outline-offset: -2px;
+}
+.dashboard-agenda-status {
+    display: inline-block;
+    border-radius: 999px;
+    padding: 4px 9px;
+    font-size: .76rem;
+    font-weight: 700;
+    white-space: nowrap;
+    background: rgba(85, 155, 235, .16);
+}
+.dashboard-agendamentos-hint {
+    margin: 8px 0 0;
+    font-size: .75rem;
+    opacity: .75;
+}
+@media (max-width: 600px) {
+    .dashboard-agendamentos-header { align-items: flex-start; }
+    .dashboard-ver-agenda { white-space: normal; text-align: right; }
+}
+
+/* Impressão do Dashboard: aplicar à logo do cabeçalho o aumento de 50%
+   solicitado para o RUV, mantendo o tamanho normal na tela. */
+@media print {
+    body[data-page="dashboard"] .app-header .header-logo img,
+    body[data-page="dashboard"] .app-header [data-header-logo] {
+        max-width: 225px !important;
+        max-height: 78px !important;
+    }
+}
+
+
+/* Status dos agendamentos: mantém a coluna legível e diferencia os estados. */
+.dashboard-agenda-status.is-agendado {
+    color: #805b00;
+    background: #fff3cd;
+}
+.dashboard-agenda-status.is-atendido {
+    color: #17643a;
+    background: #d9f2e3;
+}
+.dashboard-agenda-status.is-cancelado {
+    color: #8a2424;
+    background: #fde2e2;
 }
