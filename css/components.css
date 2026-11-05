@@ -1090,7 +1090,7 @@
 }
 
 .dashboard-table tbody tr:nth-child(odd) {
-    background: #102650;
+    background: #d1d9ea;
 }
 
 .dashboard-table tbody tr:nth-child(even) {
