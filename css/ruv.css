@@ -27,7 +27,8 @@
    flex:0 0 120px
 }
 .ruv-titulo{
-min-width:280px
+min-width:280px;
+   color:#1f2937
 }
 .ruv-kicker{
 font-size:12px;
