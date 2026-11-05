@@ -2372,3 +2372,26 @@ html.dark-mode, body.dark-mode, body.theme-dark) .view-page .view-document-icon 
 .pf-access-table .pf-access-toggle:disabled{opacity:.55;cursor:not-allowed}
 .usuarios-page .btn:focus-visible,.usuarios-page .pf-access-toggle:focus-visible{outline:none;box-shadow:var(--pf-focus,0 0 0 3px rgb(37 99 235 / 14%))}
 @media(max-width:700px){.usuarios-page{padding:12px}.usuarios-panel{padding:16px}.usuarios-form{padding:16px}.usuarios-grid{grid-template-columns:minmax(0,1fr)}.usuarios-field-action .btn{width:100%}.usuarios-form-actions .btn{width:100%}}
+
+/* ============================================================
+   DASHBOARD — CONTRASTE DO TEXTO NO TEMA CLARO
+   Garante leitura quando as linhas da tabela estiverem brancas.
+   Não interfere no tema escuro nem nas cores dos status.
+   ============================================================ */
+html:not([data-theme="escuro"]) body[data-page="dashboard"] .dashboard-table,
+html:not([data-theme="escuro"]) body[data-page="dashboard"] .dashboard-table tbody td,
+html:not([data-theme="escuro"]) body[data-page="dashboard"] .dashboard-table .dashboard-primary,
+html:not([data-theme="escuro"]) body[data-page="dashboard"] .dashboard-condition {
+    color: #1f2937 !important;
+}
+
+/* Status preservam as cores semânticas e continuam legíveis. */
+html:not([data-theme="escuro"]) body[data-page="dashboard"] .dashboard-table .status-ocupado {
+    color: #b42318 !important;
+}
+html:not([data-theme="escuro"]) body[data-page="dashboard"] .dashboard-table .status-livre {
+    color: #166534 !important;
+}
+html:not([data-theme="escuro"]) body[data-page="dashboard"] .dashboard-empty {
+    color: #64748b !important;
+}
