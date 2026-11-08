@@ -143,10 +143,7 @@ async function edgeRequest(functionName, body, bearer = "") {
     const header = document.querySelector("[data-header]"); if (!header || header.querySelector(".pf-auth-user")) return;
     const el = document.createElement("div"); el.className = "pf-auth-user";
     const isAdmin = String(user.perfil || "").toLowerCase() === "admin";
-    // Botão "Gerenciar acessos" somente na página Empregados
-    const naPaginaEmpregados = page() === "empregados";
-    const mostrarGerenciarAcessos = isAdmin && naPaginaEmpregados;
-    el.innerHTML = `${mostrarGerenciarAcessos ? '<button type="button" class="pf-create-driver-access">Gerenciar acessos</button>' : ""}<span>Conectado: ${safe(user.nome || user.matricula)} · ${safe(user.classificacao || user.perfil)}</span><button type="button" class="pf-auth-logout">Sair</button>`;
+    el.innerHTML = `${isAdmin ? '<button type="button" class="pf-create-driver-access">Gerenciar acessos</button>' : ""}<span>Conectado: ${safe(user.nome || user.matricula)} · ${safe(user.classificacao || user.perfil)}</span><button type="button" class="pf-auth-logout">Sair</button>`;
     const createButton = el.querySelector(".pf-create-driver-access");
     if (createButton) createButton.addEventListener("click", () => { location.href = "./usuarios.html"; });
     el.querySelector(".pf-auth-logout").addEventListener("click", async () => {
