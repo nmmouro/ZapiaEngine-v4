@@ -1015,6 +1015,7 @@
     background: #0c1d40;
     border: 0;
     box-shadow: none;
+    padding: 12px;
 }
 
 .dashboard-card-header {
