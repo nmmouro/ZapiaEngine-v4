@@ -484,7 +484,7 @@ body {
 }
 
 .app-header .header-datahora {
-    display: flex;
+    display: nowrap;
     align-items: center;
     justify-content: flex-end;
 
