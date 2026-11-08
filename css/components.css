@@ -1049,7 +1049,7 @@
     border-collapse: separate;
     border-spacing: 0;
     min-width: 0;
-    color: #334155;
+    color: #ffffff;
     background: #102650;
 }
 
@@ -1093,7 +1093,7 @@
 }
 
 .dashboard-table .dashboard-primary {
-    color: #ffffff;
+    color: #334155;
     font-weight: 700;
 }
 
