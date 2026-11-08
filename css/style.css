@@ -484,7 +484,7 @@ body {
 }
 
 .app-header .header-datahora {
-    display: nowrap;
+    display: flex;
     align-items: center;
     justify-content: flex-end;
 
@@ -584,7 +584,7 @@ body {
     }
 
     .app-header .header-datahora {
-        display: none;
+        display: nowrap;
     }
 
     .app-header .header-fullscreen {
