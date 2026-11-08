@@ -1,0 +1,54 @@
+/* ============================================================
+   TOKENS — PAINEL FROTA
+   Única fonte de variáveis visuais do sistema.
+   Carregar antes de style.css e components.css.
+   ============================================================ */
+
+:root {
+  /* Marca */
+  --pf-primary: #1d4ed8;
+  --pf-primary-hover: #1e40af;
+  --pf-primary-soft: #eff6ff;
+
+  --pf-success: #15803d;
+  --pf-success-strong: #16a34a;
+  --pf-danger: #b42318;
+  --pf-danger-strong: #dc2626;
+  --pf-danger-hover: #b91c1c;
+  --pf-warning: #b45309;
+
+  /* Superfícies e texto */
+  --pf-text: #1f2937;
+  --pf-muted: #64748b;
+  --pf-border: #dbe2ea;
+  --pf-border-strong: #cbd5e1;
+  --pf-surface: #ffffff;
+  --pf-page: #f5f7fb;
+  --pf-surface-soft: #f8fafc;
+
+  /* Forma */
+  --pf-radius: 12px;
+  --pf-radius-sm: 8px;
+  --pf-shadow: 0 2px 10px rgb(15 23 42 / 5%);
+  --pf-focus: 0 0 0 3px rgb(37 99 235 / 14%);
+
+  /* Controles (mesma caixa em listagens, filtros e formulários) */
+  --pf-font: 14px;
+  --pf-font-sm: 0.875rem;
+  --pf-control-h: 40px;
+  --pf-btn-h: 36px;
+
+  /* Botões de ação na tabela (editar / excluir) */
+  --acoes-btn-altura: 30px;
+  --acoes-btn-largura-minima: 68px;
+  --acoes-btn-padding-x: 9px;
+  --acoes-btn-fonte: 12px;
+  --acoes-btn-raio: 5px;
+  --acoes-btn-espaco: 5px;
+  --acoes-editar-fundo: #2563eb;
+  --acoes-editar-hover: #1d4ed8;
+  --acoes-excluir-fundo: #dc2626;
+  --acoes-excluir-hover: #b91c1c;
+  --acoes-custom-fundo: #6b7280;
+  --acoes-custom-hover: #4b5563;
+}

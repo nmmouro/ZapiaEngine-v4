@@ -60,57 +60,57 @@
 
 
 .btn-primary {
-    background: #2563eb;
-    border-color: #2563eb;
+    background: var(--pf-primary, #1d4ed8);
+    border-color: var(--pf-primary, #1d4ed8);
 
     color: #ffffff;
 }
 
 
 .btn-primary:hover {
-    background: #1d4ed8;
-    border-color: #1d4ed8;
+    background: var(--pf-primary-hover, #1e40af);
+    border-color: var(--pf-primary-hover, #1e40af);
 }
 
 
 .btn-secondary {
-    background: #ffffff;
-    border-color: #d1d5db;
+    background: var(--pf-surface, #ffffff);
+    border-color: var(--pf-border-strong, #d1d5db);
 
     color: #374151;
 }
 
 
 .btn-secondary:hover {
-    background: #f3f4f6;
+    background: var(--pf-surface-soft, #f3f4f6);
 }
 
 
 /* Botão de Checklist preenchido */
 .btn-success {
-    background: #16a34a;
-    border-color: #16a34a;
+    background: var(--pf-success-strong, #16a34a);
+    border-color: var(--pf-success-strong, #16a34a);
 
     color: #ffffff;
 }
 
 
 .btn-success:hover {
-    background: #15803d;
-    border-color: #15803d;
+    background: var(--pf-success, #15803d);
+    border-color: var(--pf-success, #15803d);
 }
 
 
 .btn-danger {
-    background: #dc2626;
-    border-color: #dc2626;
+    background: var(--pf-danger-strong, #dc2626);
+    border-color: var(--pf-danger-strong, #dc2626);
 
     color: #ffffff;
 }
 
 
 .btn-danger:hover {
-    background: #b91c1c;
+    background: var(--pf-danger-hover, #b91c1c);
 }
 
 
@@ -461,21 +461,7 @@
    Personalização central dos botões da coluna Ações.
    Altere somente estas variáveis para mudar a aparência de todo o sistema.
 */
-:root {
-    --acoes-btn-altura: 30px;
-    --acoes-btn-largura-minima: 68px;
-    --acoes-btn-padding-x: 9px;
-    --acoes-btn-fonte: 12px;
-    --acoes-btn-raio: 5px;
-    --acoes-btn-espaco: 5px;
-
-    --acoes-editar-fundo: #2563eb;
-    --acoes-editar-hover: #1d4ed8;
-    --acoes-excluir-fundo: #dc2626;
-    --acoes-excluir-hover: #b91c1c;
-    --acoes-custom-fundo: #6b7280;
-    --acoes-custom-hover: #4b5563;
-}
+/* Tokens de ação: ver css/tokens.css */
 
 .engine-actions {
     vertical-align: middle;
@@ -1026,7 +1012,7 @@
     width: 100%;
     overflow: hidden;
     border-radius: 8px;
-    background: #2e4889;
+    background: #0c1d40;
     border: 0;
     box-shadow: none;
 }
@@ -1037,7 +1023,7 @@
     align-items: center;
     justify-content: center;
     padding: 7px 12px;
-    background: #2e4889;
+    background: #304985;
     border: 0;
 }
 
@@ -1106,7 +1092,7 @@
 }
 
 .dashboard-table .dashboard-primary {
-    color: #334155;
+    color: #ffffff;
     font-weight: 700;
 }
 
@@ -1574,7 +1560,7 @@ view-field{
 
 /* ============================================================
    INTEGRAÇÃO COM PADRÃO VISUAL GLOBAL — PAINEL FROTA
-   Cores centralizadas em css/padrao-visual.css
+   Cores centralizadas em css/tokens.css
    ============================================================ */
 :where(.relatorio-page, .ruv-page, .app-container, #app) {
   color: var(--pf-text, #1f2937);
@@ -1618,7 +1604,7 @@ view-field{
 
 /* ============================================================
    PADRONIZAÇÃO VISUAL GLOBAL CONSOLIDADA
-   Migrada de padrao-visual.css para components.css.
+   Tokens em css/tokens.css; regras de componente neste arquivo.
    Esta camada fica após os CSS claros dos módulos.
    ============================================================ */
 
@@ -1628,22 +1614,7 @@ view-field{
    Não altera regras de negócio nem comportamento JavaScript.
    ============================================================ */
 
-:root {
-  --pf-primary: #1d4ed8;
-  --pf-primary-hover: #1e40af;
-  --pf-primary-soft: #eff6ff;
-  --pf-text: #1f2937;
-  --pf-muted: #64748b;
-  --pf-border: #dbe2ea;
-  --pf-border-strong: #cbd5e1;
-  --pf-surface: #ffffff;
-  --pf-page: #f5f7fb;
-  --pf-surface-soft: #f8fafc;
-  --pf-radius: 12px;
-  --pf-radius-sm: 8px;
-  --pf-shadow: 0 2px 10px rgb(15 23 42 / 5%);
-  --pf-focus: 0 0 0 3px rgb(37 99 235 / 14%);
-}
+/* Tokens de marca: ver css/tokens.css */
 
 html { color-scheme: light; }
 body {
