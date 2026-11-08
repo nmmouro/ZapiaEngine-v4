@@ -1184,7 +1184,7 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type=
 /* ============================================================
    CORREÇÃO DE CONTRASTE — RELATÓRIO DE OCORRÊNCIAS
    Usa as variáveis centrais de padrao-visual.css para manter
-   cabeçalhos, filtros e resumo legíveis nos temas claro e escuro.
+   cabeçalhos, filtros e resumo legíveis.
    ============================================================ */
 .relatorio-page .relatorio-filtros {
   background: var(--pf-surface, #ffffff) !important;
