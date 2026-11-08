@@ -110,7 +110,7 @@ body[data-page="dashboard"] #app.dashboard-container {
     gap: 12px;
 }
 .dashboard-ver-agenda {
-    color: inherit;
+    color: #dce2ef;
     font-size: .78rem;
     text-decoration: underline;
     text-underline-offset: 3px;
