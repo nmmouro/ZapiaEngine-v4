@@ -1022,7 +1022,7 @@
     min-height: 34px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-evenly;
     padding: 7px 12px;
     background: #304985;
     border: 0;
