@@ -16,12 +16,12 @@ export const SCHEMA_LAVA_CAR = {
             type: "select",
             required: true,
             options: [
-                { value: "aparencia_creta", label: "Aparência Creta" },
-                { value: "aparencia_trail", label: "Aparência Trail" },
-                { value: "completa_creta", label: "Completa Creta" },
-                { value: "completa_cera_creta", label: "Completa + Cera Creta" },
-                { value: "completa_trail", label: "Completa Trail" },
-                { value: "completa_cera_trail", label: "Completa + Cera Trail" }
+                { value: "aparencia_creta", label: "Creta Aparência" },
+                { value: "aparencia_trail", label: "Treail Aparência" },
+                { value: "completa_creta", label: "Creta Completa" },
+                { value: "completa_cera_creta", label: "Creta Completa + Cera" },
+                { value: "completa_trail", label: "Trail Completa" },
+                { value: "completa_cera_trail", label: "Trail Completa + Cera" }
             ]
         },
 
