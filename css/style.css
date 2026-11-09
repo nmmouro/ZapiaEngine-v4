@@ -701,3 +701,78 @@ body {
     max-width: 225px !important; max-height: 78px !important;
   }
 }
+
+/* =========================================
+   RESPONSIVIDADE — CELULARES
+========================================= */
+
+@media (max-width: 600px) {
+
+    body {
+        font-size: 13px;
+        overflow-x: hidden;
+    }
+
+    .app-header {
+        min-height: 58px;
+        padding: 6px 8px;
+        gap: 6px;
+    }
+
+    .header-logo img {
+        max-width: 48px;
+        max-height: 38px;
+    }
+
+    .header-titulo h1 {
+        font-size: 15px;
+    }
+
+    .header-acoes {
+        gap: 4px;
+    }
+
+    .header-fullscreen {
+        padding: 5px;
+        font-size: 11px;
+    }
+
+    .header-fullscreen-text {
+        display: none;
+    }
+
+    .app-container {
+        padding: 8px;
+        width: 100%;
+    }
+
+    .menu-home {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .menu-card {
+        padding: 10px;
+    }
+
+    .menu-card-icon {
+        font-size: 23px;
+    }
+
+    .menu-card-title {
+        font-size: 13px;
+    }
+
+    .menu-card-description {
+        font-size: 11px;
+    }
+
+    input, select, textarea, button {
+        max-width: 100%;
+    }
+
+    table {
+        font-size: 11px;
+    }
+
+}
