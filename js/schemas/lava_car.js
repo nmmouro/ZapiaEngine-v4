@@ -17,9 +17,9 @@ export const SCHEMA_LAVA_CAR = {
             required: true,
             options: [
                 { value: "aparencia_creta", label: "Creta Aparência" },
-                { value: "aparencia_trail", label: "Treail Aparência" },
                 { value: "completa_creta", label: "Creta Completa" },
                 { value: "completa_cera_creta", label: "Creta Completa + Cera" },
+                { value: "aparencia_trail", label: "Treail Aparência" },
                 { value: "completa_trail", label: "Trail Completa" },
                 { value: "completa_cera_trail", label: "Trail Completa + Cera" }
             ]
