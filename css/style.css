@@ -220,7 +220,7 @@ body {
    RESPONSIVO
    ============================================================ */
 
-@media (max-width: 800px) {
+@media (max-width: 1000px) {
 
     .app-header {
 
@@ -242,7 +242,7 @@ body {
     }
 }
 
-@media (max-width: 550px) {
+@media (max-width: 750px) {
 
     .app-header {
 
@@ -447,7 +447,7 @@ body {
    RESPONSIVO — HEADER
    ------------------------------------------------------------ */
 
-@media (max-width: 800px) {
+@media (max-width: 1000px) {
 
     .app-header .header-logo img,
     .app-header [data-header-logo] {
@@ -461,7 +461,7 @@ body {
 
 }
 
-@media (max-width: 550px) {
+@media (max-width: 750px) {
 
     .app-header {
         grid-template-columns:
@@ -570,7 +570,7 @@ body {
     min-height: 25px;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 1000px) {
     .app-header {
         grid-template-rows: 72px auto;
     }
@@ -581,7 +581,7 @@ body {
     }
 }
 
-@media (max-width: 550px) {
+@media (max-width: 750px) {
     .app-header {
         height: auto;
         min-height: 72px;
