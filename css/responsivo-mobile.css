@@ -1,0 +1,234 @@
+/* ============================================================
+   PAINEL FROTA — RESPONSIVIDADE MOBILE GLOBAL
+   Escopo: todas as páginas. Não altera o layout desktop.
+   Tabelas preservam todas as colunas com rolagem no próprio bloco.
+   ============================================================ */
+
+@media (max-width: 760px) {
+  html, body {
+    width: 100%;
+    min-width: 320px;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body { font-size: 14px; }
+  #app, .app-container, .app-content, .page-container,
+  .page-content, .dashboard-page, .agenda-page,
+  .relatorio-page, .ruv-page, .usuarios-page, .view-page {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .app-container { padding: 10px !important; }
+  .app-content { padding-left: 0; padding-right: 0; }
+
+  /* Cabeçalho compacto: logo, título e ações continuam disponíveis. */
+  .app-header {
+    min-height: 58px;
+    grid-template-columns: 54px minmax(0, 1fr) auto;
+    grid-template-rows: 54px auto;
+    gap: 5px 8px;
+    padding: 4px 9px;
+  }
+  .app-header .header-logo { justify-content: flex-start; }
+  .app-header .header-logo img,
+  .app-header [data-header-logo] {
+    max-width: 48px;
+    max-height: 42px;
+  }
+  .app-header .header-titulo { justify-content: flex-start; }
+  .app-header .header-titulo h1 {
+    max-width: 100%;
+    font-size: clamp(.82rem, 3.5vw, 1rem);
+    line-height: 1.15;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: left;
+  }
+  .app-header .header-acoes { gap: 5px; }
+  .app-header .header-datahora { display: none !important; }
+  .app-header .header-fullscreen {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    border-radius: 7px;
+  }
+  .app-header .header-fullscreen-text { display: none !important; }
+  .app-header > .pf-auth-user {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: flex-start;
+    gap: 6px;
+    padding: 6px 0 2px;
+    font-size: 11px;
+  }
+  .app-header > .pf-auth-user > span {
+    flex: 1 1 100%;
+    line-height: 1.25;
+  }
+  .app-header .pf-create-driver-access,
+  .app-header .pf-auth-logout {
+    min-height: 32px;
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+
+  /* Menu principal */
+  .home-container { min-height: 0; padding: 10px 0; }
+  .home-menu, .menu-home {
+    width: 100%;
+    max-width: none;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .menu-card {
+    min-width: 0;
+    min-height: 92px;
+    padding: 10px 7px;
+    gap: 5px;
+    border-radius: 9px;
+  }
+  .menu-card-icon { font-size: 1.45rem; }
+  .menu-card-title { font-size: .82rem; line-height: 1.2; text-align: center; }
+  .menu-card-description { font-size: .68rem; line-height: 1.25; }
+
+  /* Cabeçalhos de página, painéis e cartões */
+  .page-header, .relatorio-cabecalho, .agenda-heading,
+  .ruv-topo, .dashboard-agendamentos-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .page-title, .page-header h1, .agenda-heading h2,
+  .relatorio-cabecalho h1 { font-size: 1.12rem; line-height: 1.25; }
+  .card, .panel, .dashboard-card, .view-card, .view-section,
+  .engine-form-wrapper, .agenda-form, .usuarios-panel,
+  .usuarios-form { min-width: 0; padding: 12px !important; }
+
+  /* Formulários e filtros: uma coluna para evitar campos espremidos. */
+  .engine-form-fields, .agenda-fields, .usuarios-grid,
+  .ruv-filtros-grid, .relatorio-filtros,
+  .relatorio-filtros-grid, .view-fields {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 9px;
+  }
+  .engine-form-fields > *, .agenda-fields > *,
+  .usuarios-grid > *, .ruv-filtros-grid > *,
+  .relatorio-filtros > *, .view-fields > * { min-width: 0; }
+  .agenda-fields .agenda-wide { grid-column: auto; }
+  .engine-field label, .agenda-fields label,
+  .usuarios-field label, .campo-relatorio label { font-size: .78rem; }
+  .engine-field input, .engine-field select, .engine-field textarea,
+  .agenda-fields input, .agenda-fields select, .agenda-fields textarea,
+  .usuarios-field input, .usuarios-field select, .usuarios-field textarea,
+  .campo-relatorio input, .campo-relatorio select,
+  input:not([type="checkbox"]):not([type="radio"]), select, textarea {
+    max-width: 100%;
+    min-width: 0;
+    font-size: 16px; /* evita zoom automático do Safari/iOS */
+  }
+  .engine-form-header { margin-bottom: 12px; padding-bottom: 8px; }
+  .engine-form-header h2 { font-size: 1rem; }
+  .engine-form-actions, .agenda-form-actions, .agenda-actions,
+  .relatorio-acoes, .ruv-acoes, .usuarios-form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+  .engine-form-actions .btn, .agenda-form-actions .btn,
+  .usuarios-form-actions .btn { flex: 1 1 130px; }
+  .btn, button, .agenda-action {
+    min-height: 36px;
+    max-width: 100%;
+    font-size: .8rem;
+  }
+
+  /* Barras de ferramentas e pesquisa */
+  .engine-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding: 10px;
+  }
+  .engine-toolbar > *, .engine-toolbar input,
+  .engine-toolbar select, .engine-toolbar button { min-width: 0; max-width: 100%; }
+  .engine-toolbar .btn, .engine-toolbar button { width: 100%; }
+
+  /* Tabelas: rolagem contida no componente, sem cortar registros. */
+  .engine-table-wrapper, .table-responsive, .table-container,
+  .agenda-table-wrap, .usuarios-table-wrap,
+  .usuarios-page .table-responsive, .relatorio-tabela-wrap,
+  .ruv-tabela-wrap, .dashboard-table-container,
+  .view-table-wrapper {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+  .engine-table, .agenda-table, .pf-access-table,
+  .relatorio-tabela, .ruv-tabela,
+  .dashboard-table-agendamentos {
+    width: max-content;
+    min-width: 620px;
+    max-width: none;
+  }
+  .engine-table th, .engine-table td,
+  .agenda-table th, .agenda-table td,
+  .pf-access-table th, .pf-access-table td,
+  .relatorio-tabela th, .relatorio-tabela td,
+  .ruv-tabela th, .ruv-tabela td {
+    padding: 7px 8px;
+    font-size: .72rem;
+  }
+  .engine-pagination { flex-wrap: wrap; gap: 6px; }
+  .engine-pagination > * { min-width: 0; }
+
+  /* Dashboard e indicadores */
+  .dashboard { gap: 9px; }
+  .dashboard-top-row { grid-template-columns: minmax(0, 1fr) !important; gap: 9px; }
+  .dashboard-card { padding: 9px !important; }
+  .dashboard-card-header { min-height: 30px; padding: 6px 8px; }
+  .dashboard-card-header h2 { font-size: .76rem; }
+  .dashboard-page table { font-size: 12px; }
+  .dashboard-page table thead th { font-size: 11px; }
+  .dashboard-page table tbody tr { height: 36px; }
+  .dashboard-table-container { padding: 7px 3px 4px; }
+  .dashboard-table { min-width: 520px; }
+  .dashboard-table-agendamentos { min-width: 680px; }
+  .ruv-resumo, .relatorio-resumo, .view-cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .ruv-card { min-width: 0; padding: 10px; }
+  .ruv-card strong { font-size: 1rem; overflow-wrap: anywhere; }
+  .relatorio-resumo > div { min-width: 0; padding: 9px; }
+  .relatorio-resumo strong { font-size: 1rem; }
+  .ruv-topo h1 { font-size: 1.2rem; }
+  .ruv-logo { width: 44px; height: 44px; }
+
+  /* Evita conteúdo longo quebrar a largura do dispositivo. */
+  img, video, canvas, iframe { max-width: 100%; }
+  pre, code { max-width: 100%; overflow-x: auto; }
+  .view-document-info, .view-document-name,
+  .view-file-text, .engine-file-name { overflow-wrap: anywhere; }
+}
+
+@media (max-width: 420px) {
+  .app-container { padding: 8px !important; }
+  .app-header { grid-template-columns: 44px minmax(0, 1fr) auto; padding: 4px 7px; }
+  .app-header .header-logo img,
+  .app-header [data-header-logo] { max-width: 40px; max-height: 38px; }
+  .menu-card { min-height: 82px; padding: 8px 5px; }
+  .menu-card-title { font-size: .76rem; }
+  .menu-card-description { font-size: .64rem; }
+  .ruv-resumo, .relatorio-resumo, .view-cards { grid-template-columns: minmax(0, 1fr); }
+  .engine-form-wrapper, .agenda-form, .usuarios-panel { padding: 10px !important; }
+}
