@@ -447,12 +447,12 @@ body {
    RESPONSIVO — HEADER
    ------------------------------------------------------------ */
 
-@media (max-width: 900px) {
+@media (max-width: 800px) {
 
     .app-header .header-logo img,
     .app-header [data-header-logo] {
         max-width: 120px;
-        max-height: 48px;
+        max-height: 50px;
     }
 
     .app-header .header-titulo h1 {
