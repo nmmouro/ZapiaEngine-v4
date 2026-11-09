@@ -49,7 +49,7 @@ function montarInterface(app) {
                     <img class="ruv-logo" src="./assets/logo.png" alt="Logo" onerror="this.style.display='none'">
                     <div class="ruv-titulo">
                         <div class="ruv-kicker">RUV</div>
-                        <h1>RUV</h1>
+                        <h1>Relatório de Utilização de Veículo</h1>
                         <p>Utilização, distância, consumo e valores vinculados às ocorrências.</p>
                     </div>
                     <div class="ruv-veiculo-selecionado">
