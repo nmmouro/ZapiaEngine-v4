@@ -17,12 +17,12 @@ import { listar, atualizar } from "../services/crudService.js";
 
 
 const VALORES = {
-    aparencia_creta: 60.00,
-    aparencia_trail: 70.00,
-    completa_creta: 80.00,
-    completa_cera_creta: 110.00,
-    completa_trail: 90.00,
-    completa_cera_trail: 120.00
+    creta_aparencia: 60.00,
+    creta_completa: 80.00,
+    creta_completa_cera: 110.00,
+    trail_aparencia: 70.00,
+    trail_completa: 90.00,
+    trail_completa_cera: 120.00
 };
 
 let modulo = null;
