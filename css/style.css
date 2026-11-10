@@ -220,7 +220,7 @@ body {
    RESPONSIVO
    ============================================================ */
 
-@media (max-width: 1000px) {
+@media (max-width: 900px) {
 
     .app-header {
 
@@ -242,7 +242,7 @@ body {
     }
 }
 
-@media (max-width: 750px) {
+@media (max-width: 650px) {
 
     .app-header {
 
@@ -446,7 +446,7 @@ body {
    RESPONSIVO — HEADER
    ------------------------------------------------------------ */
 
-@media (max-width: 1000px) {
+@media (max-width: 900px) {
 
     .app-header .header-logo img,
     .app-header [data-header-logo] {
@@ -460,7 +460,7 @@ body {
 
 }
 
-@media (max-width: 750px) {
+@media (max-width: 650px) {
 
     .app-header {
         grid-template-columns:
@@ -569,18 +569,18 @@ body {
     min-height: 25px;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 900px) {
     .app-header {
         grid-template-rows: 72px auto;
     }
 
     .app-header > .pf-auth-user {
-        justify-content: flex-end;
+        justify-content: flex-start;
         font-size: 10px;
     }
 }
 
-@media (max-width: 750px) {
+@media (max-width: 650px) {
     .app-header {
         height: auto;
         min-height: 72px;
