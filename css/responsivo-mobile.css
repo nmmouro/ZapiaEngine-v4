@@ -64,9 +64,19 @@
     padding: 6px 0 2px;
     font-size: 11px;
   }
+
+   .app-header > .pf-auth-user > span {
+    flex: 1 1 auto;
+    min-width: 0;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+/*
   .app-header > .pf-auth-user > span {
     flex: 1 1 100%;
     line-height: 1.25;
+*/
   }
   .app-header .pf-create-driver-access,
   .app-header .pf-auth-logout {
