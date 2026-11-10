@@ -1,14 +1,17 @@
 /* ============================================================
    TOKENS — PAINEL FROTA
    Única fonte de variáveis visuais do sistema.
+   Tema: Azul Royal (mobile + desktop).
    Carregar antes de style.css e components.css.
    ============================================================ */
 
 :root {
-  /* Marca */
-  --pf-primary: #1d4ed8;
-  --pf-primary-hover: #1e40af;
-  --pf-primary-soft: #eff6ff;
+  /* Marca — Azul Royal */
+  --pf-primary: #2457d6;
+  --pf-primary-hover: #1744b5;
+  --pf-primary-soft: #e8efff;
+  --pf-primary-deep: #163da8;
+  --pf-primary-mid: #214fc2;
 
   --pf-success: #15803d;
   --pf-success-strong: #16a34a;
@@ -18,19 +21,19 @@
   --pf-warning: #b45309;
 
   /* Superfícies e texto */
-  --pf-text: #1f2937;
+  --pf-text: #172554;
   --pf-muted: #64748b;
-  --pf-border: #dbe2ea;
-  --pf-border-strong: #cbd5e1;
-  --pf-surface: #f1f1f1; //#ffffff
-  --pf-page: #f5f7fb;
-  --pf-surface-soft: #f8fafc;
+  --pf-border: #c9d7f5;
+  --pf-border-strong: #a9bfed;
+  --pf-surface: #ffffff;
+  --pf-page: #edf3ff;
+  --pf-surface-soft: #f4f7ff;
 
   /* Forma */
   --pf-radius: 12px;
   --pf-radius-sm: 8px;
-  --pf-shadow: 0 2px 10px rgb(15 23 42 / 5%);
-  --pf-focus: 0 0 0 3px rgb(37 99 235 / 14%);
+  --pf-shadow: 0 2px 10px rgb(27 61 132 / 8%);
+  --pf-focus: 0 0 0 3px rgb(36 87 214 / 20%);
 
   /* Controles (mesma caixa em listagens, filtros e formulários) */
   --pf-font: 14px;
@@ -45,8 +48,8 @@
   --acoes-btn-fonte: 12px;
   --acoes-btn-raio: 5px;
   --acoes-btn-espaco: 5px;
-  --acoes-editar-fundo: #2563eb;
-  --acoes-editar-hover: #1d4ed8;
+  --acoes-editar-fundo: #2457d6;
+  --acoes-editar-hover: #1744b5;
   --acoes-excluir-fundo: #dc2626;
   --acoes-excluir-hover: #b91c1c;
   --acoes-custom-fundo: #6b7280;

@@ -1,218 +1,330 @@
 /* ============================================================
-   PAINEL FROTA — EXPERIÊNCIA MOBILE EXCLUSIVA
-   Tema: Azul Royal. Aplicado somente em telas até 760px.
-   O layout desktop e as funcionalidades originais são preservados.
+   PAINEL FROTA — TEMA AZUL ROYAL (GLOBAL)
+   Identidade visual aplicada em mobile e desktop.
+   Layout compacto e ajustes de toque ficam restritos ao mobile.
    ============================================================ */
 
 @import url("./responsivo-mobile.css") screen and (max-width: 760px);
 
+/* ============================================================
+   TEMA GLOBAL — Azul Royal
+   ============================================================ */
+
+:root {
+  color-scheme: light;
+}
+
+html, body {
+  background: var(--pf-page, #edf3ff) !important;
+  color: var(--pf-text, #172554) !important;
+}
+
+/* ----- Cabeçalho: degradê azul royal, textos e controles brancos ----- */
+.app-header {
+  background: linear-gradient(135deg, #163da8 0%, #2457d6 58%, #3975ed 100%) !important;
+  color: #fff !important;
+  border: 0 !important;
+  border-bottom: 3px solid #8fb0ff !important;
+  border-radius: 0 0 15px 15px !important;
+  box-shadow: 0 5px 18px rgb(20 55 140 / 22%) !important;
+}
+
+.app-header h1,
+.app-header .header-titulo,
+.app-header .header-titulo h1,
+.app-header .header-datahora,
+.app-header .header-back-home {
+  color: #fff !important;
+}
+
+.app-header .header-logo img,
+.app-header [data-header-logo] {
+  background: #fff;
+  border-radius: 9px;
+  padding: 3px;
+}
+
+.app-header .header-fullscreen,
+.app-header .header-back-home,
+.app-header .pf-create-driver-access,
+.app-header .pf-auth-logout {
+  background: rgb(255 255 255 / 15%) !important;
+  color: #fff !important;
+  border: 1px solid rgb(255 255 255 / 38%) !important;
+  border-radius: 9px !important;
+}
+
+.app-header .header-fullscreen:hover,
+.app-header .header-back-home:hover,
+.app-header .pf-create-driver-access:hover,
+.app-header .pf-auth-logout:hover {
+  background: rgb(255 255 255 / 28%) !important;
+}
+
+.app-header .pf-auth-user {
+  color: #fff !important;
+  background: rgb(9 35 111 / 25%);
+  border-radius: 9px;
+  padding: 7px 9px !important;
+}
+
+#app, .app-container, .app-content, .page-container,
+.page-content, .dashboard-page, .agenda-page,
+.relatorio-page, .ruv-page, .usuarios-page, .view-page {
+  color: var(--pf-text, #172554);
+}
+
+/* ----- Menu principal: cartões brancos com detalhes azul royal ----- */
+.menu-card,
+.home-menu .menu-card {
+  background: linear-gradient(150deg, #ffffff 0%, #eaf0ff 100%) !important;
+  color: #173b91 !important;
+  border: 1px solid #c3d4ff !important;
+  border-left: 4px solid #2457d6 !important;
+  border-radius: 13px !important;
+  box-shadow: 0 3px 10px rgb(28 69 157 / 9%) !important;
+}
+
+.menu-card:hover,
+.menu-card:active {
+  background: #dce7ff !important;
+  transform: scale(.985);
+}
+
+.menu-card-title {
+  color: #173b91 !important;
+  font-weight: 800 !important;
+}
+
+.menu-card-description {
+  color: #536b9d !important;
+}
+
+/* ----- Painéis e cartões ----- */
+.card, .panel, .dashboard-card, .view-card, .view-section,
+.engine-form-wrapper, .agenda-form, .usuarios-panel, .usuarios-form,
+.ruv-card, .relatorio-resumo > div {
+  background: #fff !important;
+  color: #172554 !important;
+  border: 1px solid #d3def5 !important;
+  border-radius: 13px !important;
+  box-shadow: 0 3px 12px rgb(27 61 132 / 7%) !important;
+}
+
+.page-title, .page-header h1, .agenda-heading h2,
+.relatorio-cabecalho h1, .ruv-topo h1,
+.engine-form-header h2, .dashboard-card-header h2 {
+  color: #173b91 !important;
+}
+
+/* ----- Formulários: fundo claro, bordas azuis, boa área de toque ----- */
+label,
+.engine-field label,
+.agenda-fields label,
+.usuarios-field label,
+.campo-relatorio label {
+  color: #29477f !important;
+  font-weight: 700;
+}
+
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea,
+.engine-field input,
+.engine-field select,
+.engine-field textarea,
+.agenda-fields input,
+.agenda-fields select,
+.agenda-fields textarea,
+.usuarios-field input,
+.usuarios-field select,
+.usuarios-field textarea {
+  background: #fbfcff !important;
+  color: #172554 !important;
+  border: 1px solid #b9cafa !important;
+  border-radius: 9px !important;
+  min-height: 40px;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #2457d6 !important;
+  box-shadow: var(--pf-focus) !important;
+  outline: none !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #8293b5 !important;
+  opacity: 1;
+}
+
+/* ----- Botões: azul royal para ações principais ----- */
+.btn,
+button,
+.agenda-action,
+.engine-toolbar .btn,
+.engine-form-actions .btn,
+.agenda-form-actions .btn,
+.usuarios-form-actions .btn {
+  background: #2457d6;
+  color: #fff;
+  border: 1px solid #1b49bd;
+  border-radius: 9px;
+  font-weight: 700;
+  box-shadow: 0 2px 5px rgb(36 87 214 / 16%);
+}
+
+.btn:hover,
+button:hover,
+.agenda-action:hover {
+  background: #1744b5;
+}
+
+button:disabled,
+.btn:disabled {
+  opacity: .55;
+}
+
+.btn-secondary,
+.btn-outline,
+.btn-cancelar,
+button.secondary,
+.engine-btn-secondary {
+  background: #e8efff !important;
+  color: #2049ad !important;
+  border: 1px solid #b8cafa !important;
+}
+
+.btn-danger,
+.btn-excluir,
+.acoes-excluir {
+  background: #c62828 !important;
+  color: #fff !important;
+  border-color: #b71c1c !important;
+}
+
+/* ----- Toolbars / filtros ----- */
+.engine-toolbar,
+.agenda-toolbar,
+.usuarios-toolbar,
+.relatorio-filtros,
+.ruv-filtros-grid {
+  background: #e2ebff !important;
+  border: 1px solid #c4d5ff !important;
+  border-radius: 12px !important;
+}
+
+/* ----- Tabelas: cabeçalhos azuis, textos legíveis ----- */
+.engine-table thead th,
+.agenda-table thead th,
+.pf-access-table thead th,
+.relatorio-tabela thead th,
+.ruv-tabela thead th,
+.dashboard-page table thead th {
+  background: #214fc2 !important;
+  color: #fff !important;
+  border-color: #173d9e !important;
+}
+
+.engine-table tbody td,
+.agenda-table tbody td,
+.pf-access-table tbody td,
+.relatorio-tabela tbody td,
+.ruv-tabela tbody td {
+  color: #243b67 !important;
+  background: #fff;
+  border-color: #e0e8f8 !important;
+}
+
+.engine-table tbody tr:nth-child(even) td,
+.agenda-table tbody tr:nth-child(even) td,
+.pf-access-table tbody tr:nth-child(even) td,
+.relatorio-tabela tbody tr:nth-child(even) td,
+.ruv-tabela tbody tr:nth-child(even) td {
+  background: #f3f6ff;
+}
+
+/* ----- Dashboard e indicadores ----- */
+.dashboard-card-header {
+  background: #214fc2 !important;
+  color: #fff !important;
+  border-radius: 9px 9px 0 0;
+}
+
+.dashboard-card-header h2 {
+  color: #fff !important;
+}
+
+.dashboard-card strong,
+.ruv-card strong,
+.relatorio-resumo strong {
+  color: #214fc2 !important;
+}
+
+a {
+  color: #1d4fc2;
+}
+
+a:hover {
+  color: #12388f;
+}
+
+:focus-visible {
+  outline: 3px solid #6d95ff !important;
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   MOBILE — layout compacto e área de toque
+   ============================================================ */
+
 @media (max-width: 760px) {
-  :root {
-    color-scheme: light;
-    --pf-primary: #2457d6;
-    --pf-primary-hover: #1744b5;
-    --pf-primary-soft: #e8efff;
-    --pf-text: #172554;
-    --pf-muted: #64748b;
-    --pf-border: #c9d7f5;
-    --pf-border-strong: #a9bfed;
-    --pf-page: #edf3ff;
-    --pf-surface: linear-gradient(135deg, #163da8 0%, #2457d6 58%, #3975ed 100%) !important;;
-    --pf-surface-soft: #f4f7ff;
-    --pf-focus: 0 0 0 3px rgb(36 87 214 / 20%);
-  }
-
-  html, body {
-    background: #edf3ff !important;
-    color: #172554 !important;
-  }
-
   body {
     padding-bottom: env(safe-area-inset-bottom);
   }
 
-  .app-header {
-    background: linear-gradient(135deg, #163da8 0%, #2457d6 58%, #3975ed 100%) !important;
-    color: #fff !important;
-    border: 0 !important;
-    border-bottom: 3px solid #8fb0ff !important;
-    border-radius: 0 0 15px 15px !important;
-    box-shadow: 0 5px 18px rgb(20 55 140 / 22%) !important;
-  }
-  .app-header h1,
-  .app-header .header-titulo,
-  .app-header .header-titulo h1,
-  .app-header .header-datahora,
-  .app-header .header-back-home {
-    color: #fff !important;
-  }
-  .app-header .header-logo img,
-  .app-header [data-header-logo] {
-    background: #fff;
-    border-radius: 9px;
-    padding: 3px;
-  }
-  .app-header .header-fullscreen,
-  .app-header .header-back-home,
-  .app-header .pf-create-driver-access,
-  .app-header .pf-auth-logout {
-    background: rgb(255 255 255 / 15%) !important;
-    color: #fff !important;
-    border: 1px solid rgb(255 255 255 / 38%) !important;
-    border-radius: 9px !important;
-  }
-  .app-header .pf-auth-user {
-    color: #fff !important;
-    background: rgb(9 35 111 / 25%);
-    border-radius: 9px;
-    padding: 7px 9px !important;
-  }
-
-  #app, .app-container, .app-content, .page-container,
-  .page-content, .dashboard-page, .agenda-page,
-  .relatorio-page, .ruv-page, .usuarios-page, .view-page {
-    color: #172554;
-  }
   .app-container {
     padding-top: 12px !important;
   }
 
-  /* Menu principal em cartões azuis, com boa área de toque. */
-  .menu-card, .home-menu .menu-card {
-    background: linear-gradient(150deg, #ffffff 0%, #eaf0ff 100%) !important;
-    color: #173b91 !important;
-    border: 1px solid #c3d4ff !important;
-    border-left: 4px solid #2457d6 !important;
-    border-radius: 13px !important;
-    box-shadow: 0 3px 10px rgb(28 69 157 / 9%) !important;
-  }
-  .menu-card:active {
-    background: #dce7ff !important;
-    transform: scale(.985);
-  }
-  .menu-card-title { color: #173b91 !important; font-weight: 800 !important; }
-  .menu-card-description { color: #536b9d !important; }
-
-  /* Painéis e cartões */
-  .card, .panel, .dashboard-card, .view-card, .view-section,
-  .engine-form-wrapper, .agenda-form, .usuarios-panel, .usuarios-form,
-  .ruv-card, .relatorio-resumo > div {
-    background: #fff !important;
-    color: #172554 !important;
-    border: 1px solid #d3def5 !important;
-    border-radius: 13px !important;
-    box-shadow: 0 3px 12px rgb(27 61 132 / 7%) !important;
-  }
-  .page-title, .page-header h1, .agenda-heading h2,
-  .relatorio-cabecalho h1, .ruv-topo h1,
-  .engine-form-header h2, .dashboard-card-header h2 {
-    color: #173b91 !important;
-  }
-
-  /* Formulários */
-  label, .engine-field label, .agenda-fields label,
-  .usuarios-field label, .campo-relatorio label {
-    color: #29477f !important;
-    font-weight: 700;
-  }
+  /* Área de toque ampliada em formulários e botões */
   input:not([type="checkbox"]):not([type="radio"]),
-  select, textarea,
-  .engine-field input, .engine-field select, .engine-field textarea,
-  .agenda-fields input, .agenda-fields select, .agenda-fields textarea,
-  .usuarios-field input, .usuarios-field select, .usuarios-field textarea {
-    background: #fbfcff !important;
-    color: #172554 !important;
-    border: 1px solid #b9cafa !important;
-    border-radius: 9px !important;
-    min-height: 40px;
-  }
-  input:focus, select:focus, textarea:focus {
-    border-color: #2457d6 !important;
-    box-shadow: var(--pf-focus) !important;
-    outline: none !important;
-  }
-  input::placeholder, textarea::placeholder {
-    color: #8293b5 !important;
-    opacity: 1;
+  select,
+  textarea,
+  .engine-field input,
+  .engine-field select,
+  .engine-field textarea {
+    min-height: 44px;
   }
 
-  /* Ações e botões: azul royal como cor principal. */
-  .btn, button, .agenda-action,
-  .engine-toolbar .btn, .engine-form-actions .btn,
-  .agenda-form-actions .btn, .usuarios-form-actions .btn {
-    background: #2457d6;
-    color: #fff;
-    border: 1px solid #1b49bd;
-    border-radius: 9px;
-    font-weight: 700;
-    box-shadow: 0 2px 5px rgb(36 87 214 / 16%);
-  }
-  .btn:hover, button:hover, .agenda-action:hover {
-    background: #1744b5;
-  }
-  button:disabled, .btn:disabled {
-    opacity: .55;
-  }
-  .btn-secondary, .btn-outline, .btn-cancelar,
-  button.secondary, .engine-btn-secondary {
-    background: #e8efff !important;
-    color: #2049ad !important;
-    border: 1px solid #b8cafa !important;
-  }
-  .btn-danger, .btn-excluir, .acoes-excluir {
-    background: #c62828 !important;
-    color: #fff !important;
-    border-color: #b71c1c !important;
+  .btn,
+  button,
+  .agenda-action {
+    min-height: 42px;
+    padding-left: 14px;
+    padding-right: 14px;
   }
 
-  /* Barra de pesquisa e títulos de tabelas */
-  .engine-toolbar, .agenda-toolbar, .usuarios-toolbar,
-  .relatorio-filtros, .ruv-filtros-grid {
-    background: #e2ebff !important;
-    border: 1px solid #c4d5ff !important;
-    border-radius: 12px !important;
-  }
-  .engine-table thead th, .agenda-table thead th,
-  .pf-access-table thead th, .relatorio-tabela thead th,
-  .ruv-tabela thead th, .dashboard-page table thead th {
-    background: #214fc2 !important;
-    color: #fff !important;
-    border-color: #173d9e !important;
-  }
-  .engine-table tbody td, .agenda-table tbody td,
-  .pf-access-table tbody td, .relatorio-tabela tbody td,
-  .ruv-tabela tbody td {
-    color: #243b67 !important;
-    background: #fff;
-    border-color: #e0e8f8 !important;
-  }
-  .engine-table tbody tr:nth-child(even) td,
-  .agenda-table tbody tr:nth-child(even) td,
-  .pf-access-table tbody tr:nth-child(even) td,
-  .relatorio-tabela tbody tr:nth-child(even) td,
-  .ruv-tabela tbody tr:nth-child(even) td {
-    background: #f3f6ff;
-  }
-
-  /* Dashboard e indicadores */
-  .dashboard-card-header {
-    background: #214fc2 !important;
-    color: #fff !important;
-    border-radius: 9px 9px 0 0;
-  }
-  .dashboard-card-header h2 { color: #fff !important; }
-  .dashboard-card strong, .ruv-card strong,
-  .relatorio-resumo strong { color: #214fc2 !important; }
-
-  a { color: #1d4fc2; }
-  a:hover { color: #12388f; }
-  :focus-visible {
-    outline: 3px solid #6d95ff !important;
-    outline-offset: 2px;
+  /* Tabelas: rolagem horizontal no celular */
+  .engine-table-wrapper,
+  .agenda-table-wrapper,
+  .table-scroll,
+  .pf-access-table-wrap,
+  .relatorio-tabela-wrap,
+  .ruv-tabela-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }
 
 @media (max-width: 420px) {
-  .app-header { border-radius: 0 0 12px 12px !important; }
-  .menu-card { border-left-width: 3px !important; }
+  .app-header {
+    border-radius: 0 0 12px 12px !important;
+  }
+
+  .menu-card {
+    border-left-width: 3px !important;
+  }
 }
