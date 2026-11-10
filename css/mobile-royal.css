@@ -17,7 +17,7 @@
     --pf-border: #c9d7f5;
     --pf-border-strong: #a9bfed;
     --pf-page: #edf3ff;
-    --pf-surface: #ffffff;
+    --pf-surface: linear-gradient(135deg, #163da8 0%, #2457d6 58%, #3975ed 100%) !important;;
     --pf-surface-soft: #f4f7ff;
     --pf-focus: 0 0 0 3px rgb(36 87 214 / 20%);
   }
