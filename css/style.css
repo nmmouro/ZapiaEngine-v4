@@ -576,7 +576,7 @@ body {
 
     .app-header > .pf-auth-user {
         justify-content: flex-end;
-        font-size: 12px;
+        font-size: 10px;
     }
 }
 
