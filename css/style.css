@@ -378,7 +378,6 @@ body {
 
 .app-header .header-acoes {
     min-width: 0;
-
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -389,7 +388,7 @@ body {
 .app-header .header-datahora {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
 
     gap: 5px;
 
