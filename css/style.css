@@ -398,7 +398,7 @@ body {
 .app-header .header-data {
     font-size: 0.82rem;
     font-weight: 500;
-    color: #6b7280;
+    color: #fff;
 }
 
 .app-header .header-separador {
@@ -408,7 +408,7 @@ body {
 .app-header .header-hora {
     font-size: 1rem;
     font-weight: 700;
-    color: #111827;
+    color: #fff;
 }
 
 .app-header .header-fullscreen {
