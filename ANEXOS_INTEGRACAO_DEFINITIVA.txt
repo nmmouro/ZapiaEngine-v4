@@ -1,0 +1,21 @@
+CORREÇÃO APLICADA
+
+O log:
+FORM veiculos → DADOS PARA SALVAR: {foto: 'data:image/jpeg;base64,...'}
+
+era causado pelo form.js convertendo input[type=file] em Data URL.
+
+Agora:
+FORM -> File -> ENGINE -> storageService -> Supabase Storage -> URL -> PostgreSQL
+
+Também foi corrigido:
+- km_atual inicia em 0 no cadastro de veículo novo;
+- arquivo existente é preservado em edição se nenhum novo for escolhido;
+- uploads são organizados por veículo/campo;
+- upload é removido se o POST/PATCH falhar;
+- arquivo antigo é removido somente depois da confirmação do banco;
+- o input file não recebe URL programaticamente;
+- corrigido marca_modelo_verssao -> marca_modelo_versao.
+
+ARQUIVO DO SERVIÇO:
+js/services/storageService.js
