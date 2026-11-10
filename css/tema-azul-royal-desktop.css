@@ -1,0 +1,78 @@
+/* ============================================================
+   PAINEL FROTA — TEMA AZUL ROYAL PARA DESKTOP
+   Aplica identidade visual em telas maiores que 760px.
+   O layout e as dimensões originais são preservados.
+   ============================================================ */
+@media (min-width: 761px) {
+  :root {
+    --pf-primary: #4169e1;
+    --pf-primary-hover: #274bb8;
+    --pf-primary-soft: #edf2ff;
+    --pf-focus: 0 0 0 3px rgb(65 105 225 / 20%);
+  }
+  body { background: #f3f6fc; }
+
+  /* Cabeçalho institucional */
+  .app-header {
+    background: linear-gradient(105deg, #2348b8 0%, #4169e1 58%, #3158ca 100%) !important;
+    color: #fff !important;
+    border-bottom: 3px solid #193b9c !important;
+    box-shadow: 0 3px 12px rgb(26 55 130 / 20%) !important;
+  }
+  .app-header :is(h1,h2,p,span,strong,small,time,.header-data,.header-hora,
+    .header-datahora,.app-date,.app-time,.header-titulo,.app-header-title) {
+    color: #fff !important;
+  }
+  .app-header :is(button,.btn,a,.header-fullscreen,.btn-fullscreen) { border-color: rgb(255 255 255 / 42%); }
+  .app-header :is(button,.header-fullscreen,.btn-fullscreen) { background: rgb(255 255 255 / 13%); color: #fff; }
+  .app-header :is(button,a,.header-fullscreen,.btn-fullscreen):hover { background: rgb(255 255 255 / 24%); color: #fff; }
+
+  /* Títulos, links e menu */
+  .page-title,.page-header h1,.agenda-heading h2,.relatorio-cabecalho h1,
+  .ruv-topo h1,.usuarios-section-heading,.ruv-section-title { color: #2449b5; }
+  a:not(.btn):not(.menu-card) { color: #3158ca; }
+  a:not(.btn):not(.menu-card):hover { color: #193b9c; }
+  .menu-card {
+    background: #fff; border: 1px solid #d8e2fb; border-top: 4px solid #4169e1;
+    box-shadow: 0 4px 14px rgb(35 72 184 / 8%);
+  }
+  .menu-card:hover { border-color: #4169e1; box-shadow: 0 8px 22px rgb(35 72 184 / 17%); transform: translateY(-2px); }
+  .menu-card-icon,.menu-card-title { color: #2449b5; }
+  .menu-card-description { color: #64748b; }
+
+  /* Botões */
+  .btn-primary,button.btn-primary {
+    background: #4169e1; border-color: #4169e1; color: #fff;
+  }
+  .btn-primary:hover,button.btn-primary:hover { background: #274bb8; border-color: #274bb8; }
+  .btn-secondary:hover,.btn-fullscreen:hover,.header-fullscreen:hover { border-color: #4169e1; color: #2449b5; }
+
+  /* Barras, formulários e seções */
+  .engine-toolbar,.agenda-toolbar,.usuarios-toolbar {
+    border-color: #d8e2fb; box-shadow: 0 2px 9px rgb(35 72 184 / 5%);
+  }
+  .engine-form-header,.agenda-form-header,.usuarios-section-heading { border-bottom-color: #cbd8fb; }
+  .engine-form-header h2,.agenda-form-header h2,.view-section h2,.card-title { color: #2449b5; }
+  :is(input,select,textarea):focus { border-color: #4169e1 !important; box-shadow: var(--pf-focus) !important; outline: none; }
+
+  /* Cabeçalhos de tabelas */
+  :is(.engine-table,.agenda-table,.pf-access-table,.relatorio-tabela,.ruv-tabela,.view-table,.dashboard-table) thead th,
+  :is(.engine-table,.agenda-table,.pf-access-table,.relatorio-tabela,.ruv-tabela,.view-table,.dashboard-table) th {
+    background: #3158ca !important; color: #fff !important; border-color: #2449b5 !important;
+  }
+  :is(.engine-table,.agenda-table,.pf-access-table,.relatorio-tabela,.ruv-tabela,.view-table,.dashboard-table) tbody tr:nth-child(even) { background-color: #f5f7ff; }
+  :is(.engine-table,.agenda-table,.pf-access-table,.relatorio-tabela,.ruv-tabela,.view-table,.dashboard-table) tbody tr:hover { background-color: #eaf0ff !important; }
+
+  /* Dashboard e painéis */
+  .dashboard-card,.dashboard-panel-card,.dashboard-agendamentos-card,.view-card,.usuarios-panel { border-color: #d8e2fb; }
+  .dashboard-card-header,.dashboard-agendamentos-header {
+    background: #3158ca !important; color: #fff !important; border-color: #2449b5 !important;
+  }
+  .dashboard-card-header :is(h2,span,strong,i),.dashboard-agendamentos-header :is(h2,span,strong) { color: #fff !important; }
+
+  /* Paginação e foco acessível */
+  .engine-pagination :is(.active,[aria-current="page"]),.pagination :is(.active,[aria-current="page"]) {
+    background: #4169e1 !important; border-color: #4169e1 !important; color: #fff !important;
+  }
+  :is(button,a,input,select,textarea):focus-visible { outline: 3px solid rgb(65 105 225 / 35%); outline-offset: 2px; }
+}
