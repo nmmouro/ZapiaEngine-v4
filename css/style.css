@@ -560,7 +560,7 @@ body {
 .app-header > .pf-auth-user > span {
     min-width: 0;
     overflow-wrap: anywhere;
-    color: #334155;
+    color: #fff;
 }
 
 .app-header > .pf-auth-user .pf-create-driver-access,
