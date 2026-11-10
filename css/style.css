@@ -90,16 +90,16 @@ body {
 
 .app-header-logo img {
     display: block;
-    max-width: 150px;
-    max-height: 150px;
+    max-width: 180px;
+    max-height: 180px;
     width: auto;
     height: auto;
     object-fit: contain;
 }
 
 .app-logo {
-    max-width: 150px;
-    max-height: 150px;
+    max-width: 180px;
+    max-height: 180px;
     object-fit: contain;
 }
 
@@ -258,8 +258,8 @@ body {
 
     .app-header-logo img,
     .app-logo {
-        max-width: 62px;
-        max-height: 46px;
+        max-width: 74px;
+        max-height: 55px;
     }
 
     .app-header-title h1 {
@@ -268,8 +268,8 @@ body {
     }
 
     .app-datetime {
-
-        display: none;
+        display: flex;
+        color: #fff;
     }
 
     .app-container {
@@ -346,8 +346,8 @@ body {
     width: auto;
     height: auto;
 
-    max-width: 150px;
-    max-height: 52px;
+    max-width: 180px;
+    max-height: 62px;
 
     object-fit: contain;
 }
@@ -450,8 +450,8 @@ body {
 
     .app-header .header-logo img,
     .app-header [data-header-logo] {
-        max-width: 120px;
-        max-height: 50px;
+        max-width: 144px;
+        max-height: 60px;
     }
 
     .app-header .header-titulo h1 {
@@ -477,8 +477,8 @@ body {
 
     .app-header .header-logo img,
     .app-header [data-header-logo] {
-        max-width: 70px;
-        max-height: 44px;
+        max-width: 84px;
+        max-height: 53px;
     }
 
     .app-header .header-titulo h1 {
@@ -486,7 +486,24 @@ body {
     }
 
     .app-header .header-datahora {
-        display: none;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
+    }
+
+    .app-header .header-data,
+    .app-header .header-separador,
+    .app-header .header-hora {
+        color: #fff;
+    }
+
+    .app-header .header-data {
+        font-size: 0.72rem;
+    }
+
+    .app-header .header-hora {
+        font-size: 0.85rem;
     }
 
     .app-header .header-fullscreen {
@@ -560,7 +577,7 @@ body {
 .app-header > .pf-auth-user > span {
     min-width: 0;
     overflow-wrap: anywhere;
-    color: #334155;
+    color: #fff;
 }
 
 .app-header > .pf-auth-user .pf-create-driver-access,

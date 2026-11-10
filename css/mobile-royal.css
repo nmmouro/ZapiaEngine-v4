@@ -42,6 +42,19 @@ html, body {
   background: #fff;
   border-radius: 9px;
   padding: 3px;
+  max-width: 180px;
+  max-height: 62px;
+}
+
+.app-header .header-data,
+.app-header .header-separador,
+.app-header .header-hora {
+  color: #fff !important;
+}
+
+.app-header .pf-auth-user,
+.app-header .pf-auth-user > span {
+  color: #fff !important;
 }
 
 .app-header .header-fullscreen,
@@ -309,14 +322,31 @@ a:hover {
     text-overflow: ellipsis !important;
     font-size: 11px !important;
     line-height: 1.2 !important;
+    color: #fff !important;
+  }
+
+  .app-header .header-logo img,
+  .app-header [data-header-logo] {
+    max-width: 58px !important;
+    max-height: 50px !important;
+  }
+
+  .app-header .header-datahora {
+    display: flex !important;
+  }
+
+  .app-header .header-data,
+  .app-header .header-separador,
+  .app-header .header-hora {
+    color: #fff !important;
   }
   .app-header .pf-create-driver-access,
   .app-header .pf-auth-logout {
     flex: 0 0 auto !important;
     order: 0 !important;
     min-height: 30px !important;
-    padding: 3px 5px !important;
-    font-size: 8px !important;
+    padding: 4px 8px !important;
+    font-size: 11px !important;
     white-space: nowrap !important;
   }
 
