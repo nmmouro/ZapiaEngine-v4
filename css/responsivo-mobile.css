@@ -232,3 +232,54 @@
   .ruv-resumo, .relatorio-resumo, .view-cards { grid-template-columns: minmax(0, 1fr); }
   .engine-form-wrapper, .agenda-form, .usuarios-panel { padding: 10px !important; }
 }
+
+/* ============================================================
+   EXTRAS — VERSÃO EXCLUSIVA MOBILE
+   Ajustes adicionais de usabilidade em celular
+   ============================================================ */
+
+@media (max-width: 760px) {
+  /* Área segura (notch / home indicator) */
+  body {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    padding-left: env(safe-area-inset-left, 0);
+    padding-right: env(safe-area-inset-right, 0);
+  }
+
+  /* Botões e controles maiores para toque */
+  button,
+  .engine-btn,
+  .btn,
+  [type="button"],
+  [type="submit"],
+  .menu-card {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+
+  input, select, textarea {
+    font-size: 16px !important; /* evita zoom automático no iOS */
+    min-height: 44px;
+  }
+
+  /* Links e ações de tabela mais fáceis de tocar */
+  .acoes-btn,
+  .engine-acoes button,
+  .engine-table-actions button {
+    min-height: 40px;
+    min-width: 72px;
+    padding: 8px 12px !important;
+  }
+
+  /* Scroll suave */
+  html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Evita seleção acidental */
+  .menu-card, .app-header, button {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
