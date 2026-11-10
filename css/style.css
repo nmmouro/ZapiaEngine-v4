@@ -398,7 +398,7 @@ body {
 .app-header .header-data {
     font-size: 0.82rem;
     font-weight: 500;
-    color: #fff;
+    color: #6b7280;
 }
 
 .app-header .header-separador {
@@ -408,7 +408,7 @@ body {
 .app-header .header-hora {
     font-size: 1rem;
     font-weight: 700;
-    color: #fff;
+    color: #111827;
 }
 
 .app-header .header-fullscreen {
@@ -560,7 +560,7 @@ body {
 .app-header > .pf-auth-user > span {
     min-width: 0;
     overflow-wrap: anywhere;
-    color: #fff;
+    color: #334155;
 }
 
 .app-header > .pf-auth-user .pf-create-driver-access,
@@ -603,21 +603,30 @@ body {
         grid-column: 1 / -1;
         grid-row: 2;
         justify-content: flex-start;
-        gap: 7px;
-        padding: 8px 0 2px;
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 6px;
+        padding: 6px 0 2px;
     }
 
     .app-header > .pf-auth-user > span {
-        flex: 1 1 100%;
-        order: 3;
+        flex: 1 1 auto;
+        min-width: 0;
+        order: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 11px;
     }
 
     .app-header > .pf-auth-user .pf-create-driver-access {
-        order: 1;
+        order: 0;
+        flex: 0 0 auto;
     }
 
     .app-header > .pf-auth-user .pf-auth-logout {
-        order: 2;
+        order: 0;
+        flex: 0 0 auto;
     }
 }
 

@@ -289,6 +289,37 @@ a:hover {
     padding-top: 12px !important;
   }
 
+  /* Gerenciar + Conectado + Sair em uma única linha, compactos */
+  .app-header > .pf-auth-user {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 5px !important;
+    padding: 5px 8px !important;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .app-header > .pf-auth-user > span {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    order: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+  }
+  .app-header .pf-create-driver-access,
+  .app-header .pf-auth-logout {
+    flex: 0 0 auto !important;
+    order: 0 !important;
+    min-height: 30px !important;
+    padding: 4px 8px !important;
+    font-size: 11px !important;
+    white-space: nowrap !important;
+  }
+
   /* Área de toque ampliada em formulários e botões */
   input:not([type="checkbox"]):not([type="radio"]),
   select,
