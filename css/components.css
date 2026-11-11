@@ -1645,7 +1645,7 @@ body {
 }
 .header-back-home {
   min-height: 30px;
-  padding: 8px 12px;
+  padding: 4px 6px;
   border: 1px solid var(--pf-border-strong);
   border-radius: var(--pf-radius-sm);
   background: #fff;
