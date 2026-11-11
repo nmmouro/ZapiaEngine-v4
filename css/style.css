@@ -285,29 +285,36 @@ body {
 
 /* ============================================================
    FULLSCREEN
+   O cabeçalho já é sticky no fluxo normal. Em tela cheia NÃO
+   deve virar fixed (sai do fluxo e cobre o conteúdo). Mantém
+   sticky + z-index alto para ficar no topo sem sobrepor.
    ============================================================ */
 
-:fullscreen {
-
-    background: #f4f6f8;
-
+:fullscreen,
+:-webkit-full-screen,
+:-moz-full-screen {
+    background: var(--pf-page, #edf3ff);
 }
 
-
-:fullscreen .app-header {
-
-    position: fixed;
+:fullscreen .app-header,
+:-webkit-full-screen .app-header,
+:-moz-full-screen .app-header {
+    position: sticky;
     top: 0;
-    left: 0;
-    right: 0;
-
+    left: auto;
+    right: auto;
+    width: 100%;
+    z-index: 1000;
 }
 
-
-:fullscreen .app-container {
-
-    padding-top: 100px;
-
+/* Sem padding artificial: header permanece no fluxo do documento */
+:fullscreen .app-container,
+:fullscreen #app,
+:-webkit-full-screen .app-container,
+:-webkit-full-screen #app,
+:-moz-full-screen .app-container,
+:-moz-full-screen #app {
+    padding-top: 0;
 }
 
 

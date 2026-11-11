@@ -1340,7 +1340,7 @@
 }
 .view-back{
    border:1px solid #cfd5dc;
-   background: #2457d6;
+   background:#fff;
    border-radius:8px;
    padding:9px 14px;
    cursor:pointer
@@ -1644,8 +1644,8 @@ body {
   font-weight: 750;
 }
 .header-back-home {
-  min-height: 30px;
-  padding: 4px 6px;
+  min-height: 36px;
+  padding: 8px 12px;
   border: 1px solid var(--pf-border-strong);
   border-radius: var(--pf-radius-sm);
   background: #fff;

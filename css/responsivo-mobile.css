@@ -156,7 +156,7 @@
   .engine-form-actions, .agenda-form-actions, .agenda-actions,
   .relatorio-acoes, .ruv-acoes, .usuarios-form-actions {
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     gap: 7px;
   }
   .engine-form-actions .btn, .agenda-form-actions .btn,
@@ -164,7 +164,7 @@
   .btn, button, .agenda-action {
     min-height: 36px;
     max-width: 100%;
-    font-size: .8rem;    
+    font-size: .8rem;
   }
 
   /* Barras de ferramentas e pesquisa */
