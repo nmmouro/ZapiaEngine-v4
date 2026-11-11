@@ -244,7 +244,7 @@
 
 @media (max-width: 420px) {
   .app-container { padding: 8px !important; }
-  .app-header { grid-template-columns: 44px minmax(0, 1fr) auto; padding: 4px 7px; }
+  .app-header { grid-template-columns: 70px minmax(0, 1fr) auto; padding: 4px 7px; }
   .app-header .header-logo img,
   .app-header [data-header-logo] { max-width: 40px; max-height: 38px; }
   .menu-card { min-height: 82px; padding: 8px 5px; }
