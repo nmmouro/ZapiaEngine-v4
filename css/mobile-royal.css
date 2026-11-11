@@ -327,8 +327,8 @@ a:hover {
 
   .app-header .header-logo img,
   .app-header [data-header-logo] {
-    max-width: 58px !important;
-    max-height: 50px !important;
+    max-width: 70px !important;
+    max-height: 62px !important;
   }
 
   .app-header .header-datahora {
