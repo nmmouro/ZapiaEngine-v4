@@ -27,7 +27,7 @@
   /* Cabeçalho compacto: logo, título e ações continuam disponíveis. */
   .app-header {
     min-height: 64px;
-    grid-template-columns:70px minmax(0, 1fr) auto;
+    grid-template-columns:80px minmax(0, 1fr) auto;
     grid-template-rows: 58px auto;
     gap: 5px 8px;
     padding: 4px 9px;
