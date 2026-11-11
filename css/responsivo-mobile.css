@@ -156,7 +156,7 @@
   .engine-form-actions, .agenda-form-actions, .agenda-actions,
   .relatorio-acoes, .ruv-acoes, .usuarios-form-actions {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 7px;
   }
   .engine-form-actions .btn, .agenda-form-actions .btn,
