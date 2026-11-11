@@ -60,6 +60,10 @@ function montarInterface(app) {
                         <span>Km Atual</span>
                         <strong id="ruvKmAtual"></strong>
                     </div>
+                    <div class="ruv-ultima-revisao">
+                        <span>Última Revisão</span>
+                        <strong id="ruvUltimaRevisao"></strong>
+                    </div>
                 </div>
                 <div class="ruv-acoes">
                     <button type="button" id="ruvAplicar" class="btn-primary">Aplicar filtros</button>
@@ -217,16 +221,18 @@ function atualizarVeiculoSelecionado() {
     const select = document.querySelector("#ruvVeiculo");
     const campo = document.querySelector("#ruvVeiculoSelecionado");
     const campoKm = document.querySelector("#ruvKmAtual");
+    const campoRevisao = document.querySelector("#ruvUltimaRevisao");
     if (!select || !campo || !campoKm) return;
 
     const opcao = select.options[select.selectedIndex];
     const valorSelecionado = valorTexto(select.value);
     const textoSelecionado = valorTexto(opcao?.textContent);
 
-    // Sem veículo selecionado: mantém o Km Atual completamente limpo.
+    // Sem veículo selecionado: limpa Km Atual e Última Revisão.
     if (!valorSelecionado) {
         campo.textContent = "Todos os veículos";
         campoKm.textContent = "";
+        if (campoRevisao) campoRevisao.textContent = "";
         return;
     }
 
@@ -242,16 +248,25 @@ function atualizarVeiculoSelecionado() {
     });
 
     const kmAtual = veiculo?.km_atual;
-
     if (kmAtual === null || kmAtual === undefined || String(kmAtual).trim() === "") {
         campoKm.textContent = "";
-        return;
+    } else {
+        const numeroKm = Number(String(kmAtual).replace(",", "."));
+        campoKm.textContent = Number.isFinite(numeroKm)
+            ? `${formatarQuilometragem(numeroKm)} km`
+            : String(kmAtual).trim();
     }
 
-    const numeroKm = Number(String(kmAtual).replace(",", "."));
-    campoKm.textContent = Number.isFinite(numeroKm)
-        ? `${formatarQuilometragem(numeroKm)} km`
-        : String(kmAtual).trim();
+    // Última Revisão vem da tabela veículos (campo ultima_revisao).
+    if (campoRevisao) {
+        const ultima = veiculo?.ultima_revisao;
+        if (ultima === null || ultima === undefined || String(ultima).trim() === "") {
+            campoRevisao.textContent = "";
+        } else {
+            const formatada = formatarData(ultima);
+            campoRevisao.textContent = formatada === "—" ? String(ultima).trim() : formatada;
+        }
+    }
 }
 
 function correspondeVeiculo(registro, filtro) {
