@@ -2061,10 +2061,17 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type=
 .relatorio-page .relatorio-tabela tbody td {
   color: var(--pf-text, #1f2937);
   border-color: var(--pf-border, #dbe2ea);
+  text-align: justify;
+  text-align-last: center;
+  vertical-align: middle;
+}
+.relatorio-page .relatorio-tabela thead th,
+.relatorio-page .relatorio-tabela tfoot th {
+  text-align: center;
 }
 .relatorio-page .relatorio-resumo {
   display: grid;
-  grid-template-columns: repeat(4, minmax(170px, 1fr));
+  grid-template-columns: repeat(5, minmax(150px, 1fr));
   gap: 12px;
   margin-bottom: 18px;
 }
@@ -2116,7 +2123,7 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type=
   border-top: 2px solid #cfd6dc;
   color: var(--pf-text, #1f2937) !important;
   white-space: nowrap;
-  text-align: justify;
+  text-align: center;
   padding: 9px 10px;
   font-size: 12px;
 }
