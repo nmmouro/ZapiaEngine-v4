@@ -2069,6 +2069,83 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type=
 .relatorio-page .relatorio-tabela tfoot th {
   text-align: center;
 }
+.relatorio-page .relatorio-cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+.relatorio-page .relatorio-identificacao {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 12px;
+  flex: 1 1 520px;
+  min-width: 0;
+}
+.relatorio-page .relatorio-titulo {
+  min-width: 180px;
+  flex: 1 1 200px;
+}
+.relatorio-page .relatorio-titulo h1 {
+  margin: 0 0 4px;
+}
+.relatorio-page .relatorio-titulo p {
+  margin: 0;
+  opacity: .75;
+}
+.relatorio-page .relatorio-veiculo-selecionado,
+.relatorio-page .relatorio-km-atual,
+.relatorio-page .relatorio-ultima-revisao-topo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 140px;
+  padding: 10px 14px;
+  border: 1px solid var(--pf-border, #dfe4e8);
+  border-radius: 10px;
+  background: var(--pf-surface-soft, #f8fafb);
+}
+.relatorio-page .relatorio-veiculo-selecionado {
+  min-width: 210px;
+}
+.relatorio-page .relatorio-veiculo-selecionado span,
+.relatorio-page .relatorio-km-atual span,
+.relatorio-page .relatorio-ultima-revisao-topo span {
+  font-size: 11px;
+  font-weight: 700;
+  opacity: .65;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--pf-muted, #64748b);
+}
+.relatorio-page .relatorio-veiculo-selecionado strong,
+.relatorio-page .relatorio-km-atual strong,
+.relatorio-page .relatorio-ultima-revisao-topo strong {
+  font-size: 16px;
+  color: var(--pf-text, #1f2937);
+  min-height: 19px;
+}
+.relatorio-page .relatorio-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+@media (max-width: 600px) {
+  .relatorio-page .relatorio-identificacao {
+    flex-direction: column;
+  }
+  .relatorio-page .relatorio-veiculo-selecionado,
+  .relatorio-page .relatorio-km-atual,
+  .relatorio-page .relatorio-ultima-revisao-topo {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
 .relatorio-page .relatorio-resumo {
   display: grid;
   grid-template-columns: repeat(5, minmax(150px, 1fr));
