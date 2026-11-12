@@ -101,6 +101,7 @@ function montarInterface(app) {
                 <div class="relatorio-card"><span>Distância total</span><strong id="totalDistancia">0 km</strong></div>
                 <div class="relatorio-card"><span>Valor total</span><strong id="totalValor">R$ 0,00</strong></div>
                 <div class="relatorio-card"><span>Média geral de consumo</span><strong id="mediaConsumo">—</strong></div>
+                <div class="relatorio-card"><span>Última Revisão</span><strong id="ultimaRevisao">—</strong></div>
             </section>
 
             <section class="relatorio-tabela-section">
@@ -515,6 +516,7 @@ function atualizarResumo(dataInicial, dataFinal, periodoInvalido = false) {
     const elDist = document.querySelector("#totalDistancia");
     const elValor = document.querySelector("#totalValor");
     const elMedia = document.querySelector("#mediaConsumo");
+    const elRevisao = document.querySelector("#ultimaRevisao");
     const elPeriodo = document.querySelector("#periodoResumo");
     if (!elReg || !elDist || !elValor || !elMedia) return;
 
@@ -523,6 +525,7 @@ function atualizarResumo(dataInicial, dataFinal, periodoInvalido = false) {
         elDist.textContent = "0 km";
         elValor.textContent = formatarMoeda(0);
         elMedia.textContent = "—";
+        if (elRevisao) elRevisao.textContent = "—";
         if (elPeriodo) elPeriodo.textContent = "Período inválido";
         return;
     }
@@ -535,11 +538,58 @@ function atualizarResumo(dataInicial, dataFinal, periodoInvalido = false) {
         ? "—"
         : `${formatarNumero(totais.media_consumo_combustivel)} km/L`;
 
+    if (elRevisao) {
+        elRevisao.textContent = obterUltimaRevisaoVeiculoSelecionado();
+    }
+
     if (elPeriodo) {
         elPeriodo.textContent = dataInicial || dataFinal
             ? `${formatarData(dataInicial) || "..."} até ${formatarData(dataFinal) || "..."}`
             : "Todos os registros";
     }
+}
+
+function obterUltimaRevisaoVeiculoSelecionado() {
+    const chave = document.querySelector("#filtroVeiculo")?.value.trim() || "";
+    if (!chave) return "—";
+
+    let veiculo = null;
+
+    if (chave.startsWith("id:")) {
+        const id = chave.slice(3).trim();
+        veiculo = veiculos.find(v => String(v?.id ?? "").trim() === id) || null;
+    }
+
+    if (!veiculo) {
+        const item = opcoesVeiculos.get(chave);
+        const alvo = normalizarTexto(item?.label || "");
+        if (alvo) {
+            veiculo = veiculos.find(v => {
+                const placaModelo = normalizarTexto(
+                    [v?.placa, v?.modelo].filter(Boolean).join(" / ")
+                );
+                return placaModelo && placaModelo === alvo;
+            }) || null;
+        }
+    }
+
+    if (!veiculo) {
+        // Fallback: primeiro veículo associado às ocorrências filtradas
+        for (const r of filtrados) {
+            const id = String(r?.id_veiculo ?? "").trim();
+            if (!id) continue;
+            veiculo = veiculos.find(v => String(v?.id ?? "").trim() === id) || null;
+            if (veiculo) break;
+        }
+    }
+
+    const ultima = veiculo?.ultima_revisao;
+    if (ultima === null || ultima === undefined || String(ultima).trim() === "") {
+        return "—";
+    }
+
+    const formatada = formatarData(String(ultima).slice(0, 10));
+    return formatada || String(ultima).trim();
 }
 
 function campoNumerico(lista, campo) {

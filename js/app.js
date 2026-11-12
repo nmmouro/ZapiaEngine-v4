@@ -668,7 +668,7 @@ if (!window.PainelFrotaAuth) {
 
                 const modulo =
                     await import(
-                        "./pages/relatorio.js?v=20261112-totais-ruv"
+                        "./pages/relatorio.js?v=20261112-justify-revisao"
                     );
 
                 return executarModulo(
