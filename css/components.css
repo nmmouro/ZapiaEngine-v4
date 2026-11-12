@@ -2116,7 +2116,7 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type=
   border-top: 2px solid #cfd6dc;
   color: var(--pf-text, #1f2937) !important;
   white-space: nowrap;
-  text-align: center;
+  text-align: justify;
   padding: 9px 10px;
   font-size: 12px;
 }
