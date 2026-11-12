@@ -147,7 +147,7 @@ async function edgeRequest(functionName, body, bearer = "") {
     }
     @media(max-width:600px){
     .pf-auth-shade{
-    top:72px;
+    top:5px;
     padding:14px
     }
     }`;
@@ -155,9 +155,18 @@ async function edgeRequest(functionName, body, bearer = "") {
   }
   function showLogin(message = "Entre com sua matrícula e senha de acesso.") {
     addStyle(); let shade = document.querySelector(".pf-auth-shade");
-    if (shade && shade.querySelector("form.pf-auth-card")) { const p = shade.querySelector(".pf-auth-intro"); if (p) p.textContent = message; return; }
+    if (shade && shade.querySelector("form.pf-auth-card")) { const p = shade.querySelector(".pf-auth-intro");
+    if (p) p.textContent = message; return;
+  }
     shade?.remove(); shade = document.createElement("div"); shade.className = "pf-auth-shade";
-    shade.innerHTML = `<form class="pf-auth-card"><h1>Boas Vindas</h1><p class="pf-auth-intro">${safe(message)}</p><label for="pf-matricula">Matrícula</label><input id="pf-matricula" name="matricula" autocomplete="username" autocapitalize="off" spellcheck="false" required><label for="pf-senha">Senha</label><input id="pf-senha" name="password" type="password" autocomplete="current-password" required><div class="pf-auth-msg" role="status" aria-live="polite"></div><button type="submit">Entrar</button></form>`;
+    shade.innerHTML = `<form class="pf-auth-card">
+          <h1>Boas Vindas</h1><p class="pf-auth-intro">${safe(message)}</p><label for="pf-matricula">Matrícula</label>
+          <input id="pf-matricula" name="matricula" autocomplete="username" autocapitalize="off" spellcheck="false" required>
+          <label for="pf-senha">Senha</label>
+          <input id="pf-senha" name="password" type="password" autocomplete="current-password" required>
+          <div class="pf-auth-msg" role="status" aria-live="polite">
+          </div><button type="submit">Entrar</button>
+          </form>`;
     document.body.appendChild(shade);
     const form = shade.querySelector("form"), msg = shade.querySelector(".pf-auth-msg");
     form.addEventListener("submit", async e => {
