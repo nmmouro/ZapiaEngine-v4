@@ -2092,7 +2092,7 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type=
 .relatorio-page .relatorio-resumo strong {
   display: block;
   margin-top: 4px;
-  font-size: 21px;
+  font-size: 15px;
   color: var(--pf-text, #1f2937) !important;
 }
 .relatorio-page .relatorio-section-title {
