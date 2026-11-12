@@ -158,7 +158,9 @@
     display: flex;
     flex-wrap: nowrap;
     gap: 7px;
+    flex-direction: row-reverse; 
   }
+   
   .engine-form-actions .btn, .agenda-form-actions .btn,
   .usuarios-form-actions .btn { flex: 1 1 130px; }
   .btn, button, .agenda-action {
