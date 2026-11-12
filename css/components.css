@@ -2062,21 +2062,80 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type=
   color: var(--pf-text, #1f2937);
   border-color: var(--pf-border, #dbe2ea);
 }
-.relatorio-page .relatorio-resumo > div {
+.relatorio-page .relatorio-resumo {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(170px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.relatorio-page .relatorio-resumo > div,
+.relatorio-page .relatorio-card {
   color: var(--pf-text, #1f2937);
   background: var(--pf-surface, #ffffff) !important;
-  border-color: var(--pf-border, #dbe2ea) !important;
+  border: 1px solid var(--pf-border, #dbe2ea) !important;
+  border-radius: 12px;
+  padding: 16px;
 }
 .relatorio-page .relatorio-resumo span {
+  display: block;
+  font-size: 12px;
   color: var(--pf-muted, #64748b) !important;
   opacity: 1 !important;
 }
 .relatorio-page .relatorio-resumo strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 21px;
   color: var(--pf-text, #1f2937) !important;
+}
+.relatorio-page .relatorio-section-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  align-items: baseline;
+}
+.relatorio-page .relatorio-section-title strong {
+  font-size: 15px;
+  color: var(--pf-text, #1f2937);
+}
+.relatorio-page .relatorio-section-title span {
+  font-size: 12px;
+  opacity: .65;
+  color: var(--pf-muted, #64748b);
+}
+.relatorio-page .relatorio-tabela-section {
+  background: var(--pf-surface, #fff);
+  border: 1px solid var(--pf-border, #e1e5e9);
+  border-radius: 12px;
+  padding: 14px;
+}
+.relatorio-page .relatorio-tabela tfoot th {
+  background: #eef2f5 !important;
+  font-weight: 800;
+  border-top: 2px solid #cfd6dc;
+  color: var(--pf-text, #1f2937) !important;
+  white-space: nowrap;
+  text-align: center;
+  padding: 9px 10px;
+  font-size: 12px;
+}
+.relatorio-page .relatorio-total th {
+  white-space: nowrap;
 }
 .relatorio-page .relatorio-mensagem {
   color: var(--pf-text, #1f2937);
   border: 1px solid var(--pf-border, #dbe2ea);
+}
+@media (max-width: 900px) {
+  .relatorio-page .relatorio-resumo {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 600px) {
+  .relatorio-page .relatorio-resumo {
+    grid-template-columns: 1fr;
+  }
 }
 
 
