@@ -55,9 +55,23 @@ function montarInterface(app) {
     app.innerHTML = `
         <section class="relatorio-page">
             <div class="relatorio-cabecalho">
-                <div>
-                    <h1>Relatório de Ocorrências</h1>
-                    <p>Relatório baseado nos registros salvos em <strong>lancamentos</strong>.</p>
+                <div class="relatorio-identificacao">
+                    <div class="relatorio-titulo">
+                        <h1>Relatório de Ocorrências</h1>
+                        <p>Relatório baseado nos registros salvos em <strong>lancamentos</strong>.</p>
+                    </div>
+                    <div class="relatorio-veiculo-selecionado">
+                        <span>Veículo selecionado</span>
+                        <strong id="relVeiculoSelecionado">Todos os veículos</strong>
+                    </div>
+                    <div class="relatorio-km-atual">
+                        <span>Km Atual</span>
+                        <strong id="relKmAtual"></strong>
+                    </div>
+                    <div class="relatorio-ultima-revisao-topo">
+                        <span>Última Revisão</span>
+                        <strong id="relUltimaRevisao"></strong>
+                    </div>
                 </div>
                 <div class="relatorio-acoes">
                     <button type="button" id="btnGerar" class="btn-primary">Gerar relatório</button>
@@ -526,6 +540,7 @@ function atualizarResumo(dataInicial, dataFinal, periodoInvalido = false) {
         elValor.textContent = formatarMoeda(0);
         elMedia.textContent = "—";
         if (elRevisao) elRevisao.textContent = "—";
+        atualizarVeiculoTopo();
         if (elPeriodo) elPeriodo.textContent = "Período inválido";
         return;
     }
@@ -542,6 +557,8 @@ function atualizarResumo(dataInicial, dataFinal, periodoInvalido = false) {
         elRevisao.textContent = obterUltimaRevisaoVeiculoSelecionado();
     }
 
+    atualizarVeiculoTopo();
+
     if (elPeriodo) {
         elPeriodo.textContent = dataInicial || dataFinal
             ? `${formatarData(dataInicial) || "..."} até ${formatarData(dataFinal) || "..."}`
@@ -549,10 +566,15 @@ function atualizarResumo(dataInicial, dataFinal, periodoInvalido = false) {
     }
 }
 
-function obterUltimaRevisaoVeiculoSelecionado() {
-    const chave = document.querySelector("#filtroVeiculo")?.value.trim() || "";
-    if (!chave) return "—";
+function obterVeiculoSelecionado() {
+    const select = document.querySelector("#filtroVeiculo");
+    const chave = select?.value.trim() || "";
+    if (!chave) {
+        return { chave: "", label: "Todos os veículos", veiculo: null };
+    }
 
+    const opcao = select?.options?.[select.selectedIndex];
+    const label = String(opcao?.textContent ?? "").trim() || chave;
     let veiculo = null;
 
     if (chave.startsWith("id:")) {
@@ -562,7 +584,7 @@ function obterUltimaRevisaoVeiculoSelecionado() {
 
     if (!veiculo) {
         const item = opcoesVeiculos.get(chave);
-        const alvo = normalizarTexto(item?.label || "");
+        const alvo = normalizarTexto(item?.label || label);
         if (alvo) {
             veiculo = veiculos.find(v => {
                 const placaModelo = normalizarTexto(
@@ -573,23 +595,52 @@ function obterUltimaRevisaoVeiculoSelecionado() {
         }
     }
 
-    if (!veiculo) {
-        // Fallback: primeiro veículo associado às ocorrências filtradas
-        for (const r of filtrados) {
-            const id = String(r?.id_veiculo ?? "").trim();
-            if (!id) continue;
-            veiculo = veiculos.find(v => String(v?.id ?? "").trim() === id) || null;
-            if (veiculo) break;
-        }
-    }
+    return { chave, label, veiculo };
+}
 
+function formatarUltimaRevisao(veiculo) {
     const ultima = veiculo?.ultima_revisao;
     if (ultima === null || ultima === undefined || String(ultima).trim() === "") {
         return "—";
     }
-
     const formatada = formatarData(String(ultima).slice(0, 10));
     return formatada || String(ultima).trim();
+}
+
+function formatarKmAtual(veiculo) {
+    const kmAtual = veiculo?.km_atual;
+    if (kmAtual === null || kmAtual === undefined || String(kmAtual).trim() === "") {
+        return "";
+    }
+    const numeroKm = numero(kmAtual);
+    return `${formatarQuilometragem(numeroKm)} km`;
+}
+
+function atualizarVeiculoTopo() {
+    const campoVeiculo = document.querySelector("#relVeiculoSelecionado");
+    const campoKm = document.querySelector("#relKmAtual");
+    const campoRevisao = document.querySelector("#relUltimaRevisao");
+    if (!campoVeiculo || !campoKm || !campoRevisao) return;
+
+    const { chave, label, veiculo } = obterVeiculoSelecionado();
+
+    if (!chave) {
+        campoVeiculo.textContent = "Todos os veículos";
+        campoKm.textContent = "";
+        campoRevisao.textContent = "";
+        return;
+    }
+
+    campoVeiculo.textContent = label || chave;
+    campoKm.textContent = formatarKmAtual(veiculo);
+    const revisao = formatarUltimaRevisao(veiculo);
+    campoRevisao.textContent = revisao === "—" ? "" : revisao;
+}
+
+function obterUltimaRevisaoVeiculoSelecionado() {
+    const { chave, veiculo } = obterVeiculoSelecionado();
+    if (!chave) return "—";
+    return formatarUltimaRevisao(veiculo);
 }
 
 function campoNumerico(lista, campo) {
