@@ -96,17 +96,26 @@ function montarInterface(app) {
 
             <div id="relatorioMensagem" class="relatorio-mensagem" role="status"></div>
 
-            <section class="relatorio-resumo" aria-label="Resumo">
-                <div><span>Total encontrados</span><strong id="totalRegistros">0</strong></div>
-                <div><span>Período</span><strong id="periodoResumo">Todos</strong></div>
+            <section class="relatorio-resumo" aria-label="Resumo do relatório">
+                <div class="relatorio-card"><span>Ocorrências</span><strong id="totalRegistros">0</strong></div>
+                <div class="relatorio-card"><span>Distância total</span><strong id="totalDistancia">0 km</strong></div>
+                <div class="relatorio-card"><span>Valor total</span><strong id="totalValor">R$ 0,00</strong></div>
+                <div class="relatorio-card"><span>Média geral de consumo</span><strong id="mediaConsumo">—</strong></div>
             </section>
 
-            <div class="relatorio-tabela-wrap">
-                <table id="tabelaRelatorio" class="relatorio-tabela">
-                    <thead></thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+            <section class="relatorio-tabela-section">
+                <div class="relatorio-section-title">
+                    <strong>Ocorrências filtradas</strong>
+                    <span id="periodoResumo">Todos os registros</span>
+                </div>
+                <div class="relatorio-tabela-wrap">
+                    <table id="tabelaRelatorio" class="relatorio-tabela">
+                        <thead></thead>
+                        <tbody></tbody>
+                        <tfoot></tfoot>
+                    </table>
+                </div>
+            </section>
         </section>
     `;
 }
@@ -364,8 +373,7 @@ function aplicarFiltros() {
     if (inicio && fim && inicio > fim) {
         filtrados = [];
         renderizarTabela();
-        document.querySelector("#totalRegistros").textContent = "0";
-        document.querySelector("#periodoResumo").textContent = "Período inválido";
+        atualizarResumo(inicio, fim, true);
         mensagem("A data inicial não pode ser posterior à data final.", "erro");
         return;
     }
@@ -389,10 +397,7 @@ function aplicarFiltros() {
     );
 
     renderizarTabela();
-    document.querySelector("#totalRegistros").textContent = filtrados.length;
-    document.querySelector("#periodoResumo").textContent = inicio || fim
-        ? `${formatarData(inicio) || "..."} até ${formatarData(fim) || "..."}`
-        : "Todos";
+    atualizarResumo(inicio, fim);
 }
 
 
@@ -444,18 +449,122 @@ function extrairDataISO(valor) {
 }
 
 function renderizarTabela() {
-    const thead = document.querySelector("#tabelaRelatorio thead");
-    const tbody = document.querySelector("#tabelaRelatorio tbody");
+    const tabela = document.querySelector("#tabelaRelatorio");
+    if (!tabela) return;
+    const thead = tabela.querySelector("thead");
+    const tbody = tabela.querySelector("tbody");
+    const tfoot = tabela.querySelector("tfoot");
     if (!thead || !tbody) return;
 
     thead.innerHTML = `<tr>${CAMPOS.map(([,label]) => `<th>${escapeHtml(label)}</th>`).join("")}</tr>`;
 
     if (!filtrados.length) {
         tbody.innerHTML = `<tr><td colspan="${CAMPOS.length}" class="relatorio-vazio">Nenhuma ocorrência encontrada com os filtros informados.</td></tr>`;
+        if (tfoot) tfoot.innerHTML = montarRodape({});
         return;
     }
 
     tbody.innerHTML = filtrados.map(r => `<tr>${CAMPOS.map(([campo]) => `<td>${escapeHtml(formatarValor(campo, r[campo]))}</td>`).join("")}</tr>`).join("");
+    if (tfoot) tfoot.innerHTML = montarRodape(calcularTotais(filtrados));
+}
+
+function calcularTotais(lista) {
+    const distancia = campoNumerico(lista, "distancia_percorrida");
+    const higienizacao = campoNumerico(lista, "valor_higienizacao");
+    const abastecimento = campoNumerico(lista, "notas_abastecimento");
+    const manutencao = campoNumerico(lista, "notas_manutencao");
+
+    const consumos = lista
+        .map(registro => numero(registro.media_consumo_combustivel))
+        .filter(valor => Number.isFinite(valor) && valor > 0);
+
+    const mediaConsumo = consumos.length
+        ? consumos.reduce((soma, valor) => soma + valor, 0) / consumos.length
+        : null;
+
+    return {
+        distancia_percorrida: distancia,
+        valor_higienizacao: higienizacao,
+        notas_abastecimento: abastecimento,
+        notas_manutencao: manutencao,
+        total_valores: higienizacao + abastecimento + manutencao,
+        media_consumo_combustivel: mediaConsumo
+    };
+}
+
+function montarRodape(totais) {
+    // Índices alinhados a CAMPOS:
+    // 0-9 antes de distância | 10 distância | 11 duração | 12 combustível |
+    // 13 média consumo | 14-16 | 17 higienização | 18 abastecimento | 19 manutenção | 20-24
+    const vazio = (n) => Array.from({ length: n }, () => "<th></th>").join("");
+    return `<tr class="relatorio-total">
+        <th colspan="10">TOTAL / MÉDIA GERAL</th>
+        <th>${formatarQuilometragem(totais.distancia_percorrida)} km</th>
+        ${vazio(2)}
+        <th>${totais.media_consumo_combustivel == null ? "—" : `${formatarNumero(totais.media_consumo_combustivel)} km/L`}</th>
+        ${vazio(3)}
+        <th>${formatarMoeda(totais.valor_higienizacao)}</th>
+        <th>${formatarMoeda(totais.notas_abastecimento)}</th>
+        <th>${formatarMoeda(totais.notas_manutencao)}</th>
+        ${vazio(5)}
+    </tr>`;
+}
+
+function atualizarResumo(dataInicial, dataFinal, periodoInvalido = false) {
+    const elReg = document.querySelector("#totalRegistros");
+    const elDist = document.querySelector("#totalDistancia");
+    const elValor = document.querySelector("#totalValor");
+    const elMedia = document.querySelector("#mediaConsumo");
+    const elPeriodo = document.querySelector("#periodoResumo");
+    if (!elReg || !elDist || !elValor || !elMedia) return;
+
+    if (periodoInvalido) {
+        elReg.textContent = "0";
+        elDist.textContent = "0 km";
+        elValor.textContent = formatarMoeda(0);
+        elMedia.textContent = "—";
+        if (elPeriodo) elPeriodo.textContent = "Período inválido";
+        return;
+    }
+
+    const totais = calcularTotais(filtrados);
+    elReg.textContent = filtrados.length.toLocaleString("pt-BR");
+    elDist.textContent = `${formatarQuilometragem(totais.distancia_percorrida)} km`;
+    elValor.textContent = formatarMoeda(totais.total_valores || 0);
+    elMedia.textContent = totais.media_consumo_combustivel == null
+        ? "—"
+        : `${formatarNumero(totais.media_consumo_combustivel)} km/L`;
+
+    if (elPeriodo) {
+        elPeriodo.textContent = dataInicial || dataFinal
+            ? `${formatarData(dataInicial) || "..."} até ${formatarData(dataFinal) || "..."}`
+            : "Todos os registros";
+    }
+}
+
+function campoNumerico(lista, campo) {
+    return lista.reduce((soma, registro) => soma + (numero(registro[campo]) || 0), 0);
+}
+
+function numero(valor) {
+    if (typeof valor === "number") return Number.isFinite(valor) ? valor : 0;
+    if (valor == null || valor === "") return 0;
+    const texto = String(valor).trim().replace(/R\$\s*/gi, "");
+    if (/^-?\d{1,3}(\.\d{3})*,\d+$/.test(texto)) return Number(texto.replace(/\./g, "").replace(",", "."));
+    if (/^-?\d+,\d+$/.test(texto)) return Number(texto.replace(",", "."));
+    return Number(texto.replace(/[^0-9.-]/g, "")) || 0;
+}
+
+function formatarNumero(valor) {
+    return Number(valor || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function formatarQuilometragem(valor) {
+    return Number(valor || 0).toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function formatarMoeda(valor) {
+    return Number(valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
 function formatarValor(campo, valor) {
@@ -468,7 +577,15 @@ function formatarValor(campo, valor) {
         const texto = String(valor ?? "").trim();
         if (texto) return texto;
     }
-    if (["km_inicial","km_final","distancia_percorrida","media_consumo_combustivel","valor_higienizacao"].includes(campo)) return String(valor);
+    if (["km_inicial", "km_final", "distancia_percorrida"].includes(campo)) {
+        return formatarQuilometragem(numero(valor));
+    }
+    if (campo === "media_consumo_combustivel") {
+        return `${formatarNumero(numero(valor))} km/L`;
+    }
+    if (["valor_higienizacao", "notas_abastecimento", "notas_manutencao"].includes(campo)) {
+        return formatarMoeda(numero(valor));
+    }
     return String(valor);
 }
 
@@ -500,6 +617,19 @@ function exportarCSV() {
     }
     const linhas = [CAMPOS.map(([,label]) => csv(label))];
     filtrados.forEach(r => linhas.push(CAMPOS.map(([campo]) => csv(formatarValor(campo, r[campo])))));
+
+    const totais = calcularTotais(filtrados);
+    const linhaTotal = CAMPOS.map(([campo]) => {
+        if (campo === "data") return csv("TOTAL / MÉDIA GERAL");
+        if (campo === "distancia_percorrida") return csv(totais.distancia_percorrida);
+        if (campo === "media_consumo_combustivel") return csv(totais.media_consumo_combustivel ?? "");
+        if (campo === "valor_higienizacao") return csv(totais.valor_higienizacao);
+        if (campo === "notas_abastecimento") return csv(totais.notas_abastecimento);
+        if (campo === "notas_manutencao") return csv(totais.notas_manutencao);
+        return csv("");
+    });
+    linhas.push(linhaTotal);
+
     const blob = new Blob(["\ufeff" + linhas.map(l => l.join(";")).join("\r\n")], {type:"text/csv;charset=utf-8;"});
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
