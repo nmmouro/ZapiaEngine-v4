@@ -2143,7 +2143,7 @@ font-size:16px;
 color:#1f2937;
 min-height:19px
 }
-.relatorio-ultima-revisao{
+.relatorio-Ultima-revisao{
 display:flex;
 flex-direction:column;
 gap:4px;
@@ -2153,23 +2153,18 @@ border:1px solid #dfe4e8;
 border-radius:10px;
 background:#f8fafb
 }
-.relatorio-ultima-revisao span{
+.relatorio-Ultima-revisao span{
 font-size:11px;
 font-weight:700;
 opacity:.65;
 text-transform:uppercase;
 letter-spacing:.04em
 }
-.relatorio-ultima-revisao strong{
+.relatorio-Ultima-revisao strong{
 font-size:16px;
 color:#1f2937;
 min-height:19px
 }
-
-
-
-
-
 
 
 .relatorio-page .relatorio-acoes {
