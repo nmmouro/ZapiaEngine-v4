@@ -68,7 +68,7 @@ function montarInterface(app) {
                         <span>Km Atual</span>
                         <strong id="relKmAtual"></strong>
                     </div>
-                    <div class="relatorio-ultima-revisao-topo">
+                    <div class="relatorio-ultima-revisao">
                         <span>Última Revisão</span>
                         <strong id="relUltimaRevisao"></strong>
                     </div>
