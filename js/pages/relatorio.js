@@ -30,12 +30,10 @@ const CAMPOS = [
     ["media_consumo_combustivel", "Média de Consumo"],
     ["avaliacao_visual", "Avaliação Visual"],
     ["avarias_registradas", "Avarias Registradas"],
-    
     ["valor_higienizacao", "Valor Higienização"],
     ["notas_abastecimento", "Notas Abastecimento"],
     ["notas_manutencao", "Notas Manutenção"],
     ["checklist", "Checklist"],
-    
     ["revisao", "Revisão"],
     ["classificacao", "Classificação"],
     ["status", "Status"]
@@ -68,7 +66,7 @@ function montarInterface(app) {
                         <span>Km Atual</span>
                         <strong id="relKmAtual"></strong>
                     </div>
-                    <div class="relatorio-ultima-revisao-topo">
+                    <div class="relatorio-ultima-revisao">
                         <span>Última Revisão</span>
                         <strong id="relUltimaRevisao"></strong>
                     </div>
@@ -508,20 +506,21 @@ function calcularTotais(lista) {
 }
 
 function montarRodape(totais) {
-    // Índices alinhados a CAMPOS:
+    // Índices alinhados a CAMPOS (sem Lava-Car e Horas Extras):
     // 0-9 antes de distância | 10 distância | 11 duração | 12 combustível |
-    // 13 média consumo | 14-16 | 17 higienização | 18 abastecimento | 19 manutenção | 20-24
+    // 13 média consumo | 14-15 (avaliação, avarias) | 16 higienização |
+    // 17 abastecimento | 18 manutenção | 19-22 (checklist, revisão, classificação, status)
     const vazio = (n) => Array.from({ length: n }, () => "<th></th>").join("");
     return `<tr class="relatorio-total">
         <th colspan="10">TOTAL / MÉDIA GERAL</th>
         <th>${formatarQuilometragem(totais.distancia_percorrida)} km</th>
         ${vazio(2)}
         <th>${totais.media_consumo_combustivel == null ? "—" : `${formatarNumero(totais.media_consumo_combustivel)} km/L`}</th>
-        ${vazio(3)}
+        ${vazio(2)}
         <th>${formatarMoeda(totais.valor_higienizacao)}</th>
         <th>${formatarMoeda(totais.notas_abastecimento)}</th>
         <th>${formatarMoeda(totais.notas_manutencao)}</th>
-        ${vazio(5)}
+        ${vazio(4)}
     </tr>`;
 }
 
