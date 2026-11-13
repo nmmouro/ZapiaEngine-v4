@@ -30,12 +30,12 @@ const CAMPOS = [
     ["media_consumo_combustivel", "Média de Consumo"],
     ["avaliacao_visual", "Avaliação Visual"],
     ["avarias_registradas", "Avarias Registradas"],
-/*["lava_car", "Lava-Car"],*/
+    
     ["valor_higienizacao", "Valor Higienização"],
     ["notas_abastecimento", "Notas Abastecimento"],
     ["notas_manutencao", "Notas Manutenção"],
     ["checklist", "Checklist"],
-/*["horas_extras", "Horas Extras"],*/
+    
     ["revisao", "Revisão"],
     ["classificacao", "Classificação"],
     ["status", "Status"]
