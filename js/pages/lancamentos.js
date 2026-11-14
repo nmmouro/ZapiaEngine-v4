@@ -38,11 +38,11 @@ const CAMPOS_NAO_RESTAURAR_RASCUNHO = new Set([
 const CAMPOS_ABERTURA = [
     "data", "hora", "id_empregado", "id_veiculo",
     "passageiro_setor_motivo", "itinerario",
-    "horario_inicial", "km_inicial"
+    "horario_inicial", "km_inicial",
+    "avaliacao_visual"
 ];
 
 const CAMPOS_CONCLUSAO = [
-    "avaliacao_visual",
     "avarias_registradas",
     "km_final",
     "horario_final",
@@ -1095,7 +1095,8 @@ function configurarConclusao(registro = {}) {
         "passageiro_setor_motivo",
         "itinerario",
         "horario_inicial",
-        "km_inicial"
+        "km_inicial",
+        "avaliacao_visual"
     ].forEach(n => setReadonly(n, false));
 
     
@@ -1121,12 +1122,23 @@ function configurarEdicao() {
     adicionarBotoesAuxiliares();
 }
 
+function normalizarAvaliacaoVisualNoFormulario() {
+    const campo = getCampo("avaliacao_visual");
+    if (!campo || campo.type !== "checkbox") return;
+    // Garante valor textual compatível com a coluna text do Supabase.
+    if (campo.checked) {
+        campo.value = "Ok";
+    }
+}
+
 async function interceptarESalvarComCalculados(evento) {
     // O listener genérico do Engine também escuta submit. Para garantir que
     // os campos calculados estejam no payload ANTES do POST/PATCH, este
     // listener interrompe o fluxo genérico, calcula/preenche os valores e
     // chama form.salvar() diretamente.
     if (preparando || modulo?.form?.salvando) return;
+
+    normalizarAvaliacaoVisualNoFormulario();
 
     if (modo === "abertura") {
         // Reaplica imediatamente antes de salvar para que o nome não seja
@@ -1797,7 +1809,11 @@ function getCampo(nome) {
 
 function getValor(nome) {
     const campo = getCampo(nome);
-    return campo ? campo.value : "";
+    if (!campo) return "";
+    if (campo.type === "checkbox") {
+        return campo.checked ? (campo.value || "Ok") : "";
+    }
+    return campo.value;
 }
 
 function setValor(nome, valor) {
@@ -1809,6 +1825,14 @@ function setValor(nome, valor) {
     // do Supabase antes que sejam atribuídos ao input.
     if (campo.type === "time") {
         campo.value = normalizarHoraHHMM(valor);
+        return;
+    }
+
+    if (campo.type === "checkbox") {
+        const texto = String(valor ?? "").trim().toLowerCase();
+        campo.checked = valor === true || valor === 1 ||
+            texto === "true" || texto === "1" || texto === "sim" ||
+            texto === "ok" || texto === "sem avarias";
         return;
     }
 
