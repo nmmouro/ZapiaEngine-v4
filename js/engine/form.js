@@ -1524,6 +1524,10 @@ if (campoHorarioInicial) {
             tipo === "boolean"
         ) {
 
+            const valorCheckbox = campo.value != null && campo.value !== ""
+                ? String(campo.value)
+                : "Ok";
+
             return `
 
                 <label class="engine-checkbox">
@@ -1532,6 +1536,7 @@ if (campoHorarioInicial) {
                         id="${id}"
                         type="checkbox"
                         name="${escaparAtributo(nome)}"
+                        value="${escaparAtributo(valorCheckbox)}"
                         ${required}
                         ${disabled}
                     >
@@ -1539,7 +1544,7 @@ if (campoHorarioInicial) {
                     <span>
                         ${escaparHTML(
                             campo.checkboxLabel ||
-                            "Sim"
+                            "Ok"
                         )}
                     </span>
 
@@ -2914,15 +2919,15 @@ function atualizarIdsRelacionados() {
             campo.type === "checkbox"
         ) {
 
+            const texto = String(valor ?? "").trim().toLowerCase();
             campo.checked =
                 valor === true ||
                 valor === 1 ||
-                String(valor)
-                    .toLowerCase() === "true" ||
-                String(valor)
-                    .toLowerCase() === "sim" ||
-                String(valor)
-                    .toLowerCase() === "1";
+                texto === "true" ||
+                texto === "sim" ||
+                texto === "1" ||
+                texto === "ok" ||
+                texto === "sem avarias";
 
             return;
 
@@ -3123,7 +3128,8 @@ function atualizarIdsRelacionados() {
             campo.type === "checkbox"
         ) {
 
-            return campo.checked;
+            if (!campo.checked) return "";
+            return campo.value || true;
 
         }
 

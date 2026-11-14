@@ -166,13 +166,11 @@ export const SCHEMA_LANCAMENTOS = {
         {
             name: "avaliacao_visual",
             label: "Avaliação Visual",
-            type: "select",
+            type: "checkbox",
+            checkboxLabel: "Ok",
+            value: "Ok",
             required: false,
-            visible: false,
-            options: [
-                "COM AVARIAS",
-                "SEM AVARIAS"
-            ]
+            visible: true
         },
 
         // ========================================================

@@ -631,7 +631,7 @@ if (!window.PainelFrotaAuth) {
 
                 const modulo =
                     await import(
-                        "./pages/lancamentos.js?v=20260907"
+                        "./pages/lancamentos.js?v=20261113-avaliacao-ok"
                     );
 
 

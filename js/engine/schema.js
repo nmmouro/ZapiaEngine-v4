@@ -83,7 +83,7 @@ const SCHEMA_LANCAMENTOS = {
         { name: "passageiro_setor_motivo", label: "Passageiro / Setor / Motivo", type: "text", required: true },
         { name: "itinerario", label: "Itinerário", type: "text", required: true },
         { name: "checklist", label: "Checklist", type: "checkbox" },
-        { name: "avaliacao_visual", label: "Avaliação Visual", type: "text" },
+        { name: "avaliacao_visual", label: "Avaliação Visual", type: "checkbox", checkboxLabel: "Ok", value: "Ok" },
         { name: "registro_avarias", label: "Registro de Avarias", type: "checkbox" },
         { name: "avarias_registradas", label: "Avarias Registradas", type: "textarea" },
         { name: "horario_inicial", label: "Horário Inicial", type: "time" },
