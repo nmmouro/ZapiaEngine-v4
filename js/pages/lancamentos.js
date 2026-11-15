@@ -941,6 +941,7 @@ function instalarControlesDoCiclo() {
         setTextoBotaoSalvar(
             "ATUALIZAR"
         );
+        garantirBotoesAcoesLancamento({ mostrarAtualizacao: false });
 
         return;
     }
@@ -948,6 +949,7 @@ function instalarControlesDoCiclo() {
     // Uma atualização concluída com sucesso também encerra o rascunho.
     if (modo === "edicao") {
         limparRascunhoLancamento(id || modulo?.engine?.state?.registroEditando?.id);
+        garantirBotoesAcoesLancamento({ mostrarAtualizacao: false });
     }
 });
 
@@ -1227,7 +1229,9 @@ function configurarEdicao() {
     setTextoBotaoSalvar("ATUALIZAR");
     adicionarBotoesAuxiliares();
     garantirOpcoesAvaliacaoVisual(getValor("avaliacao_visual"));
-    garantirBotoesAcoesLancamento({ mostrarAtualizacao: true });
+    // Em edição pós-conclusão o botão principal já é ATUALIZAR —
+    // evita dois botões de atualização na barra de ações.
+    garantirBotoesAcoesLancamento({ mostrarAtualizacao: false });
 }
 
 async function interceptarESalvarComCalculados(evento) {
@@ -1266,11 +1270,34 @@ async function interceptarESalvarComCalculados(evento) {
         // ====================================================
         // STATUS AUTOMÁTICO DA OCORRÊNCIA
         // ====================================================
-        // Na fase de conclusão, o lançamento continua EM ANDAMENTO
-        // até que o Km Final esteja realmente preenchido.
+        // CONCLUIR OCORRÊNCIA exige Km Final válido.
+        // Em EDIÇÃO (correção pós-conclusão), permite salvar alterações;
+        // se o Km Final for removido, volta para EM ANDAMENTO.
         const valorKmFinal = String(getValor("km_final") ?? "").trim();
         const kmFinal = converterNumero(valorKmFinal);
+        const kmInicial = converterNumero(getValor("km_inicial"));
 
+        if (modo === "edicao") {
+            if (valorKmFinal && Number.isFinite(kmFinal)) {
+                if (Number.isFinite(kmInicial) && kmFinal < kmInicial) {
+                    const campoKmFinal = formularioAtual.querySelector('[name="km_final"]');
+                    campoKmFinal?.focus();
+                    console.warn("LANÇAMENTOS → EDIÇÃO BLOQUEADA: Km Final menor que Km Inicial.");
+                    alert("Km Final não pode ser menor que Km Inicial.");
+                    return;
+                }
+                await preencherCamposCalculados();
+                setValor("status", "CONCLUÍDO");
+            } else {
+                setValor("status", "EM ANDAMENTO");
+                setValor("distancia_percorrida", "");
+            }
+            console.log("LANÇAMENTOS → CORREÇÃO SALVA. Status:", getValor("status"));
+            await modulo.form.salvar();
+            return;
+        }
+
+        // modo conclusao / conclusao-pendente → botão CONCLUIR OCORRÊNCIA
         if (!valorKmFinal || !Number.isFinite(kmFinal)) {
             setValor("status", "EM ANDAMENTO");
             const campoKmFinal = formularioAtual.querySelector('[name="km_final"]');
@@ -1280,7 +1307,6 @@ async function interceptarESalvarComCalculados(evento) {
             return;
         }
 
-        const kmInicial = converterNumero(getValor("km_inicial"));
         if (Number.isFinite(kmInicial) && kmFinal < kmInicial) {
             setValor("status", "EM ANDAMENTO");
             const campoKmFinal = formularioAtual.querySelector('[name="km_final"]');
@@ -1290,14 +1316,13 @@ async function interceptarESalvarComCalculados(evento) {
         }
 
         await preencherCamposCalculados();
-
-        // O status é derivado exclusivamente da regra do Km Final.
         setValor("status", "CONCLUÍDO");
         console.log("LANÇAMENTOS → STATUS AUTOMÁTICO: CONCLUÍDO");
 
         await modulo.form.salvar();
     } catch (erro) {
         console.error("LANÇAMENTOS → ERRO AO PREPARAR CAMPOS CALCULADOS:", erro);
+        alert("Não foi possível salvar: " + (erro?.message || erro));
     }
 }
 
@@ -1999,7 +2024,7 @@ function getBotaoCancelar() {
 
 /**
  * Ordena as ações do formulário: Cancelar | Atualização | Concluir/Salvar
- * e controla a visibilidade do botão Atualização.
+ * e garante UM único botão de atualização intermediário.
  */
 function garantirBotoesAcoesLancamento({ mostrarAtualizacao = false } = {}) {
     const form = modulo?.form?.formulario;
@@ -2009,6 +2034,11 @@ function garantirBotoesAcoesLancamento({ mostrarAtualizacao = false } = {}) {
     const btnSalvar = getBotaoSalvar();
     const btnCancelar = getBotaoCancelar();
     if (!actions || !btnSalvar || !btnCancelar) return;
+
+    // Remove duplicatas antigas (bug: dois botões "Atualização").
+    form.querySelectorAll("[data-lancamento-atualizar]").forEach((btn, index) => {
+        if (index > 0) btn.remove();
+    });
 
     let btnAtualizacao = form.querySelector("[data-lancamento-atualizar]");
     if (!btnAtualizacao) {
@@ -2022,6 +2052,7 @@ function garantirBotoesAcoesLancamento({ mostrarAtualizacao = false } = {}) {
 
     btnAtualizacao.hidden = !mostrarAtualizacao;
     btnAtualizacao.style.display = mostrarAtualizacao ? "" : "none";
+    btnAtualizacao.disabled = false;
 
     // Ordem visual: Cancelar → Atualização → Concluir Ocorrência / ATUALIZAR
     actions.appendChild(btnCancelar);
@@ -2030,8 +2061,30 @@ function garantirBotoesAcoesLancamento({ mostrarAtualizacao = false } = {}) {
 }
 
 /**
- * Salva o lançamento em edição/conclusão sem forçar a regra de conclusão
- * completa (Km Final obrigatório → CONCLUÍDO).
+ * Campos exigidos só para CONCLUIR (não para salvar atualização parcial).
+ */
+const CAMPOS_REQUIRED_SO_CONCLUSAO = ["km_final", "horario_final"];
+
+function comRequiredSuspenso(nomes, fn) {
+    const snapshot = nomes.map(nome => {
+        const campo = getCampo(nome);
+        return { campo, required: campo ? campo.required : false };
+    });
+    snapshot.forEach(({ campo }) => {
+        if (campo) campo.required = false;
+    });
+    try {
+        return fn();
+    } finally {
+        snapshot.forEach(({ campo, required }) => {
+            if (campo) campo.required = required;
+        });
+    }
+}
+
+/**
+ * Salva alterações durante a conclusão (e em correções) SEM exigir
+ * Km Final / Horário Final — a menos que já estejam preenchidos de forma válida.
  */
 async function onClickAtualizacaoLancamento(evento) {
     evento?.preventDefault?.();
@@ -2044,11 +2097,15 @@ async function onClickAtualizacaoLancamento(evento) {
 
     if (!validarAvaliacaoVisualSelect()) return;
 
-    // Validação HTML dos campos visíveis (sem exigir conclusão completa).
-    if (!formularioAtual.checkValidity()) {
-        formularioAtual.reportValidity();
-        return;
-    }
+    // Não bloquear atualização parcial por required de Km Final / Horário Final.
+    const valido = comRequiredSuspenso(CAMPOS_REQUIRED_SO_CONCLUSAO, () => {
+        if (!formularioAtual.checkValidity()) {
+            formularioAtual.reportValidity();
+            return false;
+        }
+        return true;
+    });
+    if (!valido) return;
 
     try {
         preparando = true;
@@ -2058,11 +2115,20 @@ async function onClickAtualizacaoLancamento(evento) {
         const kmFinal = converterNumero(valorKmFinal);
         const kmInicial = converterNumero(getValor("km_inicial"));
 
-        const podeConcluir = Boolean(valorKmFinal) &&
-            Number.isFinite(kmFinal) &&
-            (!Number.isFinite(kmInicial) || kmFinal >= kmInicial);
+        const kmFinalValido = Boolean(valorKmFinal) && Number.isFinite(kmFinal);
+        const kmCoerente = !Number.isFinite(kmInicial) || !kmFinalValido || kmFinal >= kmInicial;
 
-        if (podeConcluir) {
+        if (kmFinalValido && !kmCoerente) {
+            const campoKmFinal = formularioAtual.querySelector('[name="km_final"]');
+            campoKmFinal?.setCustomValidity?.("Km Final não pode ser menor que Km Inicial.");
+            campoKmFinal?.reportValidity?.();
+            campoKmFinal?.setCustomValidity?.("");
+            return;
+        }
+
+        // Atualização parcial: permanece EM ANDAMENTO se ainda não há Km Final válido.
+        // Se já há Km Final coerente, mantém/calcula como concluído (correção pós-conclusão).
+        if (kmFinalValido && kmCoerente) {
             try {
                 await preencherCamposCalculados();
             } catch (erroCalc) {
@@ -2070,19 +2136,21 @@ async function onClickAtualizacaoLancamento(evento) {
             }
             setValor("status", "CONCLUÍDO");
         } else {
-            // Atualiza rascunho / andamento sem concluir a ocorrência.
             setValor("status", "EM ANDAMENTO");
-            if (Number.isFinite(kmInicial) && Number.isFinite(kmFinal) && kmFinal >= kmInicial) {
-                setValor("distancia_percorrida", Number((kmFinal - kmInicial).toFixed(2)));
-            }
             const minutos = calcularDiferencaMinutos(getValor("horario_inicial"), getValor("horario_final"));
             if (Number.isFinite(minutos)) {
                 setValor("duracao_atendimento", formatarDuracao(minutos));
             }
         }
 
-        console.log("LANÇAMENTOS → ATUALIZAÇÃO salva. Status:", getValor("status"));
+        console.log("LANÇAMENTOS → ATUALIZAÇÃO salva. Modo:", modo, "Status:", getValor("status"));
         await modulo.form.salvar();
+
+        // Mantém o usuário no formulário para continuar editando.
+        if (modo === "conclusao" || modo === "conclusao-pendente") {
+            garantirBotoesAcoesLancamento({ mostrarAtualizacao: true });
+            setTextoBotaoSalvar("CONCLUIR OCORRÊNCIA");
+        }
     } catch (erro) {
         console.error("LANÇAMENTOS → ERRO AO SALVAR ATUALIZAÇÃO:", erro);
         alert("Não foi possível salvar a atualização: " + (erro?.message || erro));

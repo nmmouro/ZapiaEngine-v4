@@ -631,7 +631,7 @@ if (!window.PainelFrotaAuth) {
 
                 const modulo =
                     await import(
-                        "./pages/lancamentos.js?v=20261115-btn-atualizacao"
+                        "./pages/lancamentos.js?v=20261115-fix-atualizacao"
                     );
 
 
