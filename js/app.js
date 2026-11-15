@@ -561,7 +561,7 @@ if (!window.PainelFrotaAuth) {
 
                 const modulo =
                     await import(
-                        "./pages/checklist.js?v=20261115-bool"
+                        "./pages/checklist.js?v=20261115-dup-key"
                     );
 
                 return executarModulo(

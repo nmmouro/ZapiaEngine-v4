@@ -164,41 +164,10 @@ async function iniciarChecklistInterno() {
     adicionarBotaoMarcarTodas();
     adicionarBotaoVoltar();
 
-    const registros =
-        await listar(
-            "checklist",
-            { id_lancamento: idLancamento }
-        );
-
-    const existente =
-        Array.isArray(registros) && registros.length
-            ? registros[0]
-            : null;
-
-    if (existente?.id) {
-
-        console.log(
-            "CHECKLIST → REGISTRO EXISTENTE:",
-            existente.id
-        );
-
-        await moduloChecklist.editar(existente.id);
-
-        preencherContextoSeNecessario(existente);
-
-    } else {
-
-        console.log(
-            "CHECKLIST → NOVO CHECKLIST"
-        );
-
-        moduloChecklist.novo();
-
-        preencherNovoChecklist();
-
-    }
+    await abrirChecklistDoLancamento();
 
     instalarRetornoAposSalvar();
+    instalarProtecaoDuplicidadeChecklist();
 
     console.log(
         "PÁGINA CHECKLIST → INICIADO"
@@ -207,6 +176,84 @@ async function iniciarChecklistInterno() {
     return moduloChecklist;
 }
 
+
+/* ============================================================
+   ABRIR / REABRIR CHECKLIST DO LANÇAMENTO
+============================================================ */
+
+async function buscarChecklistDoLancamento() {
+    const registros = await listar("checklist", { id_lancamento: idLancamento });
+    if (!Array.isArray(registros) || !registros.length) return null;
+    // Preferir o mais recente se houver mais de um (legado).
+    return registros
+        .slice()
+        .sort((a, b) => String(b?.atualizado_em || b?.criado_em || "").localeCompare(String(a?.atualizado_em || a?.criado_em || "")))[0];
+}
+
+async function abrirChecklistDoLancamento() {
+    const existente = await buscarChecklistDoLancamento();
+
+    if (existente?.id) {
+        console.log("CHECKLIST → REGISTRO EXISTENTE:", existente.id);
+        await moduloChecklist.editar(existente.id);
+        preencherContextoSeNecessario(existente);
+        return existente;
+    }
+
+    console.log("CHECKLIST → NOVO CHECKLIST");
+    moduloChecklist.novo();
+    preencherNovoChecklist();
+    return null;
+}
+
+/**
+ * Se no momento do submit já existir checklist para o lançamento,
+ * marca o state como edição (UPDATE) sem recarregar o formulário —
+ * preserva os checkboxes preenchidos e evita checklist_pkey.
+ */
+function instalarProtecaoDuplicidadeChecklist() {
+    const form = moduloChecklist?.form?.formulario;
+    if (!form || form.dataset.checklistDupGuard === "true") return;
+    form.dataset.checklistDupGuard = "true";
+
+    form.addEventListener("submit", async (evento) => {
+        const state = moduloChecklist?.engine?.state;
+        // Já em edição: deixa o fluxo normal do form/engine seguir.
+        if (state?.registroEditando?.id) return;
+
+        // Interrompe para consultar o banco ANTES do INSERT.
+        evento.preventDefault();
+        evento.stopImmediatePropagation();
+
+        try {
+            const existente = await buscarChecklistDoLancamento();
+            if (existente?.id) {
+                console.warn(
+                    "CHECKLIST → registro já existe; salvando como UPDATE:",
+                    existente.id
+                );
+                if (state) {
+                    state.registroEditando = { ...existente, id: existente.id };
+                }
+                let campoId = form.querySelector('[name="id"]');
+                if (!campoId) {
+                    campoId = document.createElement("input");
+                    campoId.type = "hidden";
+                    campoId.name = "id";
+                    form.appendChild(campoId);
+                }
+                campoId.value = existente.id;
+            }
+
+            if (typeof moduloChecklist.form?.salvar === "function") {
+                await moduloChecklist.form.salvar();
+            }
+        } catch (erro) {
+            console.error("CHECKLIST → falha na proteção de duplicidade:", erro);
+            alert("Não foi possível salvar o checklist: " + (erro?.message || erro));
+        }
+    }, true);
+}
 
 /* ============================================================
    PREENCHER NOVO

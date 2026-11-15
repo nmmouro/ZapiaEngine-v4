@@ -43,11 +43,19 @@ const PREFIXOS = {
 
     abastecimentos: "ABA",
 
+    abastecimento: "ABA",
+
     manutencao: "MAN",
 
     manutencoes: "MAN",
 
-    agenda: "AGD"
+    agenda: "AGD",
+
+    checklist: "CHE",
+
+    lava_car: "LAV",
+
+    avarias: "AVA"
 
 };
 

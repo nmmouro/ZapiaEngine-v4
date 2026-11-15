@@ -679,10 +679,16 @@ export function createEngine(config = {}) {
                     resposta = await criar(entity, dadosCriar);
 
                     const novoRegistro =
-                        normalizarRegistroResposta(resposta);
+                        normalizarRegistroResposta(resposta) || {
+                            ...dadosCriar,
+                            id
+                        };
 
                     if (novoRegistro) {
                         state.registros.push(novoRegistro);
+                        // Próximo save deve ser UPDATE, não novo INSERT
+                        // (evita duplicate key em checklist/lava_car/etc.).
+                        state.registroEditando = novoRegistro;
                     }
                 }
 
