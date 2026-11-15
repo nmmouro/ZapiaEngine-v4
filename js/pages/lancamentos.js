@@ -59,6 +59,107 @@ const CAMPOS_CONCLUSAO = [
     "revisao"
 ];
 
+/** Opções oficiais do select Avaliação Visual (validação dinâmica). */
+const OPCOES_AVALIACAO_VISUAL = Object.freeze([
+    "SEM AVARIAS",
+    "COM AVARIAS"
+]);
+
+const AVALIACAO_VISUAL_PADRAO = "SEM AVARIAS";
+
+/**
+ * Garante que o <select name="avaliacao_visual"> tenha exatamente as opções
+ * permitidas e que o valor atual seja válido (ou o padrão).
+ */
+function garantirOpcoesAvaliacaoVisual(valorPreferido) {
+    const select = getCampo("avaliacao_visual");
+    if (!select || select.tagName !== "SELECT") return;
+
+    const valorAtual = String(
+        valorPreferido !== undefined && valorPreferido !== null
+            ? valorPreferido
+            : (select.value || "")
+    ).trim();
+
+    const valorNormalizado = normalizarOpcaoAvaliacaoVisual(valorAtual);
+
+    // Reconstrói as opções dinamicamente a partir da lista oficial.
+    select.innerHTML = "";
+    for (const opcao of OPCOES_AVALIACAO_VISUAL) {
+        const el = document.createElement("option");
+        el.value = opcao;
+        el.textContent = opcao;
+        select.appendChild(el);
+    }
+
+    select.value = valorNormalizado;
+    if (select.value !== valorNormalizado) {
+        // Fallback se o browser não aceitar o valor por algum motivo.
+        select.selectedIndex = Math.max(
+            0,
+            OPCOES_AVALIACAO_VISUAL.indexOf(AVALIACAO_VISUAL_PADRAO)
+        );
+    }
+
+    select.setCustomValidity("");
+    if (!OPCOES_AVALIACAO_VISUAL.includes(select.value)) {
+        select.setCustomValidity("Selecione uma opção válida de Avaliação Visual.");
+    }
+}
+
+/**
+ * Converte valores legados ou inválidos para uma opção oficial do select.
+ */
+function normalizarOpcaoAvaliacaoVisual(valor) {
+    const texto = String(valor ?? "").trim();
+    if (!texto) return AVALIACAO_VISUAL_PADRAO;
+
+    const upper = texto.toUpperCase();
+    if (OPCOES_AVALIACAO_VISUAL.includes(upper)) return upper;
+
+    // Legados (checkbox "Ok", booleanos, textos antigos)
+    if (
+        upper === "OK" ||
+        upper === "TRUE" ||
+        upper === "1" ||
+        upper === "SIM" ||
+        upper === "SEM AVARIA" ||
+        upper.includes("SEM")
+    ) {
+        return "SEM AVARIAS";
+    }
+    if (
+        upper === "FALSE" ||
+        upper === "0" ||
+        upper === "NAO" ||
+        upper === "NÃO" ||
+        upper.includes("COM")
+    ) {
+        return "COM AVARIAS";
+    }
+
+    return AVALIACAO_VISUAL_PADRAO;
+}
+
+/**
+ * Valida o select no submit; retorna true se ok.
+ */
+function validarAvaliacaoVisualSelect() {
+    garantirOpcoesAvaliacaoVisual();
+    const select = getCampo("avaliacao_visual");
+    if (!select) return true;
+
+    const valor = String(select.value || "").trim();
+    if (!OPCOES_AVALIACAO_VISUAL.includes(valor)) {
+        select.setCustomValidity("Selecione SEM AVARIAS ou COM AVARIAS.");
+        select.reportValidity();
+        return false;
+    }
+    select.setCustomValidity("");
+    return true;
+}
+
+
 async function iniciarLancamentos() {
     console.log("PÁGINA LANÇAMENTOS → INICIANDO");
 
@@ -1051,8 +1152,8 @@ function configurarAbertura() {
 
     setValor("status", "EM ANDAMENTO");
     setValor("localizacao_final", "");
-    // Opção inicial padrão ao abrir nova ocorrência
-    setValor("avaliacao_visual", "SEM AVARIAS");
+    // Opções e valor padrão validados dinamicamente
+    garantirOpcoesAvaliacaoVisual(AVALIACAO_VISUAL_PADRAO);
 }
 
 function configurarConclusao(registro = {}) {
@@ -1113,6 +1214,7 @@ function configurarConclusao(registro = {}) {
     // da validação do Km Final.
     setValor("status", "EM ANDAMENTO");
     mostrarDadosComplementares();
+    garantirOpcoesAvaliacaoVisual(getValor("avaliacao_visual"));
 }
 function configurarEdicao() {
     [...CAMPOS_ABERTURA, ...CAMPOS_CONCLUSAO].forEach(n => mostrarCampo(n, true));
@@ -1122,6 +1224,7 @@ function configurarEdicao() {
     ocultarCamposInformativos();
     setTextoBotaoSalvar("ATUALIZAR");
     adicionarBotoesAuxiliares();
+    garantirOpcoesAvaliacaoVisual(getValor("avaliacao_visual"));
 }
 
 async function interceptarESalvarComCalculados(evento) {
@@ -1130,6 +1233,12 @@ async function interceptarESalvarComCalculados(evento) {
     // listener interrompe o fluxo genérico, calcula/preenche os valores e
     // chama form.salvar() diretamente.
     if (preparando || modulo?.form?.salvando) return;
+
+    if (!validarAvaliacaoVisualSelect()) {
+        evento.preventDefault();
+        evento.stopImmediatePropagation();
+        return;
+    }
 
     if (modo === "abertura") {
         // Reaplica imediatamente antes de salvar para que o nome não seja

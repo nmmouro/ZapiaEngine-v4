@@ -167,8 +167,9 @@ export const SCHEMA_LANCAMENTOS = {
             name: "avaliacao_visual",
             label: "Avaliação Visual",
             type: "select",
-            required: false,
+            required: true,
             visible: true,
+            allowEmpty: false,
             options: [
                 "SEM AVARIAS",
                 "COM AVARIAS"
