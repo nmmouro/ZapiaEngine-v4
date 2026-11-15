@@ -1154,6 +1154,7 @@ function configurarAbertura() {
     setValor("localizacao_final", "");
     // Opções e valor padrão validados dinamicamente
     garantirOpcoesAvaliacaoVisual(AVALIACAO_VISUAL_PADRAO);
+    garantirBotoesAcoesLancamento({ mostrarAtualizacao: false });
 }
 
 function configurarConclusao(registro = {}) {
@@ -1215,6 +1216,7 @@ function configurarConclusao(registro = {}) {
     setValor("status", "EM ANDAMENTO");
     mostrarDadosComplementares();
     garantirOpcoesAvaliacaoVisual(getValor("avaliacao_visual"));
+    garantirBotoesAcoesLancamento({ mostrarAtualizacao: true });
 }
 function configurarEdicao() {
     [...CAMPOS_ABERTURA, ...CAMPOS_CONCLUSAO].forEach(n => mostrarCampo(n, true));
@@ -1225,6 +1227,7 @@ function configurarEdicao() {
     setTextoBotaoSalvar("ATUALIZAR");
     adicionarBotoesAuxiliares();
     garantirOpcoesAvaliacaoVisual(getValor("avaliacao_visual"));
+    garantirBotoesAcoesLancamento({ mostrarAtualizacao: true });
 }
 
 async function interceptarESalvarComCalculados(evento) {
@@ -1988,6 +1991,104 @@ function setReadonly(nome, readonly) {
 
 function getBotaoSalvar() {
     return modulo?.form?.formulario?.querySelector("[data-engine-salvar]") || null;
+}
+
+function getBotaoCancelar() {
+    return modulo?.form?.formulario?.querySelector("[data-engine-cancelar]") || null;
+}
+
+/**
+ * Ordena as ações do formulário: Cancelar | Atualização | Concluir/Salvar
+ * e controla a visibilidade do botão Atualização.
+ */
+function garantirBotoesAcoesLancamento({ mostrarAtualizacao = false } = {}) {
+    const form = modulo?.form?.formulario;
+    if (!form) return;
+
+    const actions = form.querySelector(".engine-form-actions");
+    const btnSalvar = getBotaoSalvar();
+    const btnCancelar = getBotaoCancelar();
+    if (!actions || !btnSalvar || !btnCancelar) return;
+
+    let btnAtualizacao = form.querySelector("[data-lancamento-atualizar]");
+    if (!btnAtualizacao) {
+        btnAtualizacao = document.createElement("button");
+        btnAtualizacao.type = "button";
+        btnAtualizacao.className = "btn btn-secondary";
+        btnAtualizacao.dataset.lancamentoAtualizar = "true";
+        btnAtualizacao.textContent = "Atualização";
+        btnAtualizacao.addEventListener("click", onClickAtualizacaoLancamento);
+    }
+
+    btnAtualizacao.hidden = !mostrarAtualizacao;
+    btnAtualizacao.style.display = mostrarAtualizacao ? "" : "none";
+
+    // Ordem visual: Cancelar → Atualização → Concluir Ocorrência / ATUALIZAR
+    actions.appendChild(btnCancelar);
+    actions.appendChild(btnAtualizacao);
+    actions.appendChild(btnSalvar);
+}
+
+/**
+ * Salva o lançamento em edição/conclusão sem forçar a regra de conclusão
+ * completa (Km Final obrigatório → CONCLUÍDO).
+ */
+async function onClickAtualizacaoLancamento(evento) {
+    evento?.preventDefault?.();
+    evento?.stopPropagation?.();
+
+    if (preparando || modulo?.form?.salvando) return;
+
+    const formularioAtual = modulo?.form?.formulario;
+    if (!formularioAtual) return;
+
+    if (!validarAvaliacaoVisualSelect()) return;
+
+    // Validação HTML dos campos visíveis (sem exigir conclusão completa).
+    if (!formularioAtual.checkValidity()) {
+        formularioAtual.reportValidity();
+        return;
+    }
+
+    try {
+        preparando = true;
+        preencherUsuarioConectado();
+
+        const valorKmFinal = String(getValor("km_final") ?? "").trim();
+        const kmFinal = converterNumero(valorKmFinal);
+        const kmInicial = converterNumero(getValor("km_inicial"));
+
+        const podeConcluir = Boolean(valorKmFinal) &&
+            Number.isFinite(kmFinal) &&
+            (!Number.isFinite(kmInicial) || kmFinal >= kmInicial);
+
+        if (podeConcluir) {
+            try {
+                await preencherCamposCalculados();
+            } catch (erroCalc) {
+                console.warn("LANÇAMENTOS → ATUALIZAÇÃO: cálculo parcial ignorado:", erroCalc);
+            }
+            setValor("status", "CONCLUÍDO");
+        } else {
+            // Atualiza rascunho / andamento sem concluir a ocorrência.
+            setValor("status", "EM ANDAMENTO");
+            if (Number.isFinite(kmInicial) && Number.isFinite(kmFinal) && kmFinal >= kmInicial) {
+                setValor("distancia_percorrida", Number((kmFinal - kmInicial).toFixed(2)));
+            }
+            const minutos = calcularDiferencaMinutos(getValor("horario_inicial"), getValor("horario_final"));
+            if (Number.isFinite(minutos)) {
+                setValor("duracao_atendimento", formatarDuracao(minutos));
+            }
+        }
+
+        console.log("LANÇAMENTOS → ATUALIZAÇÃO salva. Status:", getValor("status"));
+        await modulo.form.salvar();
+    } catch (erro) {
+        console.error("LANÇAMENTOS → ERRO AO SALVAR ATUALIZAÇÃO:", erro);
+        alert("Não foi possível salvar a atualização: " + (erro?.message || erro));
+    } finally {
+        preparando = false;
+    }
 }
 
 function setTextoBotaoSalvar(texto) {
