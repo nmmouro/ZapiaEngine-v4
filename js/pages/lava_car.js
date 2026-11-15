@@ -16,13 +16,14 @@ import { SCHEMA_LAVA_CAR } from "../schemas/lava_car.js";
 import { listar, atualizar } from "../services/crudService.js";
 
 
+// Chaves alinhadas ao schema/SQL (opcao IN (...))
 const VALORES = {
-    creta_aparencia: 60.00,
-    creta_completa: 80.00,
-    creta_completa_cera: 110.00,
-    trail_aparencia: 70.00,
-    trail_completa: 90.00,
-    trail_completa_cera: 120.00
+    aparencia_creta: 60.00,
+    completa_creta: 80.00,
+    completa_cera_creta: 110.00,
+    aparencia_trail: 70.00,
+    completa_trail: 90.00,
+    completa_cera_trail: 120.00
 };
 
 let modulo = null;
@@ -133,18 +134,49 @@ function instalarSelecaoServico() {
     if (!opcao || !valor) return;
 
     const atualizar = () => {
-
-        console.log(
-        "LAVA-CAR → OPÇÃO SELECIONADA:",
-        opcao.value
-    );
-        
-        const preco = VALORES[opcao.value];
-        valor.value = preco == null ? "" : preco.toFixed(2);
+        const chave = String(opcao.value || "").trim();
+        console.log("LAVA-CAR → OPÇÃO SELECIONADA:", chave);
+        const preco = VALORES[chave];
+        if (preco == null || !Number.isFinite(Number(preco))) {
+            valor.value = "";
+            valor.setCustomValidity("Selecione um serviço para definir o valor.");
+        } else {
+            valor.value = Number(preco).toFixed(2);
+            valor.setCustomValidity("");
+        }
     };
 
     opcao.addEventListener("change", atualizar);
+    opcao.addEventListener("input", atualizar);
     atualizar();
+}
+
+/**
+ * Garante valor numérico NOT NULL antes do POST/PATCH.
+ */
+function garantirValorLavaCarAntesDeSalvar() {
+    const form = modulo?.form?.formulario;
+    if (!form || form.dataset.lavaCarValorGuard === "true") return;
+    form.dataset.lavaCarValorGuard = "true";
+
+    form.addEventListener("submit", (evento) => {
+        const opcao = getCampo("opcao");
+        const valor = getCampo("valor");
+        if (!opcao || !valor) return;
+
+        const chave = String(opcao.value || "").trim();
+        const preco = VALORES[chave];
+        if (preco == null || !Number.isFinite(Number(preco))) {
+            evento.preventDefault();
+            evento.stopImmediatePropagation();
+            opcao.setCustomValidity("Selecione um serviço válido.");
+            opcao.reportValidity();
+            opcao.setCustomValidity("");
+            return;
+        }
+        valor.value = Number(preco).toFixed(2);
+        valor.setCustomValidity("");
+    }, true);
 }
 
 

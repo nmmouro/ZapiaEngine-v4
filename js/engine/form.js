@@ -1524,9 +1524,13 @@ if (campoHorarioInicial) {
             tipo === "boolean"
         ) {
 
-            const valorCheckbox = campo.value != null && campo.value !== ""
-                ? String(campo.value)
-                : "Ok";
+            // Só define value= quando o schema pede valor textual explícito.
+            // Checkboxes booleanos (ex.: checklist) devem enviar true/false.
+            const temValorTextual = campo.value != null && String(campo.value).trim() !== "";
+            const valorCheckbox = temValorTextual ? String(campo.value) : "";
+            const attrValue = temValorTextual
+                ? `value="${escaparAtributo(valorCheckbox)}"`
+                : "";
 
             return `
 
@@ -1536,7 +1540,7 @@ if (campoHorarioInicial) {
                         id="${id}"
                         type="checkbox"
                         name="${escaparAtributo(nome)}"
-                        value="${escaparAtributo(valorCheckbox)}"
+                        ${attrValue}
                         ${required}
                         ${disabled}
                     >
@@ -1544,7 +1548,7 @@ if (campoHorarioInicial) {
                     <span>
                         ${escaparHTML(
                             campo.checkboxLabel ||
-                            "Ok"
+                            "Sim"
                         )}
                     </span>
 
@@ -3127,10 +3131,17 @@ function atualizarIdsRelacionados() {
         if (
             campo.type === "checkbox"
         ) {
-
-            if (!campo.checked) return "";
-            return campo.value || true;
-
+            // Sem value explícito no HTML → boolean puro (compatível com colunas boolean).
+            // Com value explícito (ex.: "Ok") → devolve o texto quando marcado.
+            if (!campo.checked) {
+                return campo.hasAttribute("value") && campo.getAttribute("value") !== ""
+                    ? ""
+                    : false;
+            }
+            if (campo.hasAttribute("value") && campo.getAttribute("value") !== "") {
+                return campo.value;
+            }
+            return true;
         }
 
 

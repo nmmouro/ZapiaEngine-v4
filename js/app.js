@@ -561,7 +561,7 @@ if (!window.PainelFrotaAuth) {
 
                 const modulo =
                     await import(
-                        "./pages/checklist.js"
+                        "./pages/checklist.js?v=20261115-bool"
                     );
 
                 return executarModulo(
@@ -584,7 +584,7 @@ if (!window.PainelFrotaAuth) {
 
                 const modulo =
                     await import(
-                        "./pages/lava_car.js"
+                        "./pages/lava_car.js?v=20261115-valor"
                     );
 
                 return executarModulo(
