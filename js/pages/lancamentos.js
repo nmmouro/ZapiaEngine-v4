@@ -1051,6 +1051,8 @@ function configurarAbertura() {
 
     setValor("status", "EM ANDAMENTO");
     setValor("localizacao_final", "");
+    // Opção inicial padrão ao abrir nova ocorrência
+    setValor("avaliacao_visual", "SEM AVARIAS");
 }
 
 function configurarConclusao(registro = {}) {
@@ -1122,23 +1124,12 @@ function configurarEdicao() {
     adicionarBotoesAuxiliares();
 }
 
-function normalizarAvaliacaoVisualNoFormulario() {
-    const campo = getCampo("avaliacao_visual");
-    if (!campo || campo.type !== "checkbox") return;
-    // Garante valor textual compatível com a coluna text do Supabase.
-    if (campo.checked) {
-        campo.value = "Ok";
-    }
-}
-
 async function interceptarESalvarComCalculados(evento) {
     // O listener genérico do Engine também escuta submit. Para garantir que
     // os campos calculados estejam no payload ANTES do POST/PATCH, este
     // listener interrompe o fluxo genérico, calcula/preenche os valores e
     // chama form.salvar() diretamente.
     if (preparando || modulo?.form?.salvando) return;
-
-    normalizarAvaliacaoVisualNoFormulario();
 
     if (modo === "abertura") {
         // Reaplica imediatamente antes de salvar para que o nome não seja
