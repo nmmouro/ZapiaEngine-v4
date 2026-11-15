@@ -2702,3 +2702,9 @@ width:100%;
 box-sizing:border-box
 }
 }
+
+
+/* Lançamentos — botão Atualização entre Cancelar e Concluir */
+.engine-form-actions [data-lancamento-atualizar] {
+  order: 0;
+}
