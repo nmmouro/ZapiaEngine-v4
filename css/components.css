@@ -2345,7 +2345,7 @@ min-height:19px
 .agenda-table tbody tr:last-child td{border-bottom:0}
 .agenda-actions{display:flex;gap:6px;white-space:nowrap}
 .agenda-action{padding:6px 9px;font-size:.8rem}
-.agenda-action.edit{color:var(--pf-primary,#1d4ed8)}
+.agenda-action.edit{color:#fff}
 .agenda-action.delete{color:#b42318}
 .agenda-status{font-size:.78rem;font-weight:700;white-space:nowrap}
 .agenda-hint{margin:0;font-size:.88rem;color:var(--pf-muted,#64748b)}
