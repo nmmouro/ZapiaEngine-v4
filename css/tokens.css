@@ -2,16 +2,20 @@
    TOKENS — PAINEL FROTA
    Única fonte de variáveis visuais do sistema.
    Tema: Azul Royal (mobile + desktop).
-   Carregar antes de style.css e components.css.
+   Carregar ANTES de qualquer outro CSS do projeto.
    ============================================================ */
 
 :root {
-  /* Marca — Azul Royal */
+  color-scheme: light;
+
+  /* ---------- Marca — Azul Royal ---------- */
   --pf-primary: #2457d6;
   --pf-primary-hover: #1744b5;
   --pf-primary-soft: #e8efff;
   --pf-primary-deep: #163da8;
   --pf-primary-mid: #214fc2;
+  --pf-primary-bright: #3975ed;
+  --pf-primary-glow: #8fb0ff;
 
   --pf-success: #15803d;
   --pf-success-strong: #16a34a;
@@ -20,38 +24,90 @@
   --pf-danger-hover: #b91c1c;
   --pf-warning: #b45309;
 
-  /* Superfícies e texto */
+  /* ---------- Superfícies e texto ---------- */
   --pf-text: #172554;
+  --pf-text-strong: #1f2937;
   --pf-muted: #64748b;
   --pf-border: #c9d7f5;
+  --pf-border-soft: #dfe4e8;
   --pf-border-strong: #a9bfed;
   --pf-surface: #ffffff;
   --pf-page: #edf3ff;
   --pf-surface-soft: #f4f7ff;
+  --pf-surface-meta: #f8fafb;
 
-  /* Forma */
+  /* ---------- Forma ---------- */
   --pf-radius: 12px;
   --pf-radius-sm: 8px;
+  --pf-radius-xs: 5px;
+  --pf-radius-meta: 10px;
   --pf-shadow: 0 2px 10px rgb(27 61 132 / 8%);
+  --pf-shadow-header: 0 5px 18px rgb(20 55 140 / 22%);
   --pf-focus: 0 0 0 3px rgb(36 87 214 / 20%);
 
-  /* Controles (mesma caixa em listagens, filtros e formulários) */
+  /* ---------- Tipografia ---------- */
   --pf-font: 14px;
+  --pf-font-xs: 11px;
   --pf-font-sm: 0.875rem;
+  --pf-font-md: 16px;
+  --pf-font-lg: 20px;
+  --pf-font-title: 28px;
+  --pf-font-title-sm: 23px;
+  --pf-line: 1.45;
+  --pf-weight-label: 700;
+  --pf-weight-title: 750;
+
+  /* ---------- Espaçamento ---------- */
+  --pf-space-1: 4px;
+  --pf-space-2: 8px;
+  --pf-space-3: 12px;
+  --pf-space-4: 16px;
+  --pf-space-5: 20px;
+  --pf-space-6: 24px;
+
+  /* ---------- Controles ---------- */
   --pf-control-h: 40px;
   --pf-btn-h: 36px;
+  --pf-control-px: 11px;
+  --pf-control-py: 9px;
 
-  /* Botões de ação na tabela (editar / excluir) */
+  /* ---------- Cabeçalho app ---------- */
+  --pf-header-gradient: linear-gradient(
+    135deg,
+    var(--pf-primary-deep) 0%,
+    var(--pf-primary) 58%,
+    var(--pf-primary-bright) 100%
+  );
+  --pf-header-border: 3px solid var(--pf-primary-glow);
+  --pf-header-radius: 0 0 15px 15px;
+  --pf-header-color: #ffffff;
+
+  /* ---------- Meta cards (Veículo / Km / Revisão) ---------- */
+  --pf-meta-min: 140px;
+  --pf-meta-wide: 210px;
+  --pf-meta-pad-y: 10px;
+  --pf-meta-pad-x: 14px;
+
+  /* ---------- Resumo / summary cards ---------- */
+  --pf-summary-min: 150px;
+  --pf-summary-pad: 16px;
+
+  /* ---------- Botões de ação na tabela ---------- */
   --acoes-btn-altura: 30px;
   --acoes-btn-largura-minima: 68px;
   --acoes-btn-padding-x: 9px;
   --acoes-btn-fonte: 12px;
-  --acoes-btn-raio: 5px;
+  --acoes-btn-raio: var(--pf-radius-xs);
   --acoes-btn-espaco: 5px;
-  --acoes-editar-fundo: #2457d6;
-  --acoes-editar-hover: #1744b5;
-  --acoes-excluir-fundo: #dc2626;
-  --acoes-excluir-hover: #b91c1c;
+  --acoes-editar-fundo: var(--pf-primary);
+  --acoes-editar-hover: var(--pf-primary-hover);
+  --acoes-excluir-fundo: var(--pf-danger-strong);
+  --acoes-excluir-hover: var(--pf-danger-hover);
   --acoes-custom-fundo: #6b7280;
   --acoes-custom-hover: #4b5563;
+
+  /* ---------- Breakpoints (documentação; media queries usam valores literais) ---------- */
+  --pf-bp-sm: 600px;
+  --pf-bp-md: 760px;
+  --pf-bp-lg: 900px;
 }

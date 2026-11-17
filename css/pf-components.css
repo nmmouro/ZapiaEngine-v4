@@ -1,0 +1,570 @@
+/* ============================================================
+   PF COMPONENTS — componentes genéricos reutilizáveis
+   Depende de tokens.css
+   Carregar após tokens.css e preferencialmente antes de
+   components.css (aliases garantem compatibilidade com classes
+   legadas .ruv-* e .relatorio-*).
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   Utilitários
+   ------------------------------------------------------------ */
+.pf-muted { color: var(--pf-muted); }
+.pf-text { color: var(--pf-text); }
+.pf-hidden { display: none !important; }
+
+.pf-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pf-space-3);
+}
+
+.pf-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pf-space-3);
+}
+
+.pf-row--between {
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* ------------------------------------------------------------
+   Página de relatório / módulo
+   ------------------------------------------------------------ */
+.pf-page {
+  width: 100%;
+  color: var(--pf-text);
+}
+
+.pf-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--pf-space-6);
+  margin-bottom: var(--pf-space-5);
+}
+
+.pf-page-ident {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pf-space-4);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.pf-page-title {
+  min-width: 280px;
+  color: var(--pf-text-strong);
+}
+
+.pf-page-title h1 {
+  margin: var(--pf-space-1) 0;
+  font-size: var(--pf-font-title);
+  color: var(--pf-text-strong);
+}
+
+.pf-page-title p {
+  margin: 0;
+  opacity: 0.7;
+  color: var(--pf-muted);
+}
+
+.pf-page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pf-space-2);
+  align-items: center;
+}
+
+/* ------------------------------------------------------------
+   Meta cards — Veículo selecionado / Km Atual / Última Revisão
+   ------------------------------------------------------------ */
+.pf-meta-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pf-space-1);
+  min-width: var(--pf-meta-min);
+  padding: var(--pf-meta-pad-y) var(--pf-meta-pad-x);
+  border: 1px solid var(--pf-border-soft);
+  border-radius: var(--pf-radius-meta);
+  background: var(--pf-surface-meta);
+  box-sizing: border-box;
+}
+
+.pf-meta-card--wide {
+  min-width: var(--pf-meta-wide);
+}
+
+.pf-meta-card span {
+  font-size: var(--pf-font-xs);
+  font-weight: var(--pf-weight-label);
+  opacity: 0.65;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--pf-muted);
+}
+
+.pf-meta-card strong {
+  font-size: var(--pf-font-md);
+  color: var(--pf-text-strong);
+  min-height: 19px;
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------------
+   Summary cards — Ocorrências / Distância / Valor / Média…
+   ------------------------------------------------------------ */
+.pf-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--pf-summary-min), 1fr));
+  gap: var(--pf-space-3);
+  margin-bottom: 18px;
+}
+
+.pf-summary-card {
+  color: var(--pf-text);
+  background: var(--pf-surface) !important;
+  border: 1px solid var(--pf-border) !important;
+  border-radius: var(--pf-radius);
+  padding: var(--pf-summary-pad);
+  box-sizing: border-box;
+}
+
+.pf-summary-card span {
+  display: block;
+  font-size: var(--pf-font-xs);
+  font-weight: var(--pf-weight-label);
+  color: var(--pf-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: var(--pf-space-1);
+}
+
+.pf-summary-card strong {
+  display: block;
+  font-size: var(--pf-font-md);
+  color: var(--pf-text-strong);
+  font-weight: 750;
+}
+
+/* ------------------------------------------------------------
+   Filtros
+   ------------------------------------------------------------ */
+.pf-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--pf-space-3);
+  padding: 18px;
+  border: 1px solid var(--pf-border);
+  border-radius: var(--pf-radius);
+  background: var(--pf-surface);
+  box-shadow: var(--pf-shadow);
+  margin-bottom: var(--pf-space-4);
+}
+
+.pf-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.pf-field label,
+.pf-field > span:first-child {
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: var(--pf-text);
+}
+
+.pf-field input,
+.pf-field select,
+.pf-field textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--pf-control-h);
+  padding: var(--pf-control-py) var(--pf-control-px);
+  border: 1px solid var(--pf-border-strong);
+  border-radius: var(--pf-radius-sm);
+  background: var(--pf-surface);
+  color: var(--pf-text);
+  font: inherit;
+  font-weight: 400;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.pf-field input:focus,
+.pf-field select:focus,
+.pf-field textarea:focus {
+  outline: none;
+  border-color: var(--pf-primary);
+  box-shadow: var(--pf-focus);
+}
+
+.pf-field input:disabled,
+.pf-field select:disabled,
+.pf-field textarea:disabled {
+  background: var(--pf-surface-soft);
+  color: var(--pf-muted);
+  cursor: not-allowed;
+}
+
+/* ------------------------------------------------------------
+   Tabela de relatório
+   ------------------------------------------------------------ */
+.pf-table-section {
+  border: 1px solid var(--pf-border);
+  border-radius: var(--pf-radius);
+  background: var(--pf-surface);
+  overflow: hidden;
+}
+
+.pf-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pf-table {
+  border-collapse: collapse;
+  width: max-content;
+  min-width: 100%;
+  font-size: var(--pf-font);
+  color: var(--pf-text);
+}
+
+.pf-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 8px 10px;
+  text-align: center;
+  font-weight: var(--pf-weight-title);
+  color: var(--pf-text-strong) !important;
+  background: var(--pf-surface-soft) !important;
+  border-bottom: 1px solid var(--pf-border);
+  white-space: nowrap;
+}
+
+.pf-table tbody td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--pf-border);
+  color: var(--pf-text);
+  vertical-align: middle;
+  text-align: justify;
+  text-align-last: center;
+}
+
+.pf-table tfoot th {
+  padding: 8px 10px;
+  text-align: center;
+  font-weight: 700;
+  background: var(--pf-surface-soft);
+  border-top: 1px solid var(--pf-border);
+}
+
+.pf-table .table-footer,
+.pf-table .relatorio-total,
+.pf-table .ruv-total {
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------------
+   Botões (complemento; .btn* podem existir em style/components)
+   ------------------------------------------------------------ */
+.pf-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pf-space-2);
+  align-items: center;
+}
+
+/* ------------------------------------------------------------
+   Aliases — RUV (compatibilidade sem mudar o HTML)
+   ------------------------------------------------------------ */
+.ruv-page { /* extends .pf-page */ }
+.ruv-topo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--pf-space-6);
+  margin-bottom: var(--pf-space-5);
+}
+.ruv-identificacao {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pf-space-4);
+  min-width: 0;
+}
+.ruv-titulo {
+  min-width: 280px;
+  color: var(--pf-text-strong);
+}
+.ruv-topo h1 {
+  margin: var(--pf-space-1) 0;
+  font-size: var(--pf-font-title);
+}
+.ruv-topo p {
+  margin: 0;
+  opacity: 0.7;
+}
+.ruv-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pf-space-2);
+  align-items: center;
+}
+
+.ruv-veiculo-selecionado,
+.ruv-km-atual,
+.ruv-ultima-revisao {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pf-space-1);
+  min-width: var(--pf-meta-min);
+  padding: var(--pf-meta-pad-y) var(--pf-meta-pad-x);
+  border: 1px solid var(--pf-border-soft);
+  border-radius: var(--pf-radius-meta);
+  background: var(--pf-surface-meta);
+  box-sizing: border-box;
+}
+.ruv-veiculo-selecionado { min-width: var(--pf-meta-wide); }
+
+.ruv-veiculo-selecionado span,
+.ruv-km-atual span,
+.ruv-ultima-revisao span {
+  font-size: var(--pf-font-xs);
+  font-weight: var(--pf-weight-label);
+  opacity: 0.65;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--pf-muted);
+}
+
+.ruv-veiculo-selecionado strong,
+.ruv-km-atual strong,
+.ruv-ultima-revisao strong {
+  font-size: var(--pf-font-md);
+  color: var(--pf-text-strong);
+  min-height: 19px;
+}
+
+.ruv-resumo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--pf-summary-min), 1fr));
+  gap: var(--pf-space-3);
+  margin-bottom: 18px;
+}
+.ruv-card {
+  color: var(--pf-text);
+  background: var(--pf-surface) !important;
+  border: 1px solid var(--pf-border) !important;
+  border-radius: var(--pf-radius);
+  padding: var(--pf-summary-pad);
+}
+.ruv-card span {
+  display: block;
+  font-size: var(--pf-font-xs);
+  font-weight: var(--pf-weight-label);
+  color: var(--pf-muted);
+  margin-bottom: var(--pf-space-1);
+}
+.ruv-card strong {
+  display: block;
+  font-size: var(--pf-font-md);
+  color: var(--pf-text-strong);
+  font-weight: 750;
+}
+
+/* ------------------------------------------------------------
+   Aliases — Relatório de Ocorrências
+   ------------------------------------------------------------ */
+.relatorio-page .relatorio-cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--pf-space-6);
+  margin-bottom: var(--pf-space-5);
+}
+.relatorio-page .relatorio-identificacao {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pf-space-4);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.relatorio-page .relatorio-titulo {
+  min-width: 280px;
+  color: var(--pf-text-strong);
+}
+.relatorio-page .relatorio-titulo h1 {
+  margin: var(--pf-space-1) 0;
+  font-size: var(--pf-font-title);
+}
+.relatorio-page .relatorio-titulo p {
+  margin: 0;
+  opacity: 0.7;
+}
+.relatorio-page .relatorio-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pf-space-2);
+  align-items: center;
+}
+
+.relatorio-veiculo-selecionado,
+.relatorio-km-atual,
+.relatorio-ultima-revisao {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pf-space-1);
+  min-width: var(--pf-meta-min);
+  padding: var(--pf-meta-pad-y) var(--pf-meta-pad-x);
+  border: 1px solid var(--pf-border-soft);
+  border-radius: var(--pf-radius-meta);
+  background: var(--pf-surface-meta);
+  box-sizing: border-box;
+}
+.relatorio-veiculo-selecionado { min-width: var(--pf-meta-wide); }
+
+.relatorio-veiculo-selecionado span,
+.relatorio-km-atual span,
+.relatorio-ultima-revisao span {
+  font-size: var(--pf-font-xs);
+  font-weight: var(--pf-weight-label);
+  opacity: 0.65;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--pf-muted);
+}
+
+.relatorio-veiculo-selecionado strong,
+.relatorio-km-atual strong,
+.relatorio-ultima-revisao strong {
+  font-size: var(--pf-font-md);
+  color: var(--pf-text-strong);
+  min-height: 19px;
+}
+
+.relatorio-page .relatorio-resumo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--pf-summary-min), 1fr));
+  gap: var(--pf-space-3);
+  margin-bottom: 18px;
+}
+.relatorio-page .relatorio-resumo > div,
+.relatorio-page .relatorio-card {
+  color: var(--pf-text);
+  background: var(--pf-surface) !important;
+  border: 1px solid var(--pf-border) !important;
+  border-radius: var(--pf-radius);
+  padding: var(--pf-summary-pad);
+}
+.relatorio-page .relatorio-resumo span {
+  display: block;
+  font-size: var(--pf-font-xs);
+  font-weight: var(--pf-weight-label);
+  color: var(--pf-muted);
+  margin-bottom: var(--pf-space-1);
+}
+.relatorio-page .relatorio-resumo strong {
+  display: block;
+  font-size: var(--pf-font-md);
+  color: var(--pf-text-strong);
+  font-weight: 750;
+}
+
+/* ------------------------------------------------------------
+   Responsivo compartilhado
+   ------------------------------------------------------------ */
+@media (max-width: 900px) {
+  .pf-page-header,
+  .ruv-topo,
+  .relatorio-page .relatorio-cabecalho {
+    flex-direction: column;
+  }
+  .pf-page-ident,
+  .ruv-identificacao,
+  .relatorio-page .relatorio-identificacao {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .pf-page-ident,
+  .ruv-identificacao,
+  .relatorio-page .relatorio-identificacao {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .pf-page-title,
+  .ruv-titulo,
+  .relatorio-page .relatorio-titulo {
+    min-width: 0;
+  }
+  .pf-page-title h1,
+  .ruv-topo h1,
+  .relatorio-page .relatorio-titulo h1 {
+    font-size: var(--pf-font-title-sm);
+  }
+  .pf-meta-card,
+  .ruv-veiculo-selecionado,
+  .ruv-km-atual,
+  .ruv-ultima-revisao,
+  .relatorio-veiculo-selecionado,
+  .relatorio-km-atual,
+  .relatorio-ultima-revisao {
+    width: 100%;
+  }
+  .pf-page-actions,
+  .ruv-acoes,
+  .relatorio-page .relatorio-acoes {
+    width: 100%;
+  }
+  .pf-summary,
+  .ruv-resumo,
+  .relatorio-page .relatorio-resumo {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ------------------------------------------------------------
+   Impressão (tabelas genéricas de relatório)
+   ------------------------------------------------------------ */
+@media print {
+  .pf-table-wrap,
+  .relatorio-tabela-wrap,
+  .ruv-tabela-wrap {
+    overflow: visible !important;
+    border: 0 !important;
+  }
+  .pf-table,
+  .relatorio-tabela,
+  .ruv-tabela {
+    width: 100% !important;
+    min-width: 0 !important;
+    table-layout: fixed !important;
+    font-size: 7px !important;
+  }
+  .pf-table th,
+  .pf-table td,
+  .relatorio-tabela th,
+  .relatorio-tabela td,
+  .ruv-tabela th,
+  .ruv-tabela td {
+    position: static !important;
+    padding: 3px 4px !important;
+    font-size: 7px !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+}

@@ -2100,73 +2100,7 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type=
 }
 
 
-.relatorio-veiculo-selecionado{
-display:flex;
-flex-direction:column;
-gap:4px;
-min-width:210px;
-padding:10px 14px;
-border:1px solid #dfe4e8;
-border-radius:10px;
-background:#f8fafb
-}
-.relatorio-veiculo-selecionado span{
-font-size:11px;
-font-weight:700;
-opacity:.65;
-text-transform:uppercase;
-letter-spacing:.04em
-}
-.relatorio-veiculo-selecionado strong{
-font-size:16px;
-color:#1f2937
-}
-.relatorio-km-atual{
-display:flex;
-flex-direction:column;
-gap:4px;
-min-width:140px;
-padding:10px 14px;
-border:1px solid #dfe4e8;
-border-radius:10px;
-background:#f8fafb
-}
-.relatorio-km-atual span{
-font-size:11px;
-font-weight:700;
-opacity:.65;
-text-transform:uppercase;
-letter-spacing:.04em
-}
-.relatorio-km-atual strong{
-font-size:16px;
-color:#1f2937;
-min-height:19px
-}
-
-
-.relatorio-ultima-revisao{
-display:flex;
-flex-direction:column;
-gap:4px;
-min-width:140px;
-padding:10px 14px;
-border:1px solid #dfe4e8;
-border-radius:10px;
-background:#f8fafb
-}
-.relatorio-ultima-revisao span{
-font-size:11px;
-font-weight:700;
-opacity:.65;
-text-transform:uppercase;
-letter-spacing:.04em
-}
-.relatorio-ultima-revisao strong{
-font-size:16px;
-color:#1f2937;
-min-height:19px
-}
+/* meta cards: ver css/pf-components.css */
 
 
 .relatorio-page .relatorio-acoes {
@@ -2459,74 +2393,7 @@ font-size:28px
 margin:0;
 opacity:.7
 }
-.ruv-veiculo-selecionado{
-display:flex;
-flex-direction:column;
-gap:4px;
-min-width:210px;
-padding:10px 14px;
-border:1px solid #dfe4e8;
-border-radius:10px;
-background:#f8fafb
-}
-.ruv-veiculo-selecionado span{
-font-size:11px;
-font-weight:700;
-opacity:.65;
-text-transform:uppercase;
-letter-spacing:.04em
-}
-.ruv-veiculo-selecionado strong{
-font-size:16px;
-color:#1f2937
-}
-.ruv-km-atual{
-display:flex;
-flex-direction:column;
-gap:4px;
-min-width:140px;
-padding:10px 14px;
-border:1px solid #dfe4e8;
-border-radius:10px;
-background:#f8fafb
-}
-.ruv-km-atual span{
-font-size:11px;
-font-weight:700;
-opacity:.65;
-text-transform:uppercase;
-letter-spacing:.04em
-}
-.ruv-km-atual strong{
-font-size:16px;
-color:#1f2937;
-min-height:19px
-}
-
-
-
-.ruv-ultima-revisao{
-display:flex;
-flex-direction:column;
-gap:4px;
-min-width:140px;
-padding:10px 14px;
-border:1px solid #dfe4e8;
-border-radius:10px;
-background:#f8fafb
-}
-.ruv-ultima-revisao span{
-font-size:11px;
-font-weight:700;
-opacity:.65;
-text-transform:uppercase;
-letter-spacing:.04em
-}
-.ruv-ultima-revisao strong{
-font-size:16px;
-color:#1f2937;
-min-height:19px
-}
+/* meta cards RUV: ver css/pf-components.css */
 
 
 
