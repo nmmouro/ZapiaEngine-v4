@@ -509,9 +509,9 @@ function calcularTotais(lista) {
 
 function montarRodape(totais) {
     // Índices alinhados a CAMPOS (sem Lava-Car e Horas Extras):
-    // 0-9 antes de distância | 10 distância | 11 duração | 12 combustível |
-    // 13 média consumo | 14-15 (avaliação, avarias) | 16 higienização |
-    // 17 abastecimento | 18 manutenção | 19-22 (checklist, revisão, classificação, status)
+    // 0-8 antes de distância | 9 distância | 10 duração | 11 combustível |
+    // 12 média consumo | 13-14 (avaliação, avarias) | 15 higienização |
+    // 16 abastecimento | 17 manutenção | 18-21 (checklist, revisão, classificação, status)
     const vazio = (n) => Array.from({ length: n }, () => "<th></th>").join("");
     return `<tr class="relatorio-total">
         <th colspan="9">TOTAL / MÉDIA GERAL</th>
