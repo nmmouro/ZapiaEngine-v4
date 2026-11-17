@@ -117,7 +117,7 @@ html, body {
 .card, .panel, .dashboard-card, .view-card, .view-section,
 .engine-form-wrapper, .agenda-form, .usuarios-panel, .usuarios-form,
 .ruv-card, .relatorio-resumo > div {
-  background: #bbc3e2 !important;
+  background: #fff !important;
   color: #172554 !important;
   border: 1px solid #d3def5 !important;
   border-radius: 13px !important;
@@ -273,7 +273,7 @@ button.secondary,
 .dashboard-card strong,
 .ruv-card strong,
 .relatorio-resumo strong {
-  color: #214fc2 !important;
+  color: #000 !important;
 }
 
 a {
