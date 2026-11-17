@@ -67,7 +67,7 @@ function montarInterface(app) {
                         <strong id="relKmAtual"></strong>
                     </div>
                     <div class="relatorio-ultima-revisao">
-                        <span>Última Revisão</span>
+                        <span>Data</span>
                         <strong id="relUltimaRevisao"></strong>
                     </div>
 
@@ -621,6 +621,25 @@ function formatarKmAtual(veiculo) {
     return `${formatarQuilometragem(numeroKm)} km`;
 }
 
+
+
+function atualizarVeiculoTopo() {
+    const campoVeiculo = document.querySelector("#relVeiculoSelecionado");
+    const campoKm = document.querySelector("#relKmAtual");
+    const campoData = document.querySelector("#relUltimaRevisao");
+
+    if (!campoVeiculo || !campoKm || !campoData) return;
+
+    const { chave, label, veiculo } = obterVeiculoSelecionado();
+
+    campoVeiculo.textContent = chave ? (label || chave) : "Todos os veículos";
+    campoKm.textContent = chave ? formatarKmAtual(veiculo) : "";
+
+    campoData.textContent = new Date().toLocaleDateString("pt-BR");
+}
+
+/*
+
 function atualizarVeiculoTopo() {
     const campoVeiculo = document.querySelector("#relVeiculoSelecionado");
     const campoKm = document.querySelector("#relKmAtual");
@@ -641,6 +660,8 @@ function atualizarVeiculoTopo() {
     const revisao = formatarUltimaRevisao(veiculo);
     campoRevisao.textContent = revisao === "—" ? "" : revisao;
 }
+
+*/
 
 function obterUltimaRevisaoVeiculoSelecionado() {
     const { chave, veiculo } = obterVeiculoSelecionado();
