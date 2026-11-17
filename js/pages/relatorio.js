@@ -70,6 +70,11 @@ function montarInterface(app) {
                         <span>Última Revisão</span>
                         <strong id="relUltimaRevisao"></strong>
                     </div>
+
+                    <div class="relatorio-data">
+                        <span>Data</span>
+                        <strong id="relData"></strong>
+                    </div>
                    
                 </div>
                 <div class="relatorio-acoes">
