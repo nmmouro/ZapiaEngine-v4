@@ -15,7 +15,7 @@ let opcoesEmpregados = new Map();
 
 const CAMPOS = [
     ["data", "Data"],
-    ["hora", "Hora"],
+   
     ["empregado_matricula", "Empregado / Matrícula"],
     ["placa_modelo", "Placa / Modelo"],
     ["passageiro_setor_motivo", "Passageiro / Setor / Motivo"],
@@ -514,7 +514,7 @@ function montarRodape(totais) {
     // 17 abastecimento | 18 manutenção | 19-22 (checklist, revisão, classificação, status)
     const vazio = (n) => Array.from({ length: n }, () => "<th></th>").join("");
     return `<tr class="relatorio-total">
-        <th colspan="10">TOTAL / MÉDIA GERAL</th>
+        <th colspan="9">TOTAL / MÉDIA GERAL</th>
         <th>${formatarQuilometragem(totais.distancia_percorrida)} km</th>
         ${vazio(2)}
         <th>${totais.media_consumo_combustivel == null ? "—" : `${formatarNumero(totais.media_consumo_combustivel)} km/L`}</th>
