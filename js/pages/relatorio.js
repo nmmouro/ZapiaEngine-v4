@@ -15,7 +15,7 @@ let opcoesEmpregados = new Map();
 
 const CAMPOS = [
     ["data", "Data"],
-   
+    ["hora", "Hora"],
     ["empregado_matricula", "Empregado / Matrícula"],
     ["placa_modelo", "Placa / Modelo"],
     ["passageiro_setor_motivo", "Passageiro / Setor / Motivo"],
