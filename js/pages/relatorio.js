@@ -70,9 +70,9 @@ function montarInterface(app) {
                         <span>Última Revisão</span>
                         <strong id="relUltimaRevisao"></strong>
                     </div>
-                    <div class="relatorio-data-inicial">
-                        <span>Data inicial</span>
-                        <strong id="relDataInicial"></strong>
+                    <div class="relatorio-data">
+                        <span>Data</span>
+                        <strong id="relData"></strong>
 
 
                     
