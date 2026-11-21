@@ -12,7 +12,7 @@
     -webkit-text-size-adjust: 100%;
   }
 
-  body { font-size: 14px; }
+  body { font-size: 12px; }
   #app, .app-container, .app-content, .page-container,
   .page-content, .dashboard-page, .agenda-page,
   .relatorio-page, .ruv-page, .usuarios-page, .view-page {
@@ -149,7 +149,7 @@
   input:not([type="checkbox"]):not([type="radio"]), select, textarea {
     max-width: 100%;
     min-width: 0;
-    font-size: 16px; /* evita zoom automático do Safari/iOS */
+    font-size: 12px; /* evita zoom automático do Safari/iOS */
   }
   .engine-form-header { margin-bottom: 12px; padding-bottom: 8px; }
   .engine-form-header h2 { font-size: 1rem; }
