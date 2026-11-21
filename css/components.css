@@ -1622,7 +1622,7 @@ body {
   color: var(--pf-text);
   background: var(--pf-page);
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1;
 }
 #app { min-width: 0; }
 .app-container {
